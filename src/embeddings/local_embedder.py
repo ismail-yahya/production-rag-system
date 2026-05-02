@@ -4,7 +4,7 @@ from typing import Any
 import structlog
 from sentence_transformers import SentenceTransformer
 
-from src.core.exceptions import EmbeddingError
+from src.core import EmbeddingError
 from src.embeddings.base import BaseEmbedder
 
 logger = structlog.get_logger(__name__)

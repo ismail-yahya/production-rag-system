@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any
 
-from src.core.config import Settings
+from src.core import Settings
 from src.llm.anthropic_llm import AnthropicLLM
 from src.llm.base import BaseLLM
 from src.llm.gemini_llm import GeminiLLM

@@ -1,6 +1,6 @@
 from enum import Enum
 
-from src.core.config import Settings
+from src.core import Settings
 from src.embeddings.base import BaseEmbedder
 from src.embeddings.local_embedder import LocalEmbedder
 from src.embeddings.openai_embedder import OpenAIEmbedder

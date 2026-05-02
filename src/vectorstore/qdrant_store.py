@@ -4,8 +4,7 @@ from uuid import UUID
 
 from qdrant_client import AsyncQdrantClient, models
 
-from src.core.config import settings
-from src.core.exceptions import IngestionError, RetrievalError
+from src.core import IngestionError, RetrievalError, settings
 from src.vectorstore.base import BaseVectorStore, Document
 
 logger = structlog.get_logger(__name__)

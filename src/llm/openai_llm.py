@@ -5,7 +5,7 @@ import openai
 from openai import AsyncOpenAI
 from pydantic import SecretStr
 
-from src.core.exceptions import LLMError
+from src.core import LLMError
 from src.llm.base import BaseLLM, LLMMessage, LLMResponse
 
 

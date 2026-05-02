@@ -1,6 +1,6 @@
 from enum import Enum
 
-from src.core.config import Settings
+from src.core import Settings
 from src.vectorstore.base import BaseVectorStore
 from src.vectorstore.qdrant_store import QdrantVectorStore
 

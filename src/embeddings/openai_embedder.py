@@ -3,7 +3,7 @@ import structlog
 from openai import AsyncOpenAI
 from pydantic import SecretStr
 
-from src.core.exceptions import EmbeddingError
+from src.core import EmbeddingError
 from src.embeddings.base import BaseEmbedder
 
 logger = structlog.get_logger(__name__)
