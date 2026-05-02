@@ -61,10 +61,10 @@
       ↳ Depends on: 2.8
 - [x] **2.11** — Create `EmbedderFactory` with registry → `src/embeddings/factory.py` `[Agent: LLM & Embeddings Engineer]`
       ↳ Depends on: 2.9, 2.10
-- [ ] **2.12** — Create `BaseVectorStore` abstract class and `Document` dataclass → `src/vectorstore/base.py` `[Agent: LLM & Embeddings Engineer]`
-- [ ] **2.13** — Implement `QdrantVectorStore` with batch upsert and tenant scoping → `src/vectorstore/qdrant_store.py` `[Agent: LLM & Embeddings Engineer]`
+- [x] **2.12** — Create `BaseVectorStore` abstract class and `Document` dataclass → `src/vectorstore/base.py` `[Agent: LLM & Embeddings Engineer]`
+- [x] **2.13** — Implement `QdrantVectorStore` with batch upsert and tenant scoping → `src/vectorstore/qdrant_store.py` `[Agent: LLM & Embeddings Engineer]`
       ↳ Depends on: 2.12
-- [ ] **2.14** — Create `VectorStoreFactory` with registry → `src/vectorstore/factory.py` `[Agent: LLM & Embeddings Engineer]`
+- [x] **2.14** — Create `VectorStoreFactory` with registry → `src/vectorstore/factory.py` `[Agent: LLM & Embeddings Engineer]`
       ↳ Depends on: 2.13
 - [ ] **2.15** — Define `Tenant` ORM model → `src/core/models.py` `[Agent: Data Engineer]`
 - [ ] **2.16** — Define `Document` ORM model with JSONB metadata → `src/core/models.py` `[Agent: Data Engineer]`
