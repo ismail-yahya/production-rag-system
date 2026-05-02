@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "docker-expert": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/docker-expert/SKILL.md",
+      "computedHash": "b712d6d1a6ac8bc2b67e366571106e63cfcc6df7fe4596a326e39969a1999113"
+    },
+    "ruff-recursive-fix": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/ruff-recursive-fix/SKILL.md",
+      "computedHash": "a6f4b355dd277d24f9ea95cb0f6f181fb4fc77fa8080d1e4f649af21d2095f2a"
+    }
+  }
+}
