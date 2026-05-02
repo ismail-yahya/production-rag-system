@@ -43,7 +43,7 @@
 
 **Definition of Done:** All abstract base classes and factories exist with 100% unit test coverage. All five ORM models are created with correct types and constraints. All Alembic migrations apply and roll back cleanly. `Settings` loads all required variables from `.env` with type validation. The exception hierarchy maps correctly to HTTP status codes in a smoke test.
 
-- [ ] **2.1** — Define all `Settings` fields with types, defaults, and `SecretStr` for credentials → `src/core/config.py` `[Agent: API Engineer]`
+- [x] **2.1** — Define all `Settings` fields with types, defaults, and `SecretStr` for credentials → `src/core/config.py` `[Agent: API Engineer]`
 - [ ] **2.2** — Finalize full exception hierarchy classes → `src/core/exceptions.py` `[Agent: API Engineer]`
 - [ ] **2.3** — Create `BaseLLM` abstract class with abstract methods and Pydantic models → `src/llm/base.py` `[Agent: LLM & Embeddings Engineer]`
 - [ ] **2.4** — Implement `OpenAILLM` concrete class → `src/llm/openai_llm.py` `[Agent: LLM & Embeddings Engineer]`

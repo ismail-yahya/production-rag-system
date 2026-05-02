@@ -1,11 +1,29 @@
 {
   "version": 1,
   "skills": {
+    "async-python-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/async-python-patterns/SKILL.md",
+      "computedHash": "3a53bc38ef4e884e8f4d9f9c35041710f6cc9ac3e851b78fc202adee380fb3ce"
+    },
+    "building-pydantic-ai-agents": {
+      "source": "pydantic/skills",
+      "sourceType": "github",
+      "skillPath": "skills/building-pydantic-ai-agents/SKILL.md",
+      "computedHash": "333f0bea6c59a8391837a9ba871e26249f9b8cc1a64cc776d448cfae59ae5e9b"
+    },
     "docker-expert": {
       "source": "sickn33/antigravity-awesome-skills",
       "sourceType": "github",
       "skillPath": "skills/docker-expert/SKILL.md",
       "computedHash": "b712d6d1a6ac8bc2b67e366571106e63cfcc6df7fe4596a326e39969a1999113"
+    },
+    "pytest-coverage": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/pytest-coverage/SKILL.md",
+      "computedHash": "06481f4bbc6d80a52091ec9ba5856eb1dc5f80cbabb40fd4ad02aaea3085a0dc"
     },
     "ruff-recursive-fix": {
       "source": "github/awesome-copilot",
