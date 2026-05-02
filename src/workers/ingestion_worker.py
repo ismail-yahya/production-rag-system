@@ -1,4 +1,5 @@
 import asyncio
+import os
 import uuid
 from typing import Any
 
@@ -9,6 +10,9 @@ from src.core.config import settings
 from src.core.exceptions import IngestionError
 from src.embeddings.factory import EmbedderFactory
 from src.ingestion.chunkers.character_chunker import RecursiveCharacterChunker
+from src.api.repositories import DocumentRepository, IngestionJobRepository
+from src.core.database import async_session_factory
+from src.core.storage import storage_service
 from src.ingestion.pipeline import IngestionPipeline
 from src.vectorstore.factory import VectorStoreFactory
 from src.workers.celery_app import celery_app
@@ -76,31 +80,59 @@ def ingest_document(
 
     log.info("Starting background ingestion task")
 
-    try:
-        # Ensure document_id is a valid UUID object for the pipeline
-        doc_uuid = uuid.UUID(document_id)
+    # 1. Update job status to processing
+    # Note: Since this is synchronous context for Celery, we need a helper to run async DB ops
+    async def _update_status(status_str: str, **kwargs: Any) -> None:
+        async with async_session_factory() as session:
+            job_repo = IngestionJobRepository(session)
+            doc_repo = DocumentRepository(session)
+            
+            job = await job_repo.get_by_document_id(uuid.UUID(document_id))
+            if job:
+                await job_repo.update(job.id, status=status_str, **kwargs)
+            
+            # Also update the document status
+            await doc_repo.update(uuid.UUID(document_id), status=status_str)
+            await session.commit()
 
-        # Execute the async pipeline.
-        # asyncio.run() is appropriate for Celery workers executing discrete I/O bound tasks.
+    try:
+        asyncio.run(_update_status("processing"))
+        
+        # 2. Download file from storage to local temporary path
+        temp_dir = "/tmp/rag_worker"
+        os.makedirs(temp_dir, exist_ok=True)
+        local_path = os.path.join(temp_dir, f"{document_id}_{os.path.basename(file_path)}")
+        
+        log.info("Downloading file from storage", storage_path=file_path, local_path=local_path)
+        storage_service.download_file(file_path, local_path)
+
+        # 3. Execute the async pipeline.
+        doc_uuid = uuid.UUID(document_id)
         chunk_count = asyncio.run(
             self.pipeline.run(
-                file_path=file_path,
+                file_path=local_path,
                 tenant_id=tenant_id,
                 document_id=doc_uuid,
                 metadata=metadata,
             )
         )
 
-        log.info("Background ingestion task completed successfully", chunk_count=chunk_count)
+        # 4. Cleanup and final status update
+        if os.path.exists(local_path):
+            os.remove(local_path)
+            
+        asyncio.run(_update_status("indexed", chunk_count=chunk_count))
 
+        log.info("Background ingestion task completed successfully", chunk_count=chunk_count)
         return {"status": "success", "document_id": document_id, "chunk_count": chunk_count}
 
     except IngestionError as e:
         log.warning("Ingestion error occurred, retrying...", error=str(e), retry=self.request.retries)
-        # Exponential backoff or simple retry
+        if self.request.retries >= self.max_retries:
+            asyncio.run(_update_status("failed", error_message=str(e)))
         raise self.retry(exc=e)
 
     except Exception as e:
         log.error("Unexpected failure in ingestion task", error=str(e), exc_info=True)
-        # We return a failed status rather than retrying for unknown exceptions
+        asyncio.run(_update_status("failed", error_message=str(e)))
         return {"status": "failed", "document_id": document_id, "error": str(e)}

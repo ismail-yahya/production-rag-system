@@ -102,13 +102,13 @@
 - [x] **3.8** — Configure Celery app with Redis broker and JSON serialization → `src/workers/celery_app.py` `[Agent: Infrastructure & DevOps Engineer]`
 - [x] **3.9** — Implement `ingest_document` Celery task wrapping `IngestionPipeline` → `src/workers/ingestion_worker.py` `[Agent: Infrastructure & DevOps Engineer]`
       ↳ Depends on: 3.7, 3.8
-- [ ] **3.10** — Create repository functions for Document and IngestionJob CRUD → `src/api/repositories.py` `[Agent: Data Engineer]`
-- [ ] **3.11** — Define Pydantic schemas for ingestion request/response → `src/api/routers/schemas.py` `[Agent: API Engineer]`
-- [ ] **3.12** — Implement `POST /v1/ingest`, `GET /v1/documents`, `GET /v1/documents/{id}`, `DELETE /v1/documents/{id}` routes → `src/api/routers/ingestion.py` `[Agent: API Engineer]`
+- [x] **3.10** — Create repository functions for Document and IngestionJob CRUD → `src/api/repositories.py` `[Agent: Data Engineer]`
+- [x] **3.11** — Define Pydantic schemas for ingestion request/response → `src/api/routers/schemas.py` `[Agent: API Engineer]`
+- [x] **3.12** — Implement `POST /v1/ingest`, `GET /v1/documents`, `GET /v1/documents/{id}`, `DELETE /v1/documents/{id}` routes → `src/api/routers/ingestion.py` `[Agent: API Engineer]`
       ↳ Depends on: 3.9, 3.10, 3.11
-- [ ] **3.13** — Implement `get_tenant` dependency validating Bearer token → `src/api/dependencies.py` `[Agent: API Engineer]`
-- [ ] **3.14** — Implement rate limiting middleware → `src/api/middleware.py` `[Agent: API Engineer]`
-- [ ] **3.15** — Instantiate FastAPI app, register routers, and add global exception handler → `src/api/main.py` `[Agent: API Engineer]`
+- [x] **3.13** — Implement `get_tenant` dependency validating Bearer token → `src/api/dependencies.py` `[Agent: API Engineer]`
+- [x] **3.14** — Implement rate limiting middleware → `src/api/middleware.py` `[Agent: API Engineer]`
+- [x] **3.15** — Instantiate FastAPI app, register routers, and add global exception handler → `src/api/main.py` `[Agent: API Engineer]`
       ↳ Depends on: 3.12, 3.13, 3.14
 - [ ] **3.16** — Write unit tests for loaders, chunkers, cleaner, and pipeline → `tests/unit/ingestion/` `[Agent: Ingestion Engineer]`
       ↳ Depends on: 3.7
