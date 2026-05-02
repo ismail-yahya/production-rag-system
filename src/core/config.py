@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: SecretStr | None = None
     COHERE_API_KEY: SecretStr | None = None
     LANGSMITH_API_KEY: SecretStr | None = None
+    GOOGLE_API_KEY: SecretStr | None = None
 
     # Vector Store (Qdrant)
     QDRANT_URL: str = "http://localhost:6333"

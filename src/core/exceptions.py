@@ -1,6 +1,9 @@
 class RAGSystemError(Exception):
     """Base exception for all application-specific errors."""
-    pass
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.message = message
 
 
 class IngestionError(RAGSystemError):
@@ -26,3 +29,4 @@ class LLMError(RAGSystemError):
 class SecurityError(RAGSystemError):
     """Raised when a security violation (e.g. prompt injection) is detected."""
     pass
+
