@@ -52,7 +52,7 @@
       ↳ Depends on: 2.3
 - [x] **2.6** — Implement `OllamaLLM` concrete class → `src/llm/ollama_llm.py` `[Agent: LLM & Embeddings Engineer]`
       ↳ Depends on: 2.3
-- [ ] **2.7** — Create `LLMFactory` with `LLMProvider` enum and registry → `src/llm/factory.py` `[Agent: LLM & Embeddings Engineer]`
+- [x] **2.7** — Create `LLMFactory` with `LLMProvider` enum and registry → `src/llm/factory.py` `[Agent: LLM & Embeddings Engineer]`
       ↳ Depends on: 2.4, 2.5, 2.6
 - [ ] **2.8** — Create `BaseEmbedder` abstract class → `src/embeddings/base.py` `[Agent: LLM & Embeddings Engineer]`
 - [ ] **2.9** — Implement `OpenAIEmbedder` with batched embedding logic → `src/embeddings/openai_embedder.py` `[Agent: LLM & Embeddings Engineer]`
