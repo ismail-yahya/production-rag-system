@@ -88,18 +88,18 @@
 
 **Definition of Done:** A PDF uploaded via `POST /v1/ingest` is accepted, persisted to MinIO, enqueued as a Celery task, and fully indexed in Qdrant with chunk metadata in PostgreSQL. `GET /v1/documents/{id}` reflects status transitions from `pending` → `processing` → `indexed`. A failed ingestion retries up to 3 times and sets status to `failed` with an `error_message`.
 
-- [ ] **3.1** — Create `BaseLoader` abstract class and `RawDocument` dataclass → `src/ingestion/loaders/base.py` `[Agent: Ingestion Engineer]`
-- [ ] **3.2** — Implement `PDFLoader` using pymupdf4llm → `src/ingestion/loaders/pdf_loader.py` `[Agent: Ingestion Engineer]`
+- [x] **3.1** — Create `BaseLoader` abstract class and `RawDocument` dataclass → `src/ingestion/loaders/base.py` `[Agent: Ingestion Engineer]`
+- [x] **3.2** — Implement `PDFLoader` using pymupdf4llm → `src/ingestion/loaders/pdf_loader.py` `[Agent: Ingestion Engineer]`
       ↳ Depends on: 3.1
 - [ ] **3.3** — Implement `ImageLoader` using OpenAI Vision API → `src/ingestion/loaders/image_loader.py` `[Agent: Ingestion Engineer]`
       ↳ Depends on: 3.1
-- [ ] **3.4** — Implement `TextCleaner` with unicode normalization and artifact removal → `src/ingestion/processors/cleaner.py` `[Agent: Ingestion Engineer]`
-- [ ] **3.5** — Create `BaseChunker` abstract class and `Chunk` dataclass → `src/ingestion/chunkers/base.py` `[Agent: Ingestion Engineer]`
-- [ ] **3.6** — Implement `RecursiveCharacterChunker` → `src/ingestion/chunkers/character_chunker.py` `[Agent: Ingestion Engineer]`
+- [x] **3.4** — Implement `TextCleaner` with unicode normalization and artifact removal → `src/ingestion/processors/cleaner.py` `[Agent: Ingestion Engineer]`
+- [x] **3.5** — Create `BaseChunker` abstract class and `Chunk` dataclass → `src/ingestion/chunkers/base.py` `[Agent: Ingestion Engineer]`
+- [x] **3.6** — Implement `RecursiveCharacterChunker` → `src/ingestion/chunkers/character_chunker.py` `[Agent: Ingestion Engineer]`
       ↳ Depends on: 3.5
-- [ ] **3.7** — Implement `IngestionPipeline` orchestrator → `src/ingestion/pipeline.py` `[Agent: Ingestion Engineer]`
+- [x] **3.7** — Implement `IngestionPipeline` orchestrator → `src/ingestion/pipeline.py` `[Agent: Ingestion Engineer]`
       ↳ Depends on: 3.2, 3.3, 3.4, 3.6
-- [ ] **3.8** — Configure Celery app with Redis broker and JSON serialization → `src/workers/celery_app.py` `[Agent: Infrastructure & DevOps Engineer]`
+- [x] **3.8** — Configure Celery app with Redis broker and JSON serialization → `src/workers/celery_app.py` `[Agent: Infrastructure & DevOps Engineer]`
 - [ ] **3.9** — Implement `ingest_document` Celery task wrapping `IngestionPipeline` → `src/workers/ingestion_worker.py` `[Agent: Infrastructure & DevOps Engineer]`
       ↳ Depends on: 3.7, 3.8
 - [ ] **3.10** — Create repository functions for Document and IngestionJob CRUD → `src/api/repositories.py` `[Agent: Data Engineer]`

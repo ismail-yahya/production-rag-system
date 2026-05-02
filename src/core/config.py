@@ -57,5 +57,9 @@ class Settings(BaseSettings):
     RETRIEVAL_KEYWORD_WEIGHT: float = 0.3
     RETRIEVAL_FINAL_TOP_K: int = 5
 
+    # Ingestion Configuration
+    CHUNK_SIZE: int = 1000
+    CHUNK_OVERLAP: int = 200
+
 
 settings = Settings()
