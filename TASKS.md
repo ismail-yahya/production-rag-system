@@ -100,7 +100,7 @@
 - [x] **3.7** — Implement `IngestionPipeline` orchestrator → `src/ingestion/pipeline.py` `[Agent: Ingestion Engineer]`
       ↳ Depends on: 3.2, 3.3, 3.4, 3.6
 - [x] **3.8** — Configure Celery app with Redis broker and JSON serialization → `src/workers/celery_app.py` `[Agent: Infrastructure & DevOps Engineer]`
-- [ ] **3.9** — Implement `ingest_document` Celery task wrapping `IngestionPipeline` → `src/workers/ingestion_worker.py` `[Agent: Infrastructure & DevOps Engineer]`
+- [x] **3.9** — Implement `ingest_document` Celery task wrapping `IngestionPipeline` → `src/workers/ingestion_worker.py` `[Agent: Infrastructure & DevOps Engineer]`
       ↳ Depends on: 3.7, 3.8
 - [ ] **3.10** — Create repository functions for Document and IngestionJob CRUD → `src/api/repositories.py` `[Agent: Data Engineer]`
 - [ ] **3.11** — Define Pydantic schemas for ingestion request/response → `src/api/routers/schemas.py` `[Agent: API Engineer]`
