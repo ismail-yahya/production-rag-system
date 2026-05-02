@@ -54,12 +54,12 @@
       ↳ Depends on: 2.3
 - [x] **2.7** — Create `LLMFactory` with `LLMProvider` enum and registry → `src/llm/factory.py` `[Agent: LLM & Embeddings Engineer]`
       ↳ Depends on: 2.4, 2.5, 2.6
-- [ ] **2.8** — Create `BaseEmbedder` abstract class → `src/embeddings/base.py` `[Agent: LLM & Embeddings Engineer]`
-- [ ] **2.9** — Implement `OpenAIEmbedder` with batched embedding logic → `src/embeddings/openai_embedder.py` `[Agent: LLM & Embeddings Engineer]`
+- [x] **2.8** — Create `BaseEmbedder` abstract class → `src/embeddings/base.py` `[Agent: LLM & Embeddings Engineer]`
+- [x] **2.9** — Implement `OpenAIEmbedder` with batched embedding logic → `src/embeddings/openai_embedder.py` `[Agent: LLM & Embeddings Engineer]`
       ↳ Depends on: 2.8
-- [ ] **2.10** — Implement `LocalEmbedder` using sentence-transformers → `src/embeddings/local_embedder.py` `[Agent: LLM & Embeddings Engineer]`
+- [x] **2.10** — Implement `LocalEmbedder` using sentence-transformers → `src/embeddings/local_embedder.py` `[Agent: LLM & Embeddings Engineer]`
       ↳ Depends on: 2.8
-- [ ] **2.11** — Create `EmbedderFactory` with registry → `src/embeddings/factory.py` `[Agent: LLM & Embeddings Engineer]`
+- [x] **2.11** — Create `EmbedderFactory` with registry → `src/embeddings/factory.py` `[Agent: LLM & Embeddings Engineer]`
       ↳ Depends on: 2.9, 2.10
 - [ ] **2.12** — Create `BaseVectorStore` abstract class and `Document` dataclass → `src/vectorstore/base.py` `[Agent: LLM & Embeddings Engineer]`
 - [ ] **2.13** — Implement `QdrantVectorStore` with batch upsert and tenant scoping → `src/vectorstore/qdrant_store.py` `[Agent: LLM & Embeddings Engineer]`

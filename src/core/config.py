@@ -45,6 +45,12 @@ class Settings(BaseSettings):
     LLM_PROVIDER: str = "openai"
     EMBEDDING_PROVIDER: str = "openai"
 
+    # Embedding Configuration
+    OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-large"
+    OPENAI_EMBEDDING_BATCH_SIZE: int = 100
+    LOCAL_EMBEDDING_MODEL: str = "BAAI/bge-m3"
+    EMBEDDING_DEVICE: str = "cpu"
+
     # Retrieval Configuration
     RETRIEVAL_TOP_K: int = 10
     RETRIEVAL_VECTOR_WEIGHT: float = 0.7
