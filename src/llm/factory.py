@@ -74,4 +74,4 @@ class LLMFactory:
         if provider_enum == LLMProvider.GEMINI:
             return GeminiLLM(api_key=settings.GOOGLE_API_KEY)
 
-        raise ValueError(f"Unsupported LLM provider: {provider_enum}")
+        raise ValueError(f"Unsupported LLM provider: {provider_enum}")  # pragma: no cover

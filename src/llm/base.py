@@ -39,7 +39,7 @@ class BaseLLM(ABC):
         Returns:
             An LLMResponse object containing the generated content and metadata.
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     async def stream(self, messages: list[LLMMessage], **kwargs: Any) -> AsyncGenerator[str, None]:
@@ -53,4 +53,4 @@ class BaseLLM(ABC):
         Yields:
             String chunks of the generated response.
         """
-        pass
+        pass  # pragma: no cover

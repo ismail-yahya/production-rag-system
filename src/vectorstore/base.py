@@ -37,7 +37,7 @@ class BaseVectorStore(ABC):
         Raises:
             IngestionError: If the vector store call fails.
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     async def search(
@@ -57,7 +57,7 @@ class BaseVectorStore(ABC):
         Raises:
             RetrievalError: If the vector store call fails.
         """
-        pass
+        pass  # pragma: no cover
 
     @abstractmethod
     async def delete(self, filters: dict[str, Any]) -> None:
@@ -70,4 +70,4 @@ class BaseVectorStore(ABC):
         Raises:
             RetrievalError: If the vector store call fails.
         """
-        pass
+        pass  # pragma: no cover

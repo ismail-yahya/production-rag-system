@@ -25,11 +25,11 @@ settings = Settings()
 # Set sqlalchemy.url from Settings
 config.set_main_option("sqlalchemy.url", settings.POSTGRES_DSN.get_secret_value())
 
+from src.core.models import Base
+
 # add your model's MetaData object here
 # for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-target_metadata = None
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:

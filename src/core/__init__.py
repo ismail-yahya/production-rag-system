@@ -12,6 +12,7 @@ from src.core.exceptions import (
     SecurityError,
 )
 from src.core.logging import logger, setup_logging
+from src.core.models import Base, Tenant
 
 __all__ = [
     "settings",
@@ -24,4 +25,6 @@ __all__ = [
     "EmbeddingError",
     "LLMError",
     "SecurityError",
+    "Base",
+    "Tenant",
 ]

@@ -29,7 +29,7 @@ class BaseEmbedder(ABC):
         Raises:
             EmbeddingError: If the provider call fails for any reason.
         """
-        pass
+        pass  # pragma: no cover
 
     async def embed_query(self, query: str) -> list[float]:
         """

@@ -99,6 +99,7 @@ erDiagram
         uuid id PK
         string name
         string api_key_hash
+        bool is_active
         timestamp created_at
     }
 
@@ -107,8 +108,12 @@ erDiagram
         uuid tenant_id FK
         string file_name
         string file_type
+        int file_size_bytes
         string storage_path
         string status
+        string language
+        string content_hash
+        int version
         int chunk_count
         jsonb metadata
         timestamp created_at
@@ -121,6 +126,9 @@ erDiagram
         uuid tenant_id FK
         int chunk_index
         int total_chunks
+        int token_count
+        string content_type
+        string content_hash
         string section_title
         int page_number
         timestamp created_at
@@ -137,6 +145,16 @@ erDiagram
         timestamp completed_at
     }
 
+    QUERY_LOG {
+        uuid id PK
+        uuid tenant_id FK
+        string query_text
+        jsonb retrieved_chunk_ids
+        int latency_ms
+        bool cache_hit
+        timestamp created_at
+    }
+
     EVAL_DATASET {
         uuid id PK
         string question
@@ -151,17 +169,18 @@ erDiagram
     DOCUMENT ||--o{ INGESTION_JOB : "tracked by"
     DOCUMENT ||--o{ EVAL_DATASET : "sourced from"
     TENANT ||--o{ CHUNK : "scoped to"
+    TENANT ||--o{ QUERY_LOG : "monitored for"
 ```
 
-**Entity descriptions:**
+**TENANT** — Represents an isolated data partition. Every retrieval operation is filtered by `tenant_id` at the vector store layer before results are returned. The `api_key_hash` field stores a hashed credential; plaintext keys are never persisted. `is_active` allows for soft-disabling a tenant without data deletion.
 
-**TENANT** — Represents an isolated data partition. Every retrieval operation is filtered by `tenant_id` at the vector store layer before results are returned. The `api_key_hash` field stores a hashed credential; plaintext keys are never persisted.
+**DOCUMENT** — Tracks each uploaded file from receipt through indexing. The `status` field drives the ingestion state machine: `pending → processing → indexed | failed`. `metadata` stores extracted document properties (title, author, page count) as a flexible JSONB blob. `storage_path` references the object storage key for the original file. `content_hash` (SHA-256) is used for deduplication within a tenant (scoped uniqueness), and `language` assists in selecting the appropriate embedding model.
 
-**DOCUMENT** — Tracks each uploaded file from receipt through indexing. The `status` field drives the ingestion state machine: `pending → processing → indexed | failed`. `metadata` stores extracted document properties (title, author, page count) as a flexible JSONB blob. `storage_path` references the object storage key for the original file.
-
-**CHUNK** — Records chunk-level metadata in PostgreSQL for audit and evaluation purposes. The actual chunk content and embedding vector live in Qdrant, keyed by the chunk's UUID. `section_title` and `page_number` are populated by the loader/chunker and surfaced in source attribution (FR-10).
+**CHUNK** — Records chunk-level metadata in PostgreSQL for audit and evaluation purposes. The actual chunk content and embedding vector live in Qdrant, keyed by the chunk's UUID. `token_count` helps manage LLM context limits, and `content_type` (e.g., table, paragraph) allows for semantic filtering.
 
 **INGESTION_JOB** — Provides visibility into background task execution. Linked to a Celery task ID for correlation. `retry_count` is incremented by the Celery retry mechanism; `error_message` captures the last exception for debugging.
+
+**QUERY_LOG** — Captures RAG query history for performance monitoring and quality analysis. Stores `retrieved_chunk_ids` as a list to enable offline evaluation of retrieval precision/recall and `latency_ms` for performance bottleneck identification. `cache_hit` tracks semantic cache effectiveness.
 
 **EVAL_DATASET** — Stores versioned question/ground-truth pairs committed to the repository. `question_type` (factual, analytical, comparative) enables stratified evaluation reporting. Sourced either manually or via the dataset generator (FR-14).
 

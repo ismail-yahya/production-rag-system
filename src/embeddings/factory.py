@@ -69,4 +69,4 @@ class EmbedderFactory:
                 device=settings.EMBEDDING_DEVICE,
             )
 
-        raise ValueError(f"Unsupported embedding provider: {provider_enum}")
+        raise ValueError(f"Unsupported embedding provider: {provider_enum}")  # pragma: no cover

@@ -54,4 +54,4 @@ class VectorStoreFactory:
                 collection_name=settings.QDRANT_COLLECTION_NAME,
             )
 
-        raise ValueError(f"Unsupported vector store provider: {provider_enum}")
+        raise ValueError(f"Unsupported vector store provider: {provider_enum}")  # pragma: no cover

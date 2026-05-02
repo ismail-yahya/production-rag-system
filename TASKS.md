@@ -66,18 +66,18 @@
       ↳ Depends on: 2.12
 - [x] **2.14** — Create `VectorStoreFactory` with registry → `src/vectorstore/factory.py` `[Agent: LLM & Embeddings Engineer]`
       ↳ Depends on: 2.13
-- [ ] **2.15** — Define `Tenant` ORM model → `src/core/models.py` `[Agent: Data Engineer]`
-- [ ] **2.16** — Define `Document` ORM model with JSONB metadata → `src/core/models.py` `[Agent: Data Engineer]`
+- [x] **2.15** — Define `Tenant` ORM model → `src/core/models.py` `[Agent: Data Engineer]`
+- [x] **2.16** — Define `Document` ORM model with JSONB metadata → `src/core/models.py` `[Agent: Data Engineer]`
       ↳ Depends on: 2.15
-- [ ] **2.17** — Define `Chunk` ORM model → `src/core/models.py` `[Agent: Data Engineer]`
+- [x] **2.17** — Define `Chunk` ORM model → `src/core/models.py` `[Agent: Data Engineer]`
       ↳ Depends on: 2.15, 2.16
-- [ ] **2.18** — Define `IngestionJob` ORM model → `src/core/models.py` `[Agent: Data Engineer]`
+- [x] **2.18** — Define `IngestionJob` ORM model → `src/core/models.py` `[Agent: Data Engineer]`
       ↳ Depends on: 2.16
-- [ ] **2.19** — Define `EvalDataset` ORM model → `src/core/models.py` `[Agent: Data Engineer]`
+- [x] **2.19** — Define `EvalDataset` ORM model → `src/core/models.py` `[Agent: Data Engineer]`
       ↳ Depends on: 2.16
-- [ ] **2.20** — Generate Alembic migration for all 5 tables with UUID PKs and TIMESTAMPTZ → `infrastructure/migrations/versions/` `[Agent: Data Engineer]`
+- [x] **2.20** — Generate Alembic migration for all 5 tables with UUID PKs and TIMESTAMPTZ → `infrastructure/migrations/versions/` `[Agent: Data Engineer]`
       ↳ Depends on: 2.15, 2.16, 2.17, 2.18, 2.19
-- [ ] **2.21** — Write unit tests for LLM, Embedder, and VectorStore base classes and factories → `tests/unit/` `[Agent: LLM & Embeddings Engineer]`
+- [x] **2.21** — Write unit tests for LLM, Embedder, and VectorStore base classes and factories → `tests/unit/` `[Agent: LLM & Embeddings Engineer]`
       ↳ Depends on: 2.7, 2.11, 2.14
 
 ---
