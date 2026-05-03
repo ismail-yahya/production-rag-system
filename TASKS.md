@@ -123,12 +123,12 @@
 
 **Definition of Done:** `POST /v1/query` returns a grounded, source-cited answer with `retrieval_count`, `model`, `latency_ms`, and a `sources` array. `POST /v1/query/stream` streams tokens as SSE events and emits a final `sources` event followed by `done`. Every retrieval call is filtered by `tenant_id`. Detected prompt injection returns `400`. Empty retrieval returns a graceful no-results response, not an error.
 
-- [ ] **4.1** — Implement `VectorRetriever` wrapping vector store search → `src/retrieval/vector_retriever.py` `[Agent: Retrieval Engineer]`
-- [ ] **4.2** — Implement `BM25Retriever` using rank_bm25 → `src/retrieval/bm25_retriever.py` `[Agent: Retrieval Engineer]`
-- [ ] **4.3** — Implement `HybridRetriever` with RRF fusion → `src/retrieval/hybrid_retriever.py` `[Agent: Retrieval Engineer]`
+- [x] **4.1** — Implement `VectorRetriever` wrapping vector store search → `src/retrieval/vector_retriever.py` `[Agent: Retrieval Engineer]`
+- [x] **4.2** — Implement `BM25Retriever` using rank_bm25 → `src/retrieval/bm25_retriever.py` `[Agent: Retrieval Engineer]`
+- [x] **4.3** — Implement `HybridRetriever` with RRF fusion → `src/retrieval/hybrid_retriever.py` `[Agent: Retrieval Engineer]`
       ↳ Depends on: 4.1, 4.2
-- [ ] **4.4** — Implement `CohereReranker` wrapping Cohere SDK → `src/retrieval/reranker.py` `[Agent: Retrieval Engineer]`
-- [ ] **4.5** — Implement `SecurityGuard` with injection regex patterns → `src/rag/security.py` `[Agent: RAG Pipeline Engineer]`
+- [x] **4.4** — Implement `CohereReranker` wrapping Cohere SDK → `src/retrieval/reranker.py` `[Agent: Retrieval Engineer]`
+- [x] **4.5** — Implement `SecurityGuard` with injection regex patterns → `src/rag/security.py` `[Agent: RAG Pipeline Engineer]`
 - [ ] **4.6** — Implement `QueryProcessor` for query expansion and classification → `src/rag/query_processor.py` `[Agent: RAG Pipeline Engineer]`
 - [ ] **4.7** — Implement `ContextBuilder` enforcing token limits → `src/rag/context_builder.py` `[Agent: RAG Pipeline Engineer]`
 - [ ] **4.8** — Define prompt templates as module constants → `src/rag/prompt_templates.py` `[Agent: RAG Pipeline Engineer]`
