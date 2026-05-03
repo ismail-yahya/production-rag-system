@@ -129,7 +129,7 @@
       ↳ Depends on: 4.1, 4.2
 - [x] **4.4** — Implement `CohereReranker` wrapping Cohere SDK → `src/retrieval/reranker.py` `[Agent: Retrieval Engineer]`
 - [x] **4.5** — Implement `SecurityGuard` with injection regex patterns → `src/rag/security.py` `[Agent: RAG Pipeline Engineer]`
-- [ ] **4.6** — Implement `QueryProcessor` for query expansion and classification → `src/rag/query_processor.py` `[Agent: RAG Pipeline Engineer]`
+- [x] **4.6** — Implement `QueryProcessor` for query expansion and classification → `src/rag/query_processor.py` `[Agent: RAG Pipeline Engineer]`
 - [ ] **4.7** — Implement `ContextBuilder` enforcing token limits → `src/rag/context_builder.py` `[Agent: RAG Pipeline Engineer]`
 - [ ] **4.8** — Define prompt templates as module constants → `src/rag/prompt_templates.py` `[Agent: RAG Pipeline Engineer]`
 - [ ] **4.9** — Define `RAGResponse` frozen Pydantic model → `src/rag/schemas.py` `[Agent: RAG Pipeline Engineer]`
