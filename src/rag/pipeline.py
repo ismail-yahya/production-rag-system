@@ -6,6 +6,7 @@ from uuid import UUID
 
 import structlog
 
+from src.core.cache import SemanticCache
 from src.core.exceptions import LLMError, SecurityError
 from src.llm.base import BaseLLM, LLMMessage
 from src.observability.tracer import traceable
@@ -40,6 +41,7 @@ class RAGPipeline:
         reranker: CohereReranker,
         query_processor: QueryProcessor,
         context_builder: ContextBuilder,
+        cache: SemanticCache | None = None,
     ) -> None:
         """
         Initialize the RAGPipeline with its required dependencies.
@@ -56,6 +58,7 @@ class RAGPipeline:
         self.reranker = reranker
         self.query_processor = query_processor
         self.context_builder = context_builder
+        self.cache = cache
 
     @traceable
     async def query(
@@ -87,7 +90,15 @@ class RAGPipeline:
         # 1. Security: Sanitize incoming query
         SecurityGuard.sanitize_query(question)
 
-        # 2. Query Processing: Expand and Classify in parallel
+        # 2. Cache Lookup
+        if self.cache:
+            cached_response = await self.cache.get(question, tenant_id)
+            if cached_response:
+                # Return cached response but update latency to reflect cache hit speed
+                cached_response["latency_ms"] = round((time.perf_counter() - start_time) * 1000, 2)
+                return RAGResponse(**cached_response)
+
+        # 3. Query Processing: Expand and Classify in parallel
         expansions, category = await asyncio.gather(
             self.query_processor.expand_query(question),
             self.query_processor.classify_query(question),
@@ -154,6 +165,10 @@ class RAGPipeline:
             model=response.model,
             latency_ms=round(latency_ms, 2),
         )
+
+        # 9. Cache Write
+        if self.cache:
+            await self.cache.set(question, tenant_id, rag_response.model_dump())
 
         logger.info(
             "rag_query_completed",

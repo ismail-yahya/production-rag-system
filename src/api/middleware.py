@@ -4,6 +4,7 @@ from redis import asyncio as redis
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
 from src.core.config import settings
+from src.core.context import tenant_id_context
 
 logger = structlog.get_logger(__name__)
 
@@ -69,3 +70,18 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # 3. Proceed to the next handler
         return await call_next(request)
+
+
+class TenantContextMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware that manages the lifecycle of the tenant_id context variable.
+    Ensures that the tenant_id is cleared after each request.
+    """
+
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+        # Clear/Reset context for each request
+        token = tenant_id_context.set(None)
+        try:
+            return await call_next(request)
+        finally:
+            tenant_id_context.reset(token)

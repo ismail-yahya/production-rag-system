@@ -113,5 +113,95 @@ async def test_stream_query_success(
         tokens.append(token)
 
     # Assert
-    assert tokens == ["token1", "token2"]
+    assert tokens == [
+        {"type": "sources", "sources": []},
+        {"type": "token", "content": "token1"},
+        {"type": "token", "content": "token2"},
+    ]
     mock_dependencies["llm"].stream.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_query_strict_mode(
+    pipeline: RAGPipeline, mock_dependencies: dict[str, Any]
+) -> None:
+    # Arrange
+    question = "Fact check this."
+    tenant_id = uuid4()
+    mock_dependencies["query_processor"].expand_query.return_value = [question]
+    mock_dependencies["query_processor"].classify_query.return_value = "factual"
+    mock_dependencies["retriever"].retrieve.return_value = []
+    mock_dependencies["reranker"].rerank.return_value = []
+    mock_dependencies["llm"].generate.return_value = LLMResponse(content="Yes.", model="test")
+
+    # Act
+    await pipeline.query(question, tenant_id, mode="strict")
+
+    # Assert
+    # Check that system prompt contains anti-hallucination instructions
+    args, _ = mock_dependencies["llm"].generate.call_args
+    messages = args[0]
+    system_msg = next(m for m in messages if m.role == "system")
+    from src.rag.prompt_templates import ANTI_HALLUCINATION_SYSTEM_PROMPT
+    assert ANTI_HALLUCINATION_SYSTEM_PROMPT in system_msg.content
+
+
+@pytest.mark.asyncio
+async def test_stream_query_strict_mode(
+    pipeline: RAGPipeline, mock_dependencies: dict[str, Any]
+) -> None:
+    # Arrange
+    question = "Stream strict."
+    tenant_id = uuid4()
+    mock_dependencies["query_processor"].expand_query.return_value = [question]
+    mock_dependencies["query_processor"].classify_query.return_value = "factual"
+    mock_dependencies["retriever"].retrieve.return_value = []
+    mock_dependencies["reranker"].rerank.return_value = []
+
+    async def mock_stream(messages: list[Any]) -> AsyncGenerator[str, None]:
+        yield "done"
+
+    mock_dependencies["llm"].stream.side_effect = mock_stream
+
+    # Act
+    async for _ in pipeline.stream_query(question, tenant_id, mode="strict"):
+        pass
+
+    # Assert
+    args, _ = mock_dependencies["llm"].stream.call_args
+    messages = args[0]
+    system_msg = next(m for m in messages if m.role == "system")
+    from src.rag.prompt_templates import ANTI_HALLUCINATION_SYSTEM_PROMPT
+    assert ANTI_HALLUCINATION_SYSTEM_PROMPT in system_msg.content
+
+
+@pytest.mark.asyncio
+async def test_stream_query_deduplication(
+    pipeline: RAGPipeline, mock_dependencies: dict[str, Any]
+) -> None:
+    # Arrange
+    question = "Deduplicate."
+    tenant_id = uuid4()
+    doc_id = uuid4()
+    doc_low = Document(id=doc_id, content="low", metadata={}, score=0.5)
+    doc_high = Document(id=doc_id, content="high", metadata={}, score=0.9)
+    
+    mock_dependencies["query_processor"].expand_query.return_value = ["q1", "q2"]
+    mock_dependencies["query_processor"].classify_query.return_value = "other"
+    # Return different versions of the same doc for different expansions
+    mock_dependencies["retriever"].retrieve.side_effect = [[doc_low], [doc_high]]
+    
+    # Reranker should receive only one doc (the one with higher score)
+    mock_dependencies["reranker"].rerank.return_value = [doc_high]
+
+    async def mock_stream(messages: list[Any]) -> AsyncGenerator[str, None]:
+        yield "ok"
+    mock_dependencies["llm"].stream.side_effect = mock_stream
+
+    # Act
+    async for _ in pipeline.stream_query(question, tenant_id):
+        pass
+
+    # Assert
+    rerank_args = mock_dependencies["reranker"].rerank.call_args[0][1]
+    assert len(rerank_args) == 1
+    assert rerank_args[0].score == 0.9

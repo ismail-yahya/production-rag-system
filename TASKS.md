@@ -140,9 +140,9 @@
       ↳ Depends on: 4.10, 4.11
 - [x] **4.13** — Implement stub admin routes (`/v1/admin/stats`, `/v1/admin/eval/*`) → `src/api/routers/admin.py` `[Agent: API Engineer]`
 - [x] **4.14** — Add `/health` and `/ready` endpoints to FastAPI app → `src/api/main.py` `[Agent: API Engineer]`
-- [ ] **4.15** — Write unit tests for retrieval and RAG pipeline components → `tests/unit/retrieval/`, `tests/unit/rag/` `[Agent: Retrieval Engineer, RAG Pipeline Engineer]`
+- [x] **4.15** — Write unit tests for retrieval and RAG pipeline components → `tests/unit/retrieval/`, `tests/unit/rag/` `[Agent: Retrieval Engineer, RAG Pipeline Engineer]`
       ↳ Depends on: 4.10
-- [ ] **4.16** — Write integration tests for query routes → `tests/integration/api/` `[Agent: API Engineer]`
+- [x] **4.16** — Write integration tests for query routes → `tests/integration/api/` `[Agent: API Engineer]`
       ↳ Depends on: 4.12
 
 ---
@@ -153,17 +153,17 @@
 
 **Definition of Done:** LangSmith receives traces for every query. Prometheus `/metrics` endpoint exposes required metrics. The semantic cache returns a cached response for semantically similar queries. The tenant isolation middleware injects `tenant_id` into request state and retrieval respects it.
 
-- [ ] **4a.1** — Implement LangSmith `@traceable` decorator utility → `src/observability/tracer.py` `[Agent: RAG Pipeline Engineer]`
-- [ ] **4a.2** — Implement `MetricsCollector` with Prometheus metrics → `src/observability/metrics_collector.py` `[Agent: API Engineer]`
-- [ ] **4a.3** — Register `/metrics` route in FastAPI app → `src/api/main.py` `[Agent: API Engineer]`
+- [x] **4a.1** — Implement LangSmith `@traceable` decorator utility → `src/observability/tracer.py` `[Agent: RAG Pipeline Engineer]`
+- [x] **4a.2** — Implement `MetricsCollector` with Prometheus metrics → `src/observability/metrics_collector.py` `[Agent: API Engineer]`
+- [x] **4a.3** — Register `/metrics` route in FastAPI app → `src/api/main.py` `[Agent: API Engineer]`
       ↳ Depends on: 4a.2
-- [ ] **4a.4** — Implement `TenantIsolationMiddleware` injecting `tenant_id` → `src/api/middleware.py` `[Agent: API Engineer]`
-- [ ] **4a.5** — Update `HybridRetriever` to enforce `tenant_id` filter from request state → `src/retrieval/hybrid_retriever.py` `[Agent: Retrieval Engineer]`
+- [x] **4a.4** — Implement `TenantIsolationMiddleware` injecting `tenant_id` → `src/api/middleware.py` `[Agent: API Engineer]`
+- [x] **4a.5** — Update `HybridRetriever` to enforce `tenant_id` filter from request state → `src/retrieval/hybrid_retriever.py` `[Agent: Retrieval Engineer]`
       ↳ Depends on: 4a.4
-- [ ] **4a.6** — Implement Redis `SemanticCache` → `src/core/cache.py` `[Agent: RAG Pipeline Engineer]`
-- [ ] **4a.7** — Update `RAGPipeline` to check and write to `SemanticCache` → `src/rag/pipeline.py` `[Agent: RAG Pipeline Engineer]`
+- [x] **4a.6** — Implement Redis `SemanticCache` → `src/core/cache.py` `[Agent: RAG Pipeline Engineer]`
+- [x] **4a.7** — Update `RAGPipeline` to check and write to `SemanticCache` → `src/rag/pipeline.py` `[Agent: RAG Pipeline Engineer]`
       ↳ Depends on: 4a.6
-- [ ] **4a.8** — Verify structured JSON logging across ingestion and query flows without leaking PII/credentials → `src/core/logging.py` `[Agent: API Engineer]`
+- [x] **4a.8** — Verify structured JSON logging across ingestion and query flows without leaking PII/credentials → `src/core/logging.py` `[Agent: API Engineer]`
 
 ---
 

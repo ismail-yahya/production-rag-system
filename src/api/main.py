@@ -2,9 +2,12 @@ from typing import Annotated
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, FastAPI, Request, status
+from fastapi.responses import JSONResponse
+from prometheus_client import make_asgi_app
+import structlog
 
 from src.api.routers import admin, ingestion, query
-from src.api.middleware import RateLimitMiddleware
+from src.api.middleware import RateLimitMiddleware, TenantContextMiddleware
 from src.api.dependencies import get_session
 from src.core.config import settings
 from src.core.exceptions import (
@@ -28,6 +31,7 @@ app = FastAPI(
 )
 
 # Register middleware
+app.add_middleware(TenantContextMiddleware)
 app.add_middleware(
     RateLimitMiddleware,
     redis_url=settings.REDIS_BACKEND_URL,
@@ -39,6 +43,10 @@ app.add_middleware(
 app.include_router(ingestion.router)
 app.include_router(query.router)
 app.include_router(admin.router)
+
+# Register Prometheus metrics endpoint
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)
 
 
 @app.exception_handler(RAGSystemError)

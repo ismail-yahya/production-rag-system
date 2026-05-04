@@ -1,10 +1,20 @@
 import sys
+from typing import Any
 import structlog
+
+
+def redact_sensitive_info(_, __, event_dict: dict[str, Any]) -> dict[str, Any]:
+    """Redacts sensitive keys from the event dictionary to prevent PII leakage."""
+    sensitive_keys = {"api_key", "password", "token", "secret", "credentials", "api_key_hash"}
+    for key in list(event_dict.keys()):
+        if any(sk in key.lower() for sk in sensitive_keys):
+            event_dict[key] = "[REDACTED]"
+    return event_dict
 
 
 def setup_logging() -> None:
     """
-    Configures structlog for JSON output.
+    Configures structlog for JSON output with security redactions.
     This should be called once at application startup.
     """
     structlog.configure(
@@ -14,6 +24,7 @@ def setup_logging() -> None:
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
             structlog.processors.TimeStamper(fmt="iso"),
+            redact_sensitive_info,
             structlog.processors.JSONRenderer(),
         ],
         logger_factory=structlog.PrintLoggerFactory(),

@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict
 from src.core.config import settings
 from src.vectorstore.base import BaseVectorStore, Document
 from src.embeddings.base import BaseEmbedder
+from src.core.context import tenant_id_context
 from src.retrieval.vector_retriever import VectorRetriever
 from src.retrieval.bm25_retriever import BM25Retriever
 
@@ -68,6 +69,17 @@ class HybridRetriever:
         Returns:
             A list of Document objects sorted by fused score.
         """
+        # Enforce tenant isolation from global context if available.
+        # This acts as a security guard-rail in case the parameter is omitted or incorrect.
+        context_tenant_id = tenant_id_context.get()
+        if context_tenant_id and context_tenant_id != tenant_id:
+            logger.warning(
+                "tenant_id_override",
+                provided=str(tenant_id),
+                context=str(context_tenant_id)
+            )
+            tenant_id = context_tenant_id
+
         start_time = time.perf_counter()
 
         # 1. Vector Retrieval (Semantic)

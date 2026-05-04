@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: SecretStr | None = None
     COHERE_API_KEY: SecretStr | None = None
     LANGSMITH_API_KEY: SecretStr | None = None
+    LANGCHAIN_PROJECT: str = "production-rag-system"
     GOOGLE_API_KEY: SecretStr | None = None
 
     # Vector Store (Qdrant)
@@ -44,6 +45,7 @@ class Settings(BaseSettings):
     # Provider Selection
     LLM_PROVIDER: str = "openai"
     EMBEDDING_PROVIDER: str = "openai"
+    VECTOR_STORE_PROVIDER: str = "qdrant"
 
     # Embedding Configuration
     OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-large"
