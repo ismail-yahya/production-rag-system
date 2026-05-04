@@ -2,7 +2,7 @@ import structlog
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
-from src.api.routers import ingestion
+from src.api.routers import ingestion, query
 from src.api.middleware import RateLimitMiddleware
 from src.core.config import settings
 from src.core.exceptions import (
@@ -34,6 +34,7 @@ app.add_middleware(
 
 # Register routers
 app.include_router(ingestion.router)
+app.include_router(query.router)
 
 
 @app.exception_handler(RAGSystemError)

@@ -170,7 +170,7 @@ class RAGPipeline:
         tenant_id: UUID,
         mode: str = "standard",
         filters: dict[str, Any] | None = None,
-    ) -> AsyncGenerator[str, None]:
+    ) -> AsyncGenerator[dict[str, Any], None]:
         """
         Executes a RAG query flow and yields tokens as they are generated.
 
@@ -207,6 +207,21 @@ class RAGPipeline:
         reranked_docs = await self.reranker.rerank(question, list(unique_docs.values()))
         context = self.context_builder.build_context(reranked_docs)
 
+        # Yield sources immediately after retrieval/reranking
+        sources = [
+            Source(
+                source_id=i + 1,
+                document_id=doc.id,
+                file_name=doc.metadata.get("file_name", "Unknown"),
+                section_title=doc.metadata.get("section_title"),
+                page_number=doc.metadata.get("page_number"),
+                relevance_score=doc.score or 0.0,
+                snippet=doc.content,
+            )
+            for i, doc in enumerate(reranked_docs)
+        ]
+        yield {"type": "sources", "sources": [s.model_dump() for s in sources]}
+
         system_prompt = RAG_SYSTEM_PROMPT
         if mode == "strict":
             system_prompt += "\n" + ANTI_HALLUCINATION_SYSTEM_PROMPT
@@ -219,4 +234,4 @@ class RAGPipeline:
         ]
 
         async for token in self.llm.stream(messages):
-            yield token
+            yield {"type": "token", "content": token}

@@ -1,3 +1,3 @@
-from src.api.routers import ingestion
+from src.api.routers import ingestion, query
 
-__all__ = ["ingestion"]
+__all__ = ["ingestion", "query"]
