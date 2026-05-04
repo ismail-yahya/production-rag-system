@@ -132,7 +132,7 @@
 - [x] **4.6** — Implement `QueryProcessor` for query expansion and classification → `src/rag/query_processor.py` `[Agent: RAG Pipeline Engineer]`
 - [x] **4.7** — Implement `ContextBuilder` enforcing token limits → `src/rag/context_builder.py` `[Agent: RAG Pipeline Engineer]`
 - [x] **4.8** — Define prompt templates as module constants → `src/rag/prompt_templates.py` `[Agent: RAG Pipeline Engineer]`
-- [ ] **4.9** — Define `RAGResponse` frozen Pydantic model → `src/rag/schemas.py` `[Agent: RAG Pipeline Engineer]`
+- [x] **4.9** — Define `RAGResponse` frozen Pydantic model → `src/rag/schemas.py` `[Agent: RAG Pipeline Engineer]`
 - [ ] **4.10** — Implement `RAGPipeline` blocking and streaming methods → `src/rag/pipeline.py` `[Agent: RAG Pipeline Engineer]`
       ↳ Depends on: 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9
 - [ ] **4.11** — Define Pydantic schemas for query endpoints → `src/api/routers/schemas.py` `[Agent: API Engineer]`
