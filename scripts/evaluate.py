@@ -2,7 +2,7 @@ import asyncio
 import json
 import os
 import sys
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import structlog
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -46,8 +46,8 @@ async def run_evaluation(dataset_path: str):
     contexts = []
     ground_truths = []
     
-    # For MVP evaluation, we use a fixed tenant_id
-    test_tenant_id = uuid4()
+    # For MVP evaluation, we use a fixed tenant_id for consistency in CI
+    test_tenant_id = UUID("00000000-0000-0000-0000-000000000000")
     
     for item in dataset:
         question = item["question"]

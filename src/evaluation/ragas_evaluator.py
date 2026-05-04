@@ -79,13 +79,19 @@ class RagasEvaluator:
         )
         
         try:
-            # RAGAS evaluate is synchronous in older versions or can be used with wrap
-            # In 0.1+, it supports passing llm and embeddings.
-            result = evaluate(
+            # RAGAS 0.4.x requires explicit wrapping for LangChain components
+            # and the evaluate call is async.
+            from ragas.llms import LangchainLLMWrapper
+            from ragas.embeddings import LangchainEmbeddingsWrapper
+
+            ragas_llm = LangchainLLMWrapper(self.llm)
+            ragas_embeddings = LangchainEmbeddingsWrapper(self.embeddings)
+
+            result = await evaluate(
                 dataset=dataset,
                 metrics=self.metrics,
-                llm=self.llm,
-                embeddings=self.embeddings,
+                llm=ragas_llm,
+                embeddings=ragas_embeddings,
             )
             
             scores = result.scores
