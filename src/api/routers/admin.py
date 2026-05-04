@@ -1,4 +1,6 @@
+import json
 import uuid
+import redis
 from datetime import datetime, UTC
 from typing import Annotated
 
@@ -11,7 +13,9 @@ from src.api.routers.schemas import (
     EvalResultsResponse,
     EvalRunResponse,
 )
+from src.core.config import settings
 from src.core.models import Tenant
+from src.workers.eval_worker import run_ragas_eval
 
 router = APIRouter(prefix="/v1/admin", tags=["admin"])
 
@@ -39,11 +43,11 @@ async def run_evaluation(
 ) -> EvalRunResponse:
     """
     Trigger an evaluation run against the committed dataset.
-    Stub implementation for now.
     """
-    # TODO(#44): Integrate with src/evaluation/ragas_evaluator.py
+    task = run_ragas_eval.delay()
+    
     return EvalRunResponse(
-        job_id=uuid.uuid4(),
+        job_id=uuid.UUID(task.id),
         status="pending",
         message="Evaluation run triggered successfully",
     )
@@ -55,14 +59,17 @@ async def get_evaluation_results(
 ) -> EvalResultsResponse:
     """
     Retrieve the latest evaluation scores.
-    Stub implementation for now.
     """
-    # TODO(#45): Retrieve real results from DB/Logs
+    r = redis.from_url(settings.REDIS_BACKEND_URL, decode_responses=True)
+    cached_results = r.get("latest_eval_results")
+    
+    if cached_results:
+        data = json.loads(cached_results)
+        return EvalResultsResponse(**data)
+    
+    # Return empty results if nothing is cached yet
     return EvalResultsResponse(
         dataset_id=None,
-        results=[
-            EvalResult(metric_name="faithfulness", score=0.0, description="Stub score"),
-            EvalResult(metric_name="answer_relevancy", score=0.0, description="Stub score"),
-        ],
+        results=[],
         evaluated_at=datetime.now(UTC),
     )

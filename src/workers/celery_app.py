@@ -6,7 +6,10 @@ celery_app = Celery(
     "production_rag_system",
     broker=settings.REDIS_BROKER_URL,
     backend=settings.REDIS_BACKEND_URL,
-    include=["src.workers.ingestion_worker"],
+    include=[
+        "src.workers.ingestion_worker",
+        "src.workers.eval_worker",
+    ],
 )
 
 celery_app.conf.update(

@@ -1,0 +1,37 @@
+[
+  {
+    "question": "What is the primary goal of Retrieval-Augmented Generation (RAG)?",
+    "ground_truth": "The primary goal of RAG is to enhance the output of a Large Language Model (LLM) by referencing an external, authoritative knowledge base outside of its training data before generating a response.",
+    "contexts": [
+      "Retrieval-Augmented Generation (RAG) is the process of optimizing the output of a large language model, so it references an authoritative knowledge base outside of its training data sources before generating a response. Large Language Models (LLMs) are trained on vast volumes of data and use billions of parameters to generate original answers for tasks like answering questions, translating languages, and completing sentences. RAG extends the already powerful capabilities of LLMs to specific domains or an organization's internal knowledge base, all without the need to retrain the model."
+    ]
+  },
+  {
+    "question": "How does vector search help in the retrieval process?",
+    "ground_truth": "Vector search helps in retrieval by converting text into high-dimensional numerical vectors (embeddings) and using similarity metrics like cosine similarity to find documents that are semantically related to the query, even if they don't share exact keywords.",
+    "contexts": [
+      "Vector search, also known as semantic search, represents data as numerical vectors in a high-dimensional space. By transforming both the documents and the user query into these embeddings using models like OpenAI's text-embedding-ada-002, the system can calculate the mathematical distance (e.g., cosine similarity) between them. This allows the system to retrieve documents based on the 'meaning' of the query rather than just keyword matches."
+    ]
+  },
+  {
+    "question": "What is the role of a reranker in a hybrid retrieval pipeline?",
+    "ground_truth": "In a hybrid retrieval pipeline, a reranker acts as a second-stage filter that re-evaluates the relevance of documents retrieved by both vector and keyword search. It uses more sophisticated models (like cross-encoders) to provide a more accurate ranking, ensuring the most relevant context is passed to the LLM.",
+    "contexts": [
+      "Hybrid retrieval combines the strengths of semantic search (vector) and keyword search (BM25). However, fusing these results often requires a second stage called reranking. A reranker, such as Cohere's Rerank API, takes the top candidates from the initial search and performs a deep analysis of the relationship between the query and each candidate. This ensures that even if a highly relevant document was ranked lower in the initial stage, it is promoted to the top of the context window."
+    ]
+  },
+  {
+    "question": "Why is tenant isolation important in production RAG systems?",
+    "ground_truth": "Tenant isolation is critical for security and data privacy in multi-tenant systems. it ensures that a user from one organization or tenant cannot retrieve or access documents belonging to another tenant, preventing data leakage.",
+    "contexts": [
+      "In production environments serving multiple clients (tenants), security is paramount. Tenant isolation ensures that document storage and retrieval are strictly scoped to the authenticated tenant. This is typically achieved by including a 'tenant_id' in every database record and enforcing it as a mandatory filter in all search queries. This architectural guardrail prevents cross-tenant data leakage, a critical requirement for enterprise compliance."
+    ]
+  },
+  {
+    "question": "What are the key metrics used by RAGAS to evaluate RAG systems?",
+    "ground_truth": "RAGAS uses several metrics including Faithfulness (measuring if the answer is derived from context), Answer Relevance (how well the answer addresses the question), and Context Precision (the quality of the retrieved context).",
+    "contexts": [
+      "RAGAS (Retrieval-Augmented Generation Assessment) provides a framework for automated evaluation of RAG pipelines. It focuses on the 'RAG Triad': Faithfulness, which checks if the generated answer is grounded in the retrieved context; Answer Relevance, which measures how pertinent the answer is to the original query; and Context Precision, which evaluates whether the retrieved documents actually contain the information needed to answer the question."
+    ]
+  }
+]

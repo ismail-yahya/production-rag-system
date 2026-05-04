@@ -173,16 +173,16 @@
 
 **Definition of Done:** `scripts/evaluate.py` runs end-to-end against the committed evaluation dataset and prints per-metric scores. The `eval.yml` GitHub Actions workflow triggers on merge to `main`, runs the full evaluation, and fails the pipeline if metrics are below thresholds.
 
-- [ ] **5.1** — Implement `RAGASEvaluator` wrapping RAGAS `evaluate()` → `src/evaluation/ragas_evaluator.py` `[Agent: RAG Pipeline Engineer]`
-- [ ] **5.2** — Implement `EvalDatasetGenerator` → `src/evaluation/dataset_generator.py` `[Agent: RAG Pipeline Engineer]`
-- [ ] **5.3** — Commit baseline evaluation dataset JSON → `tests/eval_dataset.json` `[Agent: RAG Pipeline Engineer]`
-- [ ] **5.4** — Implement async evaluation script `evaluate.py` → `scripts/evaluate.py` `[Agent: Infrastructure & DevOps Engineer]`
+- [x] **5.1** — Implement `RAGASEvaluator` wrapping RAGAS `evaluate()` → `src/evaluation/ragas_evaluator.py` `[Agent: RAG Pipeline Engineer]`
+- [x] **5.2** — Implement `EvalDatasetGenerator` → `src/evaluation/dataset_generator.py` `[Agent: RAG Pipeline Engineer]`
+- [x] **5.3** — Commit baseline evaluation dataset JSON → `tests/eval_dataset.json` `[Agent: RAG Pipeline Engineer]`
+- [x] **5.4** — Implement async evaluation script `evaluate.py` → `scripts/evaluate.py` `[Agent: Infrastructure & DevOps Engineer]`
       ↳ Depends on: 5.1, 5.3
-- [ ] **5.5** — Implement GitHub Actions evaluation workflow → `.github/workflows/eval.yml` `[Agent: Infrastructure & DevOps Engineer]`
+- [x] **5.5** — Implement GitHub Actions evaluation workflow → `.github/workflows/eval.yml` `[Agent: Infrastructure & DevOps Engineer]`
       ↳ Depends on: 5.4
-- [ ] **5.6** — Fully implement `POST /v1/admin/eval/run` endpoint → `src/api/routers/admin.py` `[Agent: API Engineer]`
+- [x] **5.6** — Fully implement `POST /v1/admin/eval/run` endpoint → `src/api/routers/admin.py` `[Agent: API Engineer]`
       ↳ Depends on: 5.4
-- [ ] **5.7** — Fully implement `GET /v1/admin/eval/results` endpoint → `src/api/routers/admin.py` `[Agent: API Engineer]`
+- [x] **5.7** — Fully implement `GET /v1/admin/eval/results` endpoint → `src/api/routers/admin.py` `[Agent: API Engineer]`
 
 ---
 

@@ -1,0 +1,68 @@
+name: RAG Evaluation
+
+on:
+  push:
+    branches: [ milestone/* ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  evaluate:
+    name: Run RAGAS Evaluation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Start Services
+        run: docker compose up -d
+
+      - name: Wait for Services
+        run: |
+          # Wait for Postgres
+          until docker exec $(docker ps -q -f name=postgres) pg_isready; do
+            echo "Waiting for Postgres..."
+            sleep 5
+          done
+          # Wait for Qdrant
+          until curl -s http://localhost:6333/health | grep -q "ok"; do
+            echo "Waiting for Qdrant..."
+            sleep 5
+          done
+          echo "Services are ready!"
+
+      - name: Run Database Migrations
+        env:
+          POSTGRES_DSN: "postgresql+asyncpg://postgres:postgres@localhost:5432/rag_db"
+        run: uv run alembic upgrade head
+
+      - name: Run RAGAS Evaluation
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
+          POSTGRES_DSN: "postgresql+asyncpg://postgres:postgres@localhost:5432/rag_db"
+          QDRANT_URL: "http://localhost:6333"
+          REDIS_BROKER_URL: "redis://localhost:6379/0"
+          REDIS_BACKEND_URL: "redis://localhost:6379/1"
+          ENVIRONMENT: "testing"
+          LOG_LEVEL: "INFO"
+        run: |
+          # The script will exit with code 1 if metrics are below threshold
+          uv run python scripts/evaluate.py
+
+      - name: Stop Services
+        if: always()
+        run: docker compose down
