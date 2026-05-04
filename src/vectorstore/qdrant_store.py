@@ -169,3 +169,16 @@ class QdrantVectorStore(BaseVectorStore):
                 )
 
         return models.Filter(must=must_filters)
+
+    async def is_healthy(self) -> bool:
+        """
+        Check if the Qdrant service is healthy and reachable.
+        """
+        try:
+            # We just need to verify connection to the client
+            # get_collections is a lightweight call to check liveness
+            await self._client.get_collections()
+            return True
+        except Exception as e:
+            logger.error("qdrant_health_check_failed", error=str(e))
+            return False

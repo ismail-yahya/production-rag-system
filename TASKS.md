@@ -138,8 +138,8 @@
 - [x] **4.11** — Define Pydantic schemas for query endpoints → `src/api/routers/schemas.py` `[Agent: API Engineer]`
 - [x] **4.12** — Implement `POST /v1/query` and `POST /v1/query/stream` routes → `src/api/routers/query.py` `[Agent: API Engineer]`
       ↳ Depends on: 4.10, 4.11
-- [ ] **4.13** — Implement stub admin routes (`/v1/admin/stats`, `/v1/admin/eval/*`) → `src/api/routers/admin.py` `[Agent: API Engineer]`
-- [ ] **4.14** — Add `/health` and `/ready` endpoints to FastAPI app → `src/api/main.py` `[Agent: API Engineer]`
+- [x] **4.13** — Implement stub admin routes (`/v1/admin/stats`, `/v1/admin/eval/*`) → `src/api/routers/admin.py` `[Agent: API Engineer]`
+- [x] **4.14** — Add `/health` and `/ready` endpoints to FastAPI app → `src/api/main.py` `[Agent: API Engineer]`
 - [ ] **4.15** — Write unit tests for retrieval and RAG pipeline components → `tests/unit/retrieval/`, `tests/unit/rag/` `[Agent: Retrieval Engineer, RAG Pipeline Engineer]`
       ↳ Depends on: 4.10
 - [ ] **4.16** — Write integration tests for query routes → `tests/integration/api/` `[Agent: API Engineer]`

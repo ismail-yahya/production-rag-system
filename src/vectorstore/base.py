@@ -71,3 +71,13 @@ class BaseVectorStore(ABC):
             RetrievalError: If the vector store call fails.
         """
         pass  # pragma: no cover
+
+    @abstractmethod
+    async def is_healthy(self) -> bool:
+        """
+        Check if the vector store is healthy and reachable.
+
+        Returns:
+            True if healthy, False otherwise.
+        """
+        pass  # pragma: no cover

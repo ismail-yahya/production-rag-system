@@ -1,9 +1,11 @@
-import structlog
-from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
+from typing import Annotated
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, FastAPI, Request, status
 
-from src.api.routers import ingestion, query
+from src.api.routers import admin, ingestion, query
 from src.api.middleware import RateLimitMiddleware
+from src.api.dependencies import get_session
 from src.core.config import settings
 from src.core.exceptions import (
     IngestionError,
@@ -13,6 +15,7 @@ from src.core.exceptions import (
     SecurityError,
 )
 from src.core.logging import setup_logging
+from src.vectorstore.factory import VectorStoreFactory
 
 # Initialize logging
 setup_logging()
@@ -35,6 +38,7 @@ app.add_middleware(
 # Register routers
 app.include_router(ingestion.router)
 app.include_router(query.router)
+app.include_router(admin.router)
 
 
 @app.exception_handler(RAGSystemError)
@@ -72,7 +76,32 @@ async def health_check() -> dict[str, str]:
 
 
 @app.get("/ready")
-async def readiness_check() -> dict[str, str]:
-    """Readiness check (stub for now)."""
-    # In a real app, verify DB and Vector Store connectivity here
+async def readiness_check(
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, str]:
+    """
+    Readiness check that verifies DB and Vector Store connectivity.
+    """
+    # 1. Check Database
+    try:
+        await session.execute(text("SELECT 1"))
+    except Exception as e:
+        logger.error("readiness_check_failed_db", error=str(e))
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"status": "unready", "detail": "Database connection failed"},
+        )
+
+    # 2. Check Vector Store
+    try:
+        vector_store = VectorStoreFactory.create(settings.VECTOR_STORE_PROVIDER, settings)
+        if not await vector_store.is_healthy():
+            raise Exception("Vector store is_healthy() returned False")
+    except Exception as e:
+        logger.error("readiness_check_failed_vectorstore", error=str(e))
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"status": "unready", "detail": "Vector store connection failed"},
+        )
+
     return {"status": "ready"}

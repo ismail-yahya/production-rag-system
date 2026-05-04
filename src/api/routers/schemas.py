@@ -80,3 +80,36 @@ class QueryResponse(BaseModel):
     retrieval_count: int
     model: str
     latency_ms: float
+
+
+class AdminStatsResponse(BaseModel):
+    """Response schema for aggregate system statistics."""
+
+    total_documents: int
+    total_chunks: int
+    total_queries: int
+    average_latency_ms: float
+
+
+class EvalRunResponse(BaseModel):
+    """Response schema for triggering an evaluation run."""
+
+    job_id: uuid.UUID
+    status: str
+    message: str
+
+
+class EvalResult(BaseModel):
+    """Schema for a single evaluation metric result."""
+
+    metric_name: str
+    score: float
+    description: str | None = None
+
+
+class EvalResultsResponse(BaseModel):
+    """Response schema for evaluation results."""
+
+    dataset_id: uuid.UUID | None = None
+    results: list[EvalResult]
+    evaluated_at: datetime

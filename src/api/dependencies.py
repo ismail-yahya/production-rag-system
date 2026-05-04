@@ -68,3 +68,19 @@ def get_rag_pipeline() -> RAGPipeline:
         query_processor=query_processor,
         context_builder=context_builder,
     )
+
+
+async def get_admin(
+    tenant: Annotated[Tenant, Depends(get_tenant)],
+) -> Tenant:
+    """
+    Dependency that ensures the authenticated tenant has admin privileges.
+    For MVP, we perform a simple check on the tenant name as a stub for RBAC.
+    """
+    # TODO(#42): Implement proper role-based access control (RBAC) via JWT or DB roles.
+    if "admin" not in tenant.name.lower():
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrative privileges required to access this resource",
+        )
+    return tenant
