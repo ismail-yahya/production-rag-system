@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -7,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class IngestResponse(BaseModel):
     """Response schema for the ingestion endpoint."""
+
     document_id: uuid.UUID
     status: str
     message: str
@@ -14,6 +16,7 @@ class IngestResponse(BaseModel):
 
 class DocumentResponse(BaseModel):
     """Response schema for document metadata."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
@@ -30,4 +33,50 @@ class DocumentResponse(BaseModel):
 
 class DocumentListResponse(BaseModel):
     """Response schema for a list of documents."""
+
     documents: list[DocumentResponse]
+
+
+class QueryMode(str, Enum):
+    """Available query modes."""
+
+    STANDARD = "standard"
+    STRICT = "strict"
+
+
+class QueryFilters(BaseModel):
+    """Optional filters for a query."""
+
+    document_ids: list[uuid.UUID] | None = None
+    tags: list[str] | None = None
+
+
+class QueryRequest(BaseModel):
+    """Request schema for the query endpoint."""
+
+    question: str = Field(..., min_length=1, max_length=1000)
+    filters: QueryFilters | None = None
+    mode: QueryMode = QueryMode.STANDARD
+
+
+class QuerySource(BaseModel):
+    """Represents a single source document snippet in the query response."""
+
+    source_id: int
+    document_id: uuid.UUID
+    file_name: str
+    section_title: str | None = None
+    page_number: int | None = None
+    relevance_score: float
+    snippet: str
+
+
+class QueryResponse(BaseModel):
+    """Response schema for the query endpoint."""
+
+    answer: str
+    sources: list[QuerySource] = Field(default_factory=list)
+    query_expansions: list[str] = Field(default_factory=list)
+    retrieval_count: int
+    model: str
+    latency_ms: float

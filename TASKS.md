@@ -135,7 +135,7 @@
 - [x] **4.9** — Define `RAGResponse` frozen Pydantic model → `src/rag/schemas.py` `[Agent: RAG Pipeline Engineer]`
 - [x] **4.10** — Implement `RAGPipeline` blocking and streaming methods → `src/rag/pipeline.py` `[Agent: RAG Pipeline Engineer]`
       ↳ Depends on: 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9
-- [ ] **4.11** — Define Pydantic schemas for query endpoints → `src/api/routers/schemas.py` `[Agent: API Engineer]`
+- [x] **4.11** — Define Pydantic schemas for query endpoints → `src/api/routers/schemas.py` `[Agent: API Engineer]`
 - [ ] **4.12** — Implement `POST /v1/query` and `POST /v1/query/stream` routes → `src/api/routers/query.py` `[Agent: API Engineer]`
       ↳ Depends on: 4.10, 4.11
 - [ ] **4.13** — Implement stub admin routes (`/v1/admin/stats`, `/v1/admin/eval/*`) → `src/api/routers/admin.py` `[Agent: API Engineer]`
