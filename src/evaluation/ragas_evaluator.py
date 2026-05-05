@@ -3,7 +3,7 @@ import pandas as pd
 from datasets import Dataset
 from ragas import evaluate
 from ragas.metrics import (
-    answer_relevance,
+    answer_relevancy,
     context_precision,
     faithfulness,
     context_recall,
@@ -37,7 +37,7 @@ class RagasEvaluator:
         self.embeddings = embeddings
         self.metrics = [
             faithfulness,
-            answer_relevance,
+            answer_relevancy,
             context_precision,
             context_recall,
         ]
