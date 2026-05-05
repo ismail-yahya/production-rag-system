@@ -1,6 +1,9 @@
+from unittest.mock import ANY, MagicMock, patch
+
 import pytest
-from unittest.mock import MagicMock, patch, ANY
+
 from src.core.storage import StorageService
+
 
 @pytest.fixture
 def mock_boto():

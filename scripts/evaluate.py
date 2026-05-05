@@ -2,7 +2,7 @@ import asyncio
 import json
 import os
 import sys
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import structlog
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -10,10 +10,14 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 # Add project root to path
 sys.path.append(os.getcwd())
 
+from typing import TYPE_CHECKING
+
 from src.api.dependencies import get_rag_pipeline
 from src.core.config import settings
 from src.evaluation.ragas_evaluator import RagasEvaluator
-from src.rag.schemas import RAGResponse
+
+if TYPE_CHECKING:
+    from src.rag.schemas import RAGResponse
 
 logger = structlog.get_logger(__name__)
 
@@ -29,7 +33,7 @@ async def run_evaluation(dataset_path: str):
         logger.error("dataset_not_found", path=dataset_path)
         return
         
-    with open(dataset_path, "r") as f:
+    with open(dataset_path) as f:
         dataset = json.load(f)
     
     logger.info("evaluation_started", sample_count=len(dataset))

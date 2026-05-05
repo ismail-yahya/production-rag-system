@@ -1,6 +1,7 @@
 import structlog
-from src.vectorstore.base import Document
+
 from src.rag.security import SecurityGuard
+from src.vectorstore.base import Document
 
 logger = structlog.get_logger(__name__)
 

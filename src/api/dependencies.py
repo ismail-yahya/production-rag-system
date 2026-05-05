@@ -1,10 +1,10 @@
-import uuid
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.core.cache import SemanticCache
 from src.core.config import settings
 from src.core.context import tenant_id_context
@@ -35,7 +35,7 @@ async def get_tenant(
     # and compare it against the stored hash.
     api_key = auth.credentials
 
-    stmt = select(Tenant).where(Tenant.api_key_hash == api_key, Tenant.is_active == True)
+    stmt = select(Tenant).where(Tenant.api_key_hash == api_key, Tenant.is_active)
     result = await session.execute(stmt)
     tenant = result.scalar_one_or_none()
 

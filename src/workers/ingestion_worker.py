@@ -6,13 +6,13 @@ from typing import Any
 import structlog
 from celery import Task
 
+from src.api.repositories import DocumentRepository, IngestionJobRepository
 from src.core.config import settings
+from src.core.database import async_session_factory
 from src.core.exceptions import IngestionError
+from src.core.storage import storage_service
 from src.embeddings.factory import EmbedderFactory
 from src.ingestion.chunkers.character_chunker import RecursiveCharacterChunker
-from src.api.repositories import DocumentRepository, IngestionJobRepository
-from src.core.database import async_session_factory
-from src.core.storage import storage_service
 from src.ingestion.pipeline import IngestionPipeline
 from src.vectorstore.factory import VectorStoreFactory
 from src.workers.celery_app import celery_app
@@ -130,7 +130,7 @@ def ingest_document(
         log.warning("Ingestion error occurred, retrying...", error=str(e), retry=self.request.retries)
         if self.request.retries >= self.max_retries:
             asyncio.run(_update_status("failed", error_message=str(e)))
-        raise self.retry(exc=e)
+        raise self.retry(exc=e) from e
 
     except Exception as e:
         log.error("Unexpected failure in ingestion task", error=str(e), exc_info=True)

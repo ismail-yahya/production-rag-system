@@ -1,7 +1,7 @@
-import structlog
 from typing import Any
 from uuid import UUID
 
+import structlog
 from qdrant_client import AsyncQdrantClient, models
 
 from src.core import IngestionError, RetrievalError, settings

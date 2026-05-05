@@ -1,16 +1,16 @@
-import pytest
-import pytest_asyncio
-from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+import contextlib
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
+import pytest
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+from src.api.dependencies import get_rag_pipeline, get_session
 from src.api.main import app
-from src.api.dependencies import get_session, get_rag_pipeline
-from src.core.config import settings
-from src.core.models import Tenant
 from src.core.database import engine as real_engine
+from src.core.models import Tenant
 from src.rag.pipeline import RAGPipeline
-from unittest.mock import AsyncMock, MagicMock
 
 # Use the real database for integration tests but we'll use a transaction per test
 # to ensure isolation if possible. Or just clean up.
@@ -77,10 +77,8 @@ async def test_tenant(db_session: AsyncSession):
     if isinstance(db_session, AsyncMock):
         db_session.execute.return_value.scalar_one_or_none.return_value = tenant
         
-    try:
+    with contextlib.suppress(Exception):
         await db_session.refresh(tenant)
-    except Exception:
-        pass
         
     return tenant
 

@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import StrEnum
 
 from src.core import Settings
 from src.embeddings.base import BaseEmbedder
@@ -6,7 +6,7 @@ from src.embeddings.local_embedder import LocalEmbedder
 from src.embeddings.openai_embedder import OpenAIEmbedder
 
 
-class EmbeddingProvider(str, Enum):
+class EmbeddingProvider(StrEnum):
     """Supported embedding providers."""
 
     OPENAI = "openai"
@@ -43,11 +43,11 @@ class EmbedderFactory:
         if isinstance(provider, str):
             try:
                 provider_enum = EmbeddingProvider(provider.lower())
-            except ValueError:
-                raise ValueError(f"Unsupported embedding provider: {provider}")
+            except ValueError as e:
+                raise ValueError(f"Unsupported embedding provider: {provider}") from e
             except Exception as e:
                 # Handle unexpected errors gracefully
-                raise ValueError(f"Error resolving embedding provider '{provider}': {e}")
+                raise ValueError(f"Error resolving embedding provider '{provider}': {e}") from e
         else:
             provider_enum = provider
 

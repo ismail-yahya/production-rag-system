@@ -1,17 +1,20 @@
 import time
 import uuid
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
 from src.core.exceptions import IngestionError
 from src.embeddings.base import BaseEmbedder
 from src.ingestion.chunkers.base import BaseChunker
-from src.ingestion.loaders.base import BaseLoader
 from src.ingestion.loaders.pdf_loader import PDFLoader
 from src.ingestion.processors.cleaner import TextCleaner
-from src.vectorstore.base import BaseVectorStore, Document as VectorDocument
+from src.vectorstore.base import BaseVectorStore
+from src.vectorstore.base import Document as VectorDocument
+
+if TYPE_CHECKING:
+    from src.ingestion.loaders.base import BaseLoader
 
 logger = structlog.get_logger(__name__)
 
@@ -116,7 +119,7 @@ class IngestionPipeline:
 
             # 6. Construct vector store documents and upsert
             vector_docs = []
-            for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
+            for _i, (chunk, embedding) in enumerate(zip(chunks, embeddings, strict=False)):
                 vector_docs.append(
                     VectorDocument(
                         id=uuid.uuid4(),

@@ -1,17 +1,14 @@
 from typing import Any
-import pandas as pd
+
+import structlog
 from datasets import Dataset
 from ragas import evaluate
 from ragas.metrics import (
     answer_relevancy,
     context_precision,
-    faithfulness,
     context_recall,
+    faithfulness,
 )
-
-import structlog
-from src.llm.base import BaseLLM
-from src.embeddings.base import BaseEmbedder
 
 logger = structlog.get_logger(__name__)
 
@@ -81,8 +78,8 @@ class RagasEvaluator:
         try:
             # RAGAS 0.4.x requires explicit wrapping for LangChain components
             # and the evaluate call is async.
-            from ragas.llms import LangchainLLMWrapper
             from ragas.embeddings import LangchainEmbeddingsWrapper
+            from ragas.llms import LangchainLLMWrapper
 
             ragas_llm = LangchainLLMWrapper(self.llm)
             ragas_embeddings = LangchainEmbeddingsWrapper(self.embeddings)

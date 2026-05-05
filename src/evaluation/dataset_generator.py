@@ -1,9 +1,8 @@
 from typing import Any
+
 import structlog
+from ragas.testset.evolutions import multi_context, reasoning, simple
 from ragas.testset.generator import TestsetGenerator
-from ragas.testset.evolutions import simple, reasoning, multi_context
-from langchain_community.document_loaders import PyMuPDFLoader
-from src.core.config import settings
 
 logger = structlog.get_logger(__name__)
 

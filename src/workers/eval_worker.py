@@ -1,8 +1,10 @@
 import asyncio
 import json
+
 import structlog
-from src.workers.celery_app import celery_app
+
 from scripts.evaluate import run_evaluation
+from src.workers.celery_app import celery_app
 
 logger = structlog.get_logger(__name__)
 
@@ -18,9 +20,11 @@ def run_ragas_eval():
         scores = asyncio.run(run_evaluation("tests/eval_dataset.json"))
         
         # Store results in Redis for the API to retrieve
+        from datetime import UTC, datetime
+
         import redis
+
         from src.core.config import settings
-        from datetime import datetime, UTC
         
         r = redis.from_url(settings.REDIS_BACKEND_URL)
         results = {

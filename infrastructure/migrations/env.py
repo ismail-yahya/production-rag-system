@@ -1,14 +1,14 @@
 import asyncio
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from alembic import context
-
 # Import Settings and Base (Base will be populated in Milestone 2)
 from src.core.config import Settings
+from src.core.models import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -24,8 +24,6 @@ settings = Settings()
 
 # Set sqlalchemy.url from Settings
 config.set_main_option("sqlalchemy.url", settings.POSTGRES_DSN.get_secret_value())
-
-from src.core.models import Base
 
 # add your model's MetaData object here
 # for 'autogenerate' support

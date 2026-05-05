@@ -1,10 +1,12 @@
-import pytest
-import pytest_asyncio
-import uuid
-from unittest.mock import patch, MagicMock
+import contextlib
+from unittest.mock import MagicMock, patch
 from uuid import uuid4
+
+import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.core.models import Tenant
+
 
 @pytest.fixture
 async def admin_tenant(db_session: AsyncSession):
@@ -24,10 +26,8 @@ async def admin_tenant(db_session: AsyncSession):
     if isinstance(db_session, AsyncMock):
         db_session.execute.return_value.scalar_one_or_none.return_value = tenant
         
-    try:
+    with contextlib.suppress(Exception):
         await db_session.refresh(tenant)
-    except Exception:
-        pass
     return tenant
 
 @pytest.mark.asyncio

@@ -1,12 +1,13 @@
+import asyncio
 import time
 import uuid
+
 import httpx
-import pytest
-import asyncio
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from src.core.models import Tenant
+
 from src.core.config import settings
+from src.core.models import Tenant
 
 # This E2E test assumes the RAG system is running (API, Worker, DB, etc.)
 # It is designed to be run in a CI environment where `docker compose up` has been executed.
@@ -42,7 +43,7 @@ def test_full_rag_flow():
     5. Assert on response quality
     """
     # 1. Seed Tenant
-    tenant_id = asyncio.run(seed_tenant())
+    asyncio.run(seed_tenant())
     headers = {"Authorization": f"Bearer {TEST_API_KEY}"}
     
     # 2. Upload Document

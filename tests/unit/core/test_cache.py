@@ -1,8 +1,11 @@
-import pytest
 import json
-from uuid import uuid4
 from unittest.mock import AsyncMock, MagicMock, patch
+from uuid import uuid4
+
+import pytest
+
 from src.core.cache import SemanticCache
+
 
 @pytest.fixture
 def mock_embedder():

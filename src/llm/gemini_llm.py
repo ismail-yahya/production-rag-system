@@ -24,7 +24,7 @@ class GeminiLLM(BaseLLM):
         try:
             genai.configure(api_key=api_key.get_secret_value())
         except Exception as e:
-            raise LLMError(f"Failed to initialize Gemini client: {e}")
+            raise LLMError(f"Failed to initialize Gemini client: {e}") from e
 
     def _prepare_messages(self, messages: list[LLMMessage]) -> list[dict[str, Any]]:
         """Format messages for Gemini API."""
@@ -75,7 +75,7 @@ class GeminiLLM(BaseLLM):
                 usage=usage
             )
         except Exception as e:
-            raise LLMError(f"Gemini API error during generate: {e}")
+            raise LLMError(f"Gemini API error during generate: {e}") from e
 
     async def stream(self, messages: list[LLMMessage], **kwargs: Any) -> AsyncGenerator[str, None]:
         """Stream a response from the Gemini API token by token."""
@@ -106,4 +106,4 @@ class GeminiLLM(BaseLLM):
                     yield chunk.text
                     
         except Exception as e:
-            raise LLMError(f"Gemini API error during stream: {e}")
+            raise LLMError(f"Gemini API error during stream: {e}") from e

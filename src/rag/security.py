@@ -1,5 +1,7 @@
 import re
+
 import structlog
+
 from src.core.exceptions import SecurityError
 
 logger = structlog.get_logger(__name__)

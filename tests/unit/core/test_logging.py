@@ -1,5 +1,7 @@
 import structlog
+
 from src.core.logging import redact_sensitive_info, setup_logging
+
 
 def test_redact_sensitive_info():
     """Verify redaction of sensitive keys."""

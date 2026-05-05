@@ -1,9 +1,10 @@
-import structlog
 from typing import Any
 from uuid import UUID
 
-from src.vectorstore.base import BaseVectorStore, Document
+import structlog
+
 from src.embeddings.base import BaseEmbedder
+from src.vectorstore.base import BaseVectorStore, Document
 
 logger = structlog.get_logger(__name__)
 

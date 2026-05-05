@@ -1,12 +1,14 @@
 import pytest
+
 from src.core.exceptions import (
-    RAGSystemError,
-    IngestionError,
-    RetrievalError,
     EmbeddingError,
+    IngestionError,
     LLMError,
+    RAGSystemError,
+    RetrievalError,
     SecurityError,
 )
+
 
 def test_exceptions_inheritance():
     """Verify that all custom exceptions inherit from RAGSystemError."""

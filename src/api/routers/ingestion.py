@@ -1,3 +1,4 @@
+import contextlib
 import os
 import uuid
 from typing import Annotated
@@ -132,11 +133,8 @@ async def delete_document(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
 
     # Delete from storage
-    try:
+    with contextlib.suppress(Exception):
         storage_service.delete_file(document.storage_path)
-    except Exception:
-        # We log the failure but continue to delete the DB record
-        pass
 
     await doc_repo.delete(document_id, tenant.id)
     await session.commit()

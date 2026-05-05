@@ -1,7 +1,9 @@
-import pytest
 import uuid
-from unittest.mock import patch, MagicMock
 from io import BytesIO
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 
 @pytest.mark.asyncio
 async def test_upload_document_success(client, test_tenant):

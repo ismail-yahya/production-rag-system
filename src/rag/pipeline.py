@@ -1,13 +1,12 @@
 import asyncio
 import time
 from collections.abc import AsyncGenerator
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import structlog
 
 from src.core.cache import SemanticCache
-from src.core.exceptions import LLMError, SecurityError
 from src.llm.base import BaseLLM, LLMMessage
 from src.observability.tracer import traceable
 from src.rag.context_builder import ContextBuilder
@@ -21,7 +20,9 @@ from src.rag.schemas import RAGResponse, Source
 from src.rag.security import SecurityGuard
 from src.retrieval.hybrid_retriever import HybridRetriever
 from src.retrieval.reranker import CohereReranker
-from src.vectorstore.base import Document
+
+if TYPE_CHECKING:
+    from src.vectorstore.base import Document
 
 logger = structlog.get_logger(__name__)
 

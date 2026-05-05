@@ -1,6 +1,7 @@
 import uuid
-from datetime import datetime
-from src.core.models import Tenant, Document, Chunk, IngestionJob, QueryLog, EvalDataset
+
+from src.core.models import Chunk, Document, EvalDataset, IngestionJob, QueryLog, Tenant
+
 
 def test_tenant_repr():
     tenant_id = uuid.uuid4()

@@ -1,9 +1,8 @@
-import streamlit as st
-import httpx
-import json
 import time
+
+import httpx
 import pandas as pd
-from datetime import datetime
+import streamlit as st
 
 # Page configuration
 st.set_page_config(
@@ -47,7 +46,7 @@ st.markdown("""
         color: #00ffcc;
     }
     </style>
-    """, unsafe_allow_index=True)
+    """, unsafe_allow_html=True)
 
 # Sidebar - Configuration
 st.sidebar.title("⚙️ System Config")
@@ -90,7 +89,7 @@ with tabs[0]:
                         data = response.json()
                         latency = (time.time() - start_time) * 1000
                         
-                        st.markdown(f"### 🤖 Answer")
+                        st.markdown("### 🤖 Answer")
                         st.write(data["answer"])
                         
                         col1, col2, col3 = st.columns(3)
@@ -128,26 +127,25 @@ with tabs[1]:
     
     uploaded_file = st.file_uploader("Upload a PDF or Image", type=["pdf", "png", "jpg", "jpeg"])
     
-    if uploaded_file is not None:
-        if st.button("🚀 Upload & Process"):
-            with st.spinner("Uploading and triggering background pipeline..."):
-                try:
-                    files = {"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)}
-                    response = httpx.post(
-                        f"{api_url}/v1/ingest",
-                        files=files,
-                        headers=headers,
-                        timeout=30.0
-                    )
-                    
-                    if response.status_code == 202:
-                        data = response.json()
-                        st.success(f"File uploaded successfully! Job ID: {data['job_id']}")
-                        st.json(data)
-                    else:
-                        st.error(f"Upload failed: {response.text}")
-                except Exception as e:
-                    st.error(f"Error: {str(e)}")
+    if uploaded_file is not None and st.button("🚀 Upload & Process"):
+        with st.spinner("Uploading and triggering background pipeline..."):
+            try:
+                files = {"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)}
+                response = httpx.post(
+                    f"{api_url}/v1/ingest",
+                    files=files,
+                    headers=headers,
+                    timeout=30.0
+                )
+                
+                if response.status_code == 202:
+                    data = response.json()
+                    st.success(f"File uploaded successfully! Job ID: {data['job_id']}")
+                    st.json(data)
+                else:
+                    st.error(f"Upload failed: {response.text}")
+            except Exception as e:
+                st.error(f"Error: {str(e)}")
     
     st.divider()
     st.subheader("📋 Document Status")
@@ -185,8 +183,8 @@ with tabs[2]:
                         <div class="metric-label">Avg Latency</div>
                         <div class="metric-value">{stats['average_latency_ms']:.2f}ms</div>
                     </div>
-                    """, unsafe_allow_index=True)
-            except:
+                    """, unsafe_allow_html=True)
+            except Exception:
                 st.warning("Admin endpoints might require higher privileges.")
                 
     with col2:
@@ -196,8 +194,8 @@ with tabs[2]:
                 response = httpx.post(f"{api_url}/v1/admin/eval/run", headers=headers)
                 if response.status_code == 202:
                     st.info("Evaluation task submitted to Celery worker.")
-            except:
-                st.error("Evaluation trigger failed.")
+            except Exception as e:
+                st.error(f"Evaluation trigger failed: {e}")
 
     st.divider()
     st.subheader("🏆 Latest Evaluation Results")
@@ -211,9 +209,9 @@ with tabs[2]:
                 st.table(results["results"])
             else:
                 st.write("No evaluation data available yet.")
-    except:
+    except Exception:
         st.write("Unable to fetch evaluation results.")
 
 # Footer
 st.markdown("---")
-st.markdown("Built with ❤️ by the Antigravity Team")
+st.markdown("Developed and maintained by Ismail Yahya")

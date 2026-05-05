@@ -1,5 +1,7 @@
 from uuid import uuid4
+
 from src.core.context import tenant_id_context
+
 
 def test_tenant_id_context():
     """Verify tenant_id context variable behavior."""

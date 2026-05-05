@@ -1,14 +1,15 @@
-import pytest
 from unittest.mock import MagicMock
 
+import pytest
+from pydantic import SecretStr
+
 from src.core.config import Settings
+from src.llm.anthropic_llm import AnthropicLLM
 from src.llm.base import BaseLLM
 from src.llm.factory import LLMFactory, LLMProvider
-from src.llm.openai_llm import OpenAILLM
-from src.llm.anthropic_llm import AnthropicLLM
-from src.llm.ollama_llm import OllamaLLM
 from src.llm.gemini_llm import GeminiLLM
-from pydantic import SecretStr
+from src.llm.ollama_llm import OllamaLLM
+from src.llm.openai_llm import OpenAILLM
 
 
 @pytest.fixture

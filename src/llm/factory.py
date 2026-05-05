@@ -1,5 +1,4 @@
-from enum import Enum
-from typing import Any
+from enum import StrEnum
 
 from src.core import Settings
 from src.llm.anthropic_llm import AnthropicLLM
@@ -9,7 +8,7 @@ from src.llm.ollama_llm import OllamaLLM
 from src.llm.openai_llm import OpenAILLM
 
 
-class LLMProvider(str, Enum):
+class LLMProvider(StrEnum):
     """Supported LLM providers."""
 
     OPENAI = "openai"
@@ -50,8 +49,8 @@ class LLMFactory:
         if isinstance(provider, str):
             try:
                 provider_enum = LLMProvider(provider.lower())
-            except ValueError:
-                raise ValueError(f"Unsupported LLM provider: {provider}")
+            except ValueError as e:
+                raise ValueError(f"Unsupported LLM provider: {provider}") from e
         else:
             provider_enum = provider
 

@@ -3,7 +3,6 @@ from fastapi import Request, Response, status
 from redis import asyncio as redis
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
-from src.core.config import settings
 from src.core.context import tenant_id_context
 
 logger = structlog.get_logger(__name__)
