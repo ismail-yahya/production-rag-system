@@ -1,0 +1,76 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, milestone/* ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Install dependencies
+        run: uv sync
+      - name: Ruff Check
+        run: uv run ruff check .
+      - name: Ruff Format Check
+        run: uv run ruff format --check .
+      - name: Mypy
+        run: uv run mypy src
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Install dependencies
+        run: uv sync
+      - name: Start Services
+        run: docker compose -f infrastructure/docker-compose.yml up -d
+      - name: Wait for Services
+        run: |
+          until docker exec rag_postgres pg_isready; do
+            echo "Waiting for Postgres..."
+            sleep 5
+          done
+          until curl -s http://localhost:6333/health | grep -q "ok"; do
+            echo "Waiting for Qdrant..."
+            sleep 5
+          done
+          echo "Services are ready!"
+      - name: Run Database Migrations
+        env:
+          POSTGRES_DSN: "postgresql+asyncpg://postgres:postgres@localhost:5432/rag_db"
+        run: uv run alembic upgrade head
+      - name: Run Tests with Coverage
+        env:
+          OPENAI_API_KEY: "sk-dummy"
+          ANTHROPIC_API_KEY: "sk-dummy"
+          COHERE_API_KEY: "sk-dummy"
+          POSTGRES_DSN: "postgresql+asyncpg://postgres:postgres@localhost:5432/rag_db"
+          QDRANT_URL: "http://localhost:6333"
+          REDIS_BROKER_URL: "redis://localhost:6379/0"
+          REDIS_BACKEND_URL: "redis://localhost:6379/1"
+          MINIO_ENDPOINT: "localhost:9000"
+          MINIO_ACCESS_KEY: "minioadmin"
+          MINIO_SECRET_KEY: "minioadmin"
+          LOG_LEVEL: "INFO"
+          ENVIRONMENT: "testing"
+        run: uv run pytest --cov=src --cov-report=term-missing
+      - name: Stop Services
+        if: always()
+        run: docker compose -f infrastructure/docker-compose.yml down
