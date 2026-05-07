@@ -140,10 +140,12 @@ with tabs[1]:
                 
                 if response.status_code == 202:
                     data = response.json()
-                    st.success(f"File uploaded successfully! Job ID: {data['job_id']}")
+                    st.success(f"تم رفع الملف بنجاح! معرف المستند: {data['document_id']}")
                     st.json(data)
+                elif response.status_code == 409:
+                    st.warning("⚠️ الملف موجود بالفعل في النظام.")
                 else:
-                    st.error(f"Upload failed: {response.text}")
+                    st.error(f"فشل الرفع: {response.text}")
             except Exception as e:
                 st.error(f"Error: {str(e)}")
     

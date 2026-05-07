@@ -3,10 +3,10 @@ import json
 
 import structlog
 
-from scripts.evaluate import run_evaluation
 from src.workers.celery_app import celery_app
 
 logger = structlog.get_logger(__name__)
+
 
 @celery_app.task(name="src.workers.eval_worker.run_ragas_eval")
 def run_ragas_eval():
@@ -15,6 +15,9 @@ def run_ragas_eval():
     """
     logger.info("eval_task_started")
     try:
+        # Deferred import to avoid loading heavy langchain/openai deps at worker startup
+        from scripts.evaluate import run_evaluation  # noqa: PLC0415
+
         # Run the modular evaluation logic
         # Defaulting to the baseline dataset for now
         scores = asyncio.run(run_evaluation("tests/eval_dataset.json"))

@@ -71,6 +71,10 @@ class LLMFactory:
             return OllamaLLM()
 
         if provider_enum == LLMProvider.GEMINI:
-            return GeminiLLM(api_key=settings.GOOGLE_API_KEY)
+            return GeminiLLM(
+                api_key=settings.GOOGLE_API_KEY,
+                model_name=settings.GEMINI_MODEL,
+                streaming_model_name=settings.GEMINI_STREAMING_MODEL,
+            )
 
         raise ValueError(f"Unsupported LLM provider: {provider_enum}")  # pragma: no cover

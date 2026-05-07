@@ -111,14 +111,17 @@ class RAGPipeline:
         ]
         retrieval_results = await asyncio.gather(*retrieval_tasks)
 
-        # 4. Deduplication: Flatten and keep highest score for each doc
-        unique_docs: dict[UUID, Document] = {}
+        # 4. Deduplication: Flatten and keep highest score for each unique content
+        import hashlib
+        unique_docs: dict[str, Document] = {}
         for doc_list in retrieval_results:
             for doc in doc_list:
-                if doc.id not in unique_docs or (doc.score or 0) > (
-                    unique_docs[doc.id].score or 0
+                # Use a hash of the content for deduplication
+                content_hash = hashlib.sha256(doc.content.encode()).hexdigest()
+                if content_hash not in unique_docs or (doc.score or 0) > (
+                    unique_docs[content_hash].score or 0
                 ):
-                    unique_docs[doc.id] = doc
+                    unique_docs[content_hash] = doc
 
         candidates = list(unique_docs.values())
 

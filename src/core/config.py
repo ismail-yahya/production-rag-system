@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     LANGSMITH_API_KEY: SecretStr | None = None
     LANGCHAIN_PROJECT: str = "production-rag-system"
     GOOGLE_API_KEY: SecretStr | None = None
+    # The programmer chose this model; do not change it unless explicitly requested.
+    GEMINI_MODEL: str = "gemini-3-flash-preview"
+    GEMINI_STREAMING_MODEL: str = "gemini-3-flash-preview"
 
     # Vector Store (Qdrant)
     QDRANT_URL: str = "http://localhost:6333"
@@ -50,8 +53,10 @@ class Settings(BaseSettings):
     # Embedding Configuration
     OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-large"
     OPENAI_EMBEDDING_BATCH_SIZE: int = 100
+    COHERE_EMBEDDING_MODEL: str = "embed-multilingual-v3.0"
     LOCAL_EMBEDDING_MODEL: str = "BAAI/bge-m3"
     EMBEDDING_DEVICE: str = "cpu"
+    EMBEDDING_DIMENSION: int = 1024  # Default for Cohere embed-multilingual-v3.0
 
     # Retrieval Configuration
     RETRIEVAL_TOP_K: int = 10
@@ -63,6 +68,9 @@ class Settings(BaseSettings):
     # Ingestion Configuration
     CHUNK_SIZE: int = 1000
     CHUNK_OVERLAP: int = 200
+
+    # RAG Pipeline Configuration
+    RAG_CONTEXT_MAX_TOKENS: int = 4000
 
 
 settings = Settings()

@@ -11,18 +11,28 @@ from src.llm.base import BaseLLM, LLMMessage, LLMResponse
 class GeminiLLM(BaseLLM):
     """Google Gemini implementation of the BaseLLM interface."""
 
-    def __init__(self, api_key: SecretStr | None) -> None:
+    def __init__(
+        self,
+        api_key: SecretStr | None,
+        # The programmer chose this model; do not change it unless explicitly requested.
+        model_name: str = "gemini-3-flash-preview",
+        streaming_model_name: str = "gemini-3-flash-preview",
+    ) -> None:
         """
         Initialize the Gemini LLM provider.
         
         Args:
             api_key: The Google API key as a SecretStr.
+            model_name: Default model for standard generation.
+            streaming_model_name: Default model for streaming generation.
         """
         if api_key is None:
             raise LLMError("Google API key is required but was not provided.")
             
         try:
             genai.configure(api_key=api_key.get_secret_value())
+            self._model_name = model_name
+            self._streaming_model_name = streaming_model_name
         except Exception as e:
             raise LLMError(f"Failed to initialize Gemini client: {e}") from e
 
@@ -35,10 +45,24 @@ class GeminiLLM(BaseLLM):
             formatted.append({"role": role, "parts": [msg.content]})
         return formatted
 
+    def _get_generation_config(self, kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Extract and format generation configuration."""
+        config = {}
+        if "temperature" in kwargs:
+            config["temperature"] = kwargs.pop("temperature")
+        if "top_p" in kwargs:
+            config["top_p"] = kwargs.pop("top_p")
+        if "top_k" in kwargs:
+            config["top_k"] = kwargs.pop("top_k")
+        if "max_output_tokens" in kwargs:
+            config["max_output_tokens"] = kwargs.pop("max_output_tokens")
+        return config
+
     async def generate(self, messages: list[LLMMessage], **kwargs: Any) -> LLMResponse:
         """Generate a complete response using the Gemini API."""
         try:
-            model_name = kwargs.pop("model", "gemini-1.5-flash")
+            model_name = kwargs.pop("model", self._model_name)
+            generation_config = self._get_generation_config(kwargs)
             
             # Extract system instruction if present
             system_instruction = None
@@ -55,6 +79,7 @@ class GeminiLLM(BaseLLM):
             
             response = await model.generate_content_async(
                 formatted_messages,
+                generation_config=generation_config,
                 **kwargs
             )
             
@@ -80,7 +105,8 @@ class GeminiLLM(BaseLLM):
     async def stream(self, messages: list[LLMMessage], **kwargs: Any) -> AsyncGenerator[str, None]:
         """Stream a response from the Gemini API token by token."""
         try:
-            model_name = kwargs.pop("model", "gemini-1.5-flash")
+            model_name = kwargs.pop("model", self._streaming_model_name)
+            generation_config = self._get_generation_config(kwargs)
             
             # Extract system instruction if present
             system_instruction = None
@@ -98,6 +124,7 @@ class GeminiLLM(BaseLLM):
             response = await model.generate_content_async(
                 formatted_messages,
                 stream=True,
+                generation_config=generation_config,
                 **kwargs
             )
             

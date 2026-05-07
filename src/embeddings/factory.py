@@ -4,6 +4,7 @@ from src.core import Settings
 from src.embeddings.base import BaseEmbedder
 from src.embeddings.local_embedder import LocalEmbedder
 from src.embeddings.openai_embedder import OpenAIEmbedder
+from src.embeddings.cohere_embedder import CohereEmbedder
 
 
 class EmbeddingProvider(StrEnum):
@@ -11,6 +12,7 @@ class EmbeddingProvider(StrEnum):
 
     OPENAI = "openai"
     LOCAL = "local"
+    COHERE = "cohere"
 
 
 class EmbedderFactory:
@@ -22,6 +24,7 @@ class EmbedderFactory:
     _registry: dict[EmbeddingProvider, type[BaseEmbedder]] = {
         EmbeddingProvider.OPENAI: OpenAIEmbedder,
         EmbeddingProvider.LOCAL: LocalEmbedder,
+        EmbeddingProvider.COHERE: CohereEmbedder,
     }
 
     @classmethod
@@ -67,6 +70,12 @@ class EmbedderFactory:
             return LocalEmbedder(
                 model_name=settings.LOCAL_EMBEDDING_MODEL,
                 device=settings.EMBEDDING_DEVICE,
+            )
+
+        if provider_enum == EmbeddingProvider.COHERE:
+            return CohereEmbedder(
+                api_key=settings.COHERE_API_KEY,
+                model=settings.COHERE_EMBEDDING_MODEL,
             )
 
         raise ValueError(f"Unsupported embedding provider: {provider_enum}")  # pragma: no cover

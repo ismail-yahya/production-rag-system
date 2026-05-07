@@ -41,6 +41,21 @@ async def upload_document(
     temp_path = os.path.join(temp_dir, f"{doc_id}{ext}")
 
     content = await file.read()
+    import hashlib
+    content_hash = hashlib.sha256(content).hexdigest()
+
+    # Create database records
+    doc_repo = DocumentRepository(session)
+    job_repo = IngestionJobRepository(session)
+
+    # Check for duplicates
+    existing_doc = await doc_repo.get_by_hash(content_hash, tenant.id)
+    if existing_doc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"File already exists (ID: {existing_doc.id})",
+        )
+
     with open(temp_path, "wb") as f:
         f.write(content)
 
@@ -55,10 +70,6 @@ async def upload_document(
             detail=f"Failed to upload to storage: {str(e)}",
         ) from e
 
-    # Create database records
-    doc_repo = DocumentRepository(session)
-    job_repo = IngestionJobRepository(session)
-
     await doc_repo.create(
         id=doc_id,
         tenant_id=tenant.id,
@@ -67,6 +78,7 @@ async def upload_document(
         file_size_bytes=len(content),
         storage_path=storage_path,
         status="pending",
+        content_hash=content_hash,
     )
 
     await job_repo.create(

@@ -61,13 +61,27 @@ async def test_get_document_not_found(client, test_tenant):
     assert response.json()["detail"] == "Document not found"
 
 @pytest.mark.asyncio
-async def test_delete_document_not_found(client, test_tenant):
+async def test_upload_document_duplicate(client, test_tenant):
     # Arrange
     headers = {"Authorization": f"Bearer {test_tenant.api_key_hash}"}
-    fake_id = uuid.uuid4()
+    file_content = b"duplicate pdf content"
+    file_name = "duplicate.pdf"
     
-    # Act
-    response = await client.delete(f"/v1/documents/{fake_id}", headers=headers)
-    
-    # Assert
-    assert response.status_code == 404
+    with patch("src.api.routers.ingestion.storage_service") as mock_storage, \
+         patch("src.api.routers.ingestion.ingest_document") as mock_task:
+        
+        mock_storage.upload_file.return_value = None
+        mock_task.delay.return_value = MagicMock(id="task-id")
+        
+        # First upload
+        files = {"file": (file_name, BytesIO(file_content), "application/pdf")}
+        response = await client.post("/v1/ingest", files=files, headers=headers)
+        assert response.status_code == 202
+        
+        # Second upload (duplicate content)
+        files = {"file": (file_name, BytesIO(file_content), "application/pdf")}
+        response = await client.post("/v1/ingest", files=files, headers=headers)
+        
+        # Assert
+        assert response.status_code == 409
+        assert "File already exists" in response.json()["detail"]

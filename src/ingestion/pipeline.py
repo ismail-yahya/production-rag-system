@@ -97,9 +97,11 @@ class IngestionPipeline:
 
             # 2. Extract raw text and metadata
             raw_doc = await loader.load(file_path)
+            logger.info("Stage 1: Document loaded successfully", extension=ext, content_length=len(raw_doc.content))
 
             # 3. Clean and normalize text
             cleaned_content = self.cleaner.clean(raw_doc.content)
+            logger.info("Stage 2: Text cleaning completed", original_length=len(raw_doc.content), cleaned_length=len(cleaned_content))
 
             # 4. Generate semantic chunks
             # Merge provided metadata with loader-extracted metadata
@@ -109,6 +111,7 @@ class IngestionPipeline:
             base_metadata["document_id"] = str(document_id)
 
             chunks = await self.chunker.chunk(cleaned_content, metadata=base_metadata)
+            logger.info("Stage 3: Text chunking completed", chunk_count=len(chunks))
             if not chunks:
                 logger.warning("Document yielded no chunks", document_id=str(document_id))
                 return 0
@@ -116,6 +119,7 @@ class IngestionPipeline:
             # 5. Generate embeddings for all chunks in a single batch
             texts = [c.content for c in chunks]
             embeddings = await self.embedder.embed_texts(texts)
+            logger.info("Stage 4: Embeddings generated successfully", embedding_count=len(embeddings))
 
             # 6. Construct vector store documents and upsert
             vector_docs = []
@@ -130,6 +134,7 @@ class IngestionPipeline:
                 )
 
             await self.vector_store.upsert(vector_docs)
+            logger.info("Stage 5: Vector database indexing completed", indexed_count=len(vector_docs))
 
             latency_ms = int((time.perf_counter() - start_time) * 1000)
             logger.info(
