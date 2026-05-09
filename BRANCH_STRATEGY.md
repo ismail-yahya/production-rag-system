@@ -51,6 +51,7 @@ git tag vN.0  # e.g., v2.0 for Milestone 2
 | `v4.0` | Milestone 4 — RAG Pipeline |
 | `v5.0` | Milestone 5 — Evaluation |
 | `v6.0` | Milestone 6 — Deployment |
+| `v7.0` | Milestone 7 — Improvements |
 
 ---
 *Last updated: 2026-05-02 (Solo Workflow Edition)*

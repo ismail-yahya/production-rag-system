@@ -6,7 +6,9 @@ from uuid import UUID
 
 import structlog
 
-from src.core.cache import SemanticCache
+# TEMPORARILY DISABLED — Semantic Cache feature paused (see steps 2 & 9 below).
+# تم تعليق ميزة الذاكرة المخبئية الدلالية مؤقتاً — راجع الخطوتين 2 و 9 أدناه.
+# from src.core.cache import SemanticCache
 from src.core.exceptions import LLMError, SecurityError
 from src.llm.base import BaseLLM, LLMMessage
 from src.observability.tracer import traceable
@@ -41,7 +43,9 @@ class RAGPipeline:
         reranker: CohereReranker,
         query_processor: QueryProcessor,
         context_builder: ContextBuilder,
-        cache: SemanticCache | None = None,
+        # TEMPORARILY DISABLED — cache parameter kept for future re-enablement.
+        # تم تعليق معامل الكاش مؤقتاً مع الإبقاء عليه لإعادة التفعيل لاحقاً.
+        # cache: SemanticCache | None = None,
     ) -> None:
         """
         Initialize the RAGPipeline with its required dependencies.
@@ -58,7 +62,9 @@ class RAGPipeline:
         self.reranker = reranker
         self.query_processor = query_processor
         self.context_builder = context_builder
-        self.cache = cache
+        # TEMPORARILY DISABLED — cache assignment paused alongside constructor param.
+        # self.cache = cache
+        self.cache = None  # forced to None until Semantic Cache is re-enabled
 
     @traceable
     async def query(
@@ -90,13 +96,21 @@ class RAGPipeline:
         # 1. Security: Sanitize incoming query
         SecurityGuard.sanitize_query(question)
 
-        # 2. Cache Lookup
-        if self.cache:
-            cached_response = await self.cache.get(question, tenant_id)
-            if cached_response:
-                # Return cached response but update latency to reflect cache hit speed
-                cached_response["latency_ms"] = round((time.perf_counter() - start_time) * 1000, 2)
-                return RAGResponse(**cached_response)
+        # 2. Cache Lookup — TEMPORARILY DISABLED
+        # ─────────────────────────────────────────────────────────────────────────
+        # تم التخلي عن هذه الميزة مؤقتاً.
+        # قبل القيام بأي عمليات مكلفة، كان النظام يتحقق مما إذا كان هذا السؤال
+        # (أو سؤال مشابه له جداً دلالياً) قد تم طرحه مسبقاً من قبل نفس المستأجر.
+        # إذا وجد إجابة جاهزة في Redis، يعيدها فوراً مع تحديث latency_ms.
+        # السبب: تحتاج هذه الميزة إلى مزيد من الاختبار وضبط عتبة التشابه الدلالي
+        # قبل تفعيلها في بيئة الإنتاج.
+        # ─────────────────────────────────────────────────────────────────────────
+        # if self.cache:
+        #     cached_response = await self.cache.get(question, tenant_id)
+        #     if cached_response:
+        #         # Return cached response but update latency to reflect cache hit speed
+        #         cached_response["latency_ms"] = round((time.perf_counter() - start_time) * 1000, 2)
+        #         return RAGResponse(**cached_response)
 
         # 3. Query Processing: Expand and Classify in parallel
         expansions, category = await asyncio.gather(
@@ -166,9 +180,13 @@ class RAGPipeline:
             latency_ms=round(latency_ms, 2),
         )
 
-        # 9. Cache Write
-        if self.cache:
-            await self.cache.set(question, tenant_id, rag_response.model_dump())
+        # 9. Cache Write — TEMPORARILY DISABLED
+        # ─────────────────────────────────────────────────────────────────────────
+        # تم التخلي عن هذه الخطوة مؤقتاً بالتزامن مع تعطيل خطوة 2 (Cache Lookup).
+        # كانت هذه الخطوة تحفظ الإجابة المولّدة في Redis لإعادة استخدامها لاحقاً.
+        # ─────────────────────────────────────────────────────────────────────────
+        # if self.cache:
+        #     await self.cache.set(question, tenant_id, rag_response.model_dump())
 
         logger.info(
             "rag_query_completed",
