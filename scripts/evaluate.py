@@ -121,6 +121,6 @@ if __name__ == "__main__":
         failed_metrics = [m for m, s in scores.items() if s < threshold]
         if failed_metrics:
             logger.warning("evaluation_below_threshold", failed_metrics=failed_metrics)
-            # sys.exit(1)
+            sys.exit(1)
         else:
             logger.info("evaluation_passed_threshold")

@@ -1,4 +1,5 @@
 import os
+import tempfile
 import uuid
 from typing import Annotated
 
@@ -33,9 +34,8 @@ async def upload_document(
     ext = os.path.splitext(file.filename)[1]
     storage_path = f"{tenant.id}/{doc_id}{ext}"
 
-    # Use a temporary directory that works across platforms for local dev
-    # but primarily targets the /tmp volume in Docker.
-    temp_dir = "/tmp/rag_uploads"
+    # Use a temporary directory that works across platforms
+    temp_dir = os.path.join(tempfile.gettempdir(), "rag_uploads")
     os.makedirs(temp_dir, exist_ok=True)
     temp_path = os.path.join(temp_dir, f"{doc_id}{ext}")
 

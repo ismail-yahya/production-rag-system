@@ -1,5 +1,6 @@
 import asyncio
 import os
+import tempfile
 import uuid
 from typing import Any
 
@@ -99,7 +100,7 @@ def ingest_document(
         asyncio.run(_update_status("processing"))
         
         # 2. Download file from storage to local temporary path
-        temp_dir = "/tmp/rag_worker"
+        temp_dir = os.path.join(tempfile.gettempdir(), "rag_worker")
         os.makedirs(temp_dir, exist_ok=True)
         local_path = os.path.join(temp_dir, f"{document_id}_{os.path.basename(file_path)}")
         

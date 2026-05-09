@@ -59,6 +59,7 @@ class Settings(BaseSettings):
     RETRIEVAL_KEYWORD_WEIGHT: float = 0.3
     RETRIEVAL_FINAL_TOP_K: int = 5
     COHERE_RERANK_MODEL: str = "rerank-multilingual-v3.0"
+    RAG_CONTEXT_MAX_TOKENS: int = 6000
 
     # Ingestion Configuration
     CHUNK_SIZE: int = 1000

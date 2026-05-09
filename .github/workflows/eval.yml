@@ -27,21 +27,29 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
+      - name: Create .env file
+        run: cp .env.example .env
+
       - name: Start Services
-        run: docker compose up -d
+        run: docker compose up -d postgres redis qdrant minio
 
       - name: Wait for Services
         run: |
-          # Wait for Postgres
-          until docker exec $(docker ps -q -f name=postgres) pg_isready; do
-            echo "Waiting for Postgres..."
-            sleep 5
+          echo "Waiting for Postgres..."
+          until docker exec rag_postgres pg_isready; do
+            sleep 2
           done
-          # Wait for Qdrant
+          
+          echo "Waiting for Redis..."
+          until docker exec rag_redis redis-cli ping | grep -q "PONG"; do
+            sleep 2
+          done
+
+          echo "Waiting for Qdrant..."
           until curl -s http://localhost:6333/health | grep -q "ok"; do
-            echo "Waiting for Qdrant..."
-            sleep 5
+            sleep 2
           done
+          
           echo "Services are ready!"
 
       - name: Run Database Migrations

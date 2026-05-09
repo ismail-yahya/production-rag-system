@@ -29,6 +29,9 @@ dependencies = [
     "boto3>=1.42.97",
     "ollama>=0.6.2",
     "langsmith>=0.3.0",
+    "langchain-openai",
+    "langchain-community",
+    "datasets",
 ]
 
 [tool.ruff]
