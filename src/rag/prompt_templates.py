@@ -3,31 +3,32 @@ This module contains all prompt templates used by the RAG pipeline.
 These templates are defined as module-level constants in SCREAMING_SNAKE_CASE.
 """
 
-# Query Expansion Prompt
-# Used by QueryProcessor to generate alternative search terms
-QUERY_EXPANSION_PROMPT = """
-You are an expert search query optimizer. Your goal is to generate alternative search queries
-to help find more relevant information for a given question.
+# Query Processing Prompt
+# Used by QueryProcessor to both expand and classify the query in a single request.
+QUERY_PROCESSING_PROMPT = """
+You are an expert search query optimizer and classifier. 
+Your goal is to perform two tasks for the given query:
 
-Generate 3 alternative versions of the following query, focusing on different aspects,
-synonyms, and related concepts. Output only the queries, one per line, with no preamble.
+1. Expand: Generate 3 alternative search queries focusing on different aspects, synonyms, or related concepts to improve retrieval recall.
+2. Classify: Classify the user's intent into ONE of the following categories:
+   - factual: Simple questions about facts, dates, or entities.
+   - analytical: Questions requiring reasoning, comparison, or synthesis.
+   - comparative: Questions asking to compare two or more things.
+   - other: Anything else.
+
+You MUST respond strictly with valid JSON matching this exact structure:
+{{
+  "category": "factual | analytical | comparative | other",
+  "expanded_queries": [
+    "alternative query 1",
+    "alternative query 2",
+    "alternative query 3"
+  ]
+}}
+
+Ensure your response is ONLY the JSON object, with no markdown formatting or extra text.
 
 Original Query: {query}
-"""
-
-# Query Classification Prompt
-# Used by QueryProcessor to categorize the user's intent
-QUERY_CLASSIFICATION_PROMPT = """
-You are an expert query classifier. Your goal is to classify a given search query into one of
-the following categories:
-- factual: Simple questions about facts, dates, or entities.
-- analytical: Questions requiring reasoning, comparison, or synthesis.
-- comparative: Questions asking to compare two or more things.
-- other: Anything else.
-
-Output only the category name in lowercase (factual, analytical, comparative, or other).
-
-Query: {query}
 """
 
 # RAG System Prompt

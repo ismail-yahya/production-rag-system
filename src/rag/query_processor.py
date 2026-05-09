@@ -1,7 +1,9 @@
+import json
 import structlog
 from src.core.exceptions import LLMError
 from src.llm.base import BaseLLM, LLMMessage
-from src.rag.prompt_templates import QUERY_CLASSIFICATION_PROMPT, QUERY_EXPANSION_PROMPT
+from src.rag.prompt_templates import QUERY_PROCESSING_PROMPT
+from src.rag.schemas import QueryProcessingResult
 
 logger = structlog.get_logger(__name__)
 
@@ -12,67 +14,53 @@ class QueryProcessor:
     def __init__(self, llm: BaseLLM) -> None:
         self.llm = llm
 
-    async def expand_query(self, query: str) -> list[str]:
+    async def process_query(self, query: str) -> tuple[list[str], str]:
         """
-        Expands the user query into multiple search queries to improve retrieval recall.
+        Expands the user query and classifies it in a single LLM request.
 
         Args:
             query: The original user query.
 
         Returns:
-            A list of expanded queries, including the original one.
+            A tuple of (expanded_queries, category).
 
         Raises:
-            LLMError: If the LLM call fails.
+            LLMError: If the LLM call fails or parsing fails.
         """
-        logger.info("expanding_query", query=query[:100])
+        logger.info("processing_query", query=query[:100])
 
-        prompt = QUERY_EXPANSION_PROMPT.format(query=query)
+        prompt = QUERY_PROCESSING_PROMPT.format(query=query)
         messages = [LLMMessage(role="user", content=prompt)]
 
         try:
             response = await self.llm.generate(messages, temperature=0.0)
-            expanded = [q.strip() for q in response.content.split("\n") if q.strip()]
+            
+            # Clean up the response in case the model added markdown blocks like ```json ... ```
+            content = response.content.strip()
+            if content.startswith("```json"):
+                content = content[7:]
+            if content.startswith("```"):
+                content = content[3:]
+            if content.endswith("```"):
+                content = content[:-3]
+            content = content.strip()
 
+            parsed_data = json.loads(content)
+            result = QueryProcessingResult(**parsed_data)
+            
+            expanded = result.expanded_queries.copy()
             # Ensure the original query is included if not already there
             if query not in expanded:
                 expanded.insert(0, query)
 
-            logger.debug("query_expanded", count=len(expanded))
-            return expanded
-        except Exception as e:
-            logger.error("query_expansion_failed", error=str(e), exc_info=True)
-            raise LLMError(f"Failed to expand query: {str(e)}") from e
-
-    async def classify_query(self, query: str) -> str:
-        """
-        Classifies the user query into a category to assist in prompt selection or routing.
-
-        Args:
-            query: The original user query.
-
-        Returns:
-            The classification category (e.g., 'factual', 'analytical').
-
-        Raises:
-            LLMError: If the LLM call fails.
-        """
-        logger.info("classifying_query", query=query[:100])
-
-        prompt = QUERY_CLASSIFICATION_PROMPT.format(query=query)
-        messages = [LLMMessage(role="user", content=prompt)]
-
-        try:
-            response = await self.llm.generate(messages, temperature=0.0)
-            category = response.content.strip().lower()
-
+            category = result.category.lower()
             valid_categories = {"factual", "analytical", "comparative", "other"}
             if category not in valid_categories:
                 logger.warning("invalid_category_detected", category=category)
-                return "other"
+                category = "other"
 
-            logger.debug("query_classified", category=category)
-            return category
+            logger.debug("query_processed", count=len(expanded), category=category)
+            return expanded, category
         except Exception as e:
-            logger.error("query_classification_failed", error=str(e), exc_info=True)
-            raise LLMError(f"Failed to classify query: {str(e)}") from e
+            logger.error("query_processing_failed", error=str(e), exc_info=True)
+            raise LLMError(f"Failed to process query: {str(e)}") from e

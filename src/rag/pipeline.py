@@ -112,11 +112,8 @@ class RAGPipeline:
         #         cached_response["latency_ms"] = round((time.perf_counter() - start_time) * 1000, 2)
         #         return RAGResponse(**cached_response)
 
-        # 3. Query Processing: Expand and Classify in parallel
-        expansions, category = await asyncio.gather(
-            self.query_processor.expand_query(question),
-            self.query_processor.classify_query(question),
-        )
+        # 3. Query Processing: Expand and Classify in a single request
+        expansions, category = await self.query_processor.process_query(question)
 
         # 3. Retrieval: Search for each expansion in parallel
         retrieval_tasks = [
@@ -219,10 +216,7 @@ class RAGPipeline:
         # Steps 1-6 are identical to blocking query
         SecurityGuard.sanitize_query(question)
 
-        expansions, _ = await asyncio.gather(
-            self.query_processor.expand_query(question),
-            self.query_processor.classify_query(question),
-        )
+        expansions, category = await self.query_processor.process_query(question)
 
         retrieval_tasks = [
             self.retriever.retrieve(q, tenant_id, filters) for q in expansions

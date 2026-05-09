@@ -31,3 +31,15 @@ class RAGResponse(BaseModel):
     retrieval_count: int
     model: str
     latency_ms: float
+
+
+class QueryProcessingResult(BaseModel):
+    """
+    Structured output from the LLM when processing a user query.
+    Contains both the classification category and expanded queries.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    category: str
+    expanded_queries: list[str] = Field(default_factory=list)

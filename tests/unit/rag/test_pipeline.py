@@ -39,11 +39,10 @@ async def test_query_success(
     question = "What is the capital of France?"
     tenant_id = uuid4()
 
-    mock_dependencies["query_processor"].expand_query.return_value = [
-        question,
-        "expanded query",
-    ]
-    mock_dependencies["query_processor"].classify_query.return_value = "factual"
+    mock_dependencies["query_processor"].process_query.return_value = (
+        [question, "expanded query"],
+        "factual",
+    )
 
     doc1 = Document(
         id=uuid4(), content="Paris is the capital.", metadata={"file_name": "test.pdf"}, score=0.9
@@ -69,7 +68,7 @@ async def test_query_success(
     assert response.model == "test-model"
     assert response.latency_ms > 0
 
-    mock_dependencies["query_processor"].expand_query.assert_called_once_with(question)
+    mock_dependencies["query_processor"].process_query.assert_called_once_with(question)
     # Retriever called for each expansion
     assert mock_dependencies["retriever"].retrieve.call_count == 2
     mock_dependencies["reranker"].rerank.assert_called_once()
@@ -95,8 +94,7 @@ async def test_stream_query_success(
     question = "Stream this."
     tenant_id = uuid4()
 
-    mock_dependencies["query_processor"].expand_query.return_value = [question]
-    mock_dependencies["query_processor"].classify_query.return_value = "other"
+    mock_dependencies["query_processor"].process_query.return_value = ([question], "other")
     mock_dependencies["retriever"].retrieve.return_value = []
     mock_dependencies["reranker"].rerank.return_value = []
     mock_dependencies["context_builder"].build_context.return_value = ""
@@ -127,8 +125,7 @@ async def test_query_strict_mode(
     # Arrange
     question = "Fact check this."
     tenant_id = uuid4()
-    mock_dependencies["query_processor"].expand_query.return_value = [question]
-    mock_dependencies["query_processor"].classify_query.return_value = "factual"
+    mock_dependencies["query_processor"].process_query.return_value = ([question], "factual")
     mock_dependencies["retriever"].retrieve.return_value = []
     mock_dependencies["reranker"].rerank.return_value = []
     mock_dependencies["llm"].generate.return_value = LLMResponse(content="Yes.", model="test")
@@ -152,8 +149,7 @@ async def test_stream_query_strict_mode(
     # Arrange
     question = "Stream strict."
     tenant_id = uuid4()
-    mock_dependencies["query_processor"].expand_query.return_value = [question]
-    mock_dependencies["query_processor"].classify_query.return_value = "factual"
+    mock_dependencies["query_processor"].process_query.return_value = ([question], "factual")
     mock_dependencies["retriever"].retrieve.return_value = []
     mock_dependencies["reranker"].rerank.return_value = []
 
@@ -185,8 +181,7 @@ async def test_stream_query_deduplication(
     doc_low = Document(id=doc_id, content="low", metadata={}, score=0.5)
     doc_high = Document(id=doc_id, content="high", metadata={}, score=0.9)
     
-    mock_dependencies["query_processor"].expand_query.return_value = ["q1", "q2"]
-    mock_dependencies["query_processor"].classify_query.return_value = "other"
+    mock_dependencies["query_processor"].process_query.return_value = (["q1", "q2"], "other")
     # Return different versions of the same doc for different expansions
     mock_dependencies["retriever"].retrieve.side_effect = [[doc_low], [doc_high]]
     
