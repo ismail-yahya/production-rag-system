@@ -85,7 +85,7 @@ class RagasEvaluator:
             ragas_llm = LangchainLLMWrapper(self.llm)
             ragas_embeddings = LangchainEmbeddingsWrapper(self.embeddings)
 
-            result = await evaluate(
+            result = await evaluate(  # type: ignore[misc]
                 dataset=dataset,
                 metrics=self.metrics,
                 llm=ragas_llm,

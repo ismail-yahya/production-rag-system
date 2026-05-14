@@ -29,7 +29,9 @@ def test_factory_create_openai(mock_settings: Settings) -> None:
 
 def test_factory_create_local(mock_settings: Settings) -> None:
     mock_st = MagicMock()
-    with patch.dict("sys.modules", {"sentence_transformers": MagicMock(SentenceTransformer=mock_st)}):
+    with patch.dict(
+        "sys.modules", {"sentence_transformers": MagicMock(SentenceTransformer=mock_st)}
+    ):
         embedder = EmbedderFactory.create(EmbeddingProvider.LOCAL, mock_settings)
         assert isinstance(embedder, BaseEmbedder)
         assert isinstance(embedder, LocalEmbedder)

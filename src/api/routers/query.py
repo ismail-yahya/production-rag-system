@@ -1,4 +1,5 @@
 import json
+from collections.abc import AsyncGenerator
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -47,7 +48,7 @@ async def stream_query(
     Events follow the pattern: token -> sources -> done.
     """
 
-    async def event_generator():
+    async def event_generator() -> AsyncGenerator[str, None]:
         async for event in pipeline.stream_query(
             question=request.question,
             tenant_id=tenant.id,

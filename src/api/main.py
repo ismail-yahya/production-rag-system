@@ -87,7 +87,7 @@ async def health_check() -> dict[str, str]:
 @app.get("/ready")
 async def readiness_check(
     session: Annotated[AsyncSession, Depends(get_session)],
-) -> dict[str, str]:
+) -> JSONResponse | dict[str, str]:
     """
     Readiness check that verifies DB and Vector Store connectivity.
     """

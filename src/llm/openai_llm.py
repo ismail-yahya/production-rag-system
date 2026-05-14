@@ -70,7 +70,7 @@ class OpenAILLM(BaseLLM):
                 **kwargs,
             )
 
-            async for chunk in stream_response:
+            async for chunk in stream_response:  # type: ignore[union-attr]
                 if chunk.choices and chunk.choices[0].delta.content is not None:
                     yield chunk.choices[0].delta.content
 

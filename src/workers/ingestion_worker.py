@@ -22,7 +22,7 @@ from src.workers.celery_app import celery_app
 logger = structlog.get_logger(__name__)
 
 
-class IngestionTask(Task):
+class IngestionTask(Task):  # type: ignore[misc]
     """
     Custom Celery Task for document ingestion.
     Caches the IngestionPipeline for reuse across tasks in the same worker process.
@@ -31,7 +31,7 @@ class IngestionTask(Task):
     pass
 
 
-@celery_app.task(
+@celery_app.task(  # type: ignore[untyped-decorator]
     name="src.workers.ingestion_worker.ingest_document",
     base=IngestionTask,
     bind=True,
@@ -75,7 +75,7 @@ def ingest_document(
                 job_repo = IngestionJobRepository(session)
                 doc_repo = DocumentRepository(session)
 
-                doc_kwargs = {"status": status_str}
+                doc_kwargs: dict[str, Any] = {"status": status_str}
                 # Safely handle chunk_count which is a Document field, not IngestionJob
                 if "chunk_count" in kwargs:
                     doc_kwargs["chunk_count"] = kwargs.pop("chunk_count")

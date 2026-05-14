@@ -59,7 +59,7 @@ async def get_evaluation_results(
     """
     Retrieve the latest evaluation scores.
     """
-    r = redis.from_url(settings.REDIS_BACKEND_URL, decode_responses=True)
+    r = redis.from_url(settings.REDIS_BACKEND_URL, decode_responses=True)  # type: ignore[no-untyped-call]
     cached_results = r.get("latest_eval_results")
 
     if cached_results:

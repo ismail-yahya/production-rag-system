@@ -25,7 +25,7 @@ class SemanticCache:
         Args:
             embedder: Embedder used for generating query representations.
         """
-        self.redis = redis.from_url(settings.REDIS_BACKEND_URL, decode_responses=True)
+        self.redis = redis.from_url(settings.REDIS_BACKEND_URL, decode_responses=True)  # type: ignore[no-untyped-call]
         self.embedder = embedder
         self.ttl = 3600  # 1 hour cache TTL
 
@@ -48,7 +48,7 @@ class SemanticCache:
             cached_data = await self.redis.get(key)
             if cached_data:
                 logger.info("semantic_cache_hit", query=query[:50], tenant_id=str(tenant_id))
-                return json.loads(cached_data)
+                return json.loads(cached_data)  # type: ignore[no-any-return]
         except Exception as e:
             logger.error("semantic_cache_get_failure", error=str(e))
 

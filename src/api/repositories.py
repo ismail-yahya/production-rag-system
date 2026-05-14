@@ -76,7 +76,7 @@ class DocumentRepository:
         """
         stmt = delete(Document).where(Document.id == document_id, Document.tenant_id == tenant_id)
         result = await self.session.execute(stmt)
-        return result.rowcount > 0
+        return result.rowcount > 0  # type: ignore[attr-defined, no-any-return]
 
 
 class IngestionJobRepository:

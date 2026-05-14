@@ -1,9 +1,12 @@
+from collections.abc import MutableMapping
 from typing import Any
 
 import structlog
 
 
-def redact_sensitive_info(_, __, event_dict: dict[str, Any]) -> dict[str, Any]:
+def redact_sensitive_info(
+    logger: Any, method_name: str, event_dict: MutableMapping[str, Any]
+) -> MutableMapping[str, Any]:
     """Redacts sensitive keys from the event dictionary to prevent PII leakage."""
     sensitive_keys = {"api_key", "password", "token", "secret", "credentials", "api_key_hash"}
     for key in list(event_dict.keys()):

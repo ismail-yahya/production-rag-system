@@ -81,7 +81,7 @@ class CohereEmbedder(BaseEmbedder):
                 )
 
                 # Cohere V3 returns an object with embeddings inside
-                batch_vectors = response.embeddings.float
+                batch_vectors = response.embeddings.float  # type: ignore[union-attr]
                 all_vectors.extend(batch_vectors)
 
         except Exception as exc:

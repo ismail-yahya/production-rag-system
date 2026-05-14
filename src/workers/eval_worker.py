@@ -1,5 +1,6 @@
 import asyncio
 import json
+from typing import Any
 
 import structlog
 
@@ -8,8 +9,8 @@ from src.workers.celery_app import celery_app
 logger = structlog.get_logger(__name__)
 
 
-@celery_app.task(name="src.workers.eval_worker.run_ragas_eval")
-def run_ragas_eval():
+@celery_app.task(name="src.workers.eval_worker.run_ragas_eval")  # type: ignore[untyped-decorator]
+def run_ragas_eval() -> dict[str, Any]:
     """
     Celery task to run RAGAS evaluation in the background.
     """
@@ -29,11 +30,11 @@ def run_ragas_eval():
 
         from src.core.config import settings
 
-        r = redis.from_url(settings.REDIS_BACKEND_URL)
+        r = redis.from_url(settings.REDIS_BACKEND_URL)  # type: ignore[no-untyped-call]
         results = {
             "results": [
                 {"metric_name": k, "score": float(v), "description": "RAGAS automated metric"}
-                for k, v in scores.items()
+                for k, v in (scores or {}).items()
             ],
             "evaluated_at": datetime.now(UTC).isoformat(),
         }

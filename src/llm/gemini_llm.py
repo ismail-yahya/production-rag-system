@@ -30,7 +30,7 @@ class GeminiLLM(BaseLLM):
             raise LLMError("Google API key is required but was not provided.")
 
         try:
-            genai.configure(api_key=api_key.get_secret_value())
+            genai.configure(api_key=api_key.get_secret_value())  # type: ignore[attr-defined]
             self._model_name = model_name
             self._streaming_model_name = streaming_model_name
         except Exception as e:
@@ -70,14 +70,16 @@ class GeminiLLM(BaseLLM):
                 system_instruction = messages[0].content
                 messages = messages[1:]
 
-            model = genai.GenerativeModel(
+            model = genai.GenerativeModel(  # type: ignore[attr-defined]
                 model_name=model_name, system_instruction=system_instruction
             )
 
             formatted_messages = self._prepare_messages(messages)
 
             response = await model.generate_content_async(
-                formatted_messages, generation_config=generation_config, **kwargs
+                formatted_messages,
+                generation_config=generation_config,
+                **kwargs,  # type: ignore[arg-type]
             )
 
             content = response.text
@@ -107,14 +109,17 @@ class GeminiLLM(BaseLLM):
                 system_instruction = messages[0].content
                 messages = messages[1:]
 
-            model = genai.GenerativeModel(
+            model = genai.GenerativeModel(  # type: ignore[attr-defined]
                 model_name=model_name, system_instruction=system_instruction
             )
 
             formatted_messages = self._prepare_messages(messages)
 
             response = await model.generate_content_async(
-                formatted_messages, stream=True, generation_config=generation_config, **kwargs
+                formatted_messages,
+                stream=True,
+                generation_config=generation_config,
+                **kwargs,  # type: ignore[arg-type]
             )
 
             async for chunk in response:

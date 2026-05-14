@@ -42,7 +42,7 @@ class BaseLLM(ABC):
         pass  # pragma: no cover
 
     @abstractmethod
-    async def stream(self, messages: list[LLMMessage], **kwargs: Any) -> AsyncGenerator[str, None]:
+    def stream(self, messages: list[LLMMessage], **kwargs: Any) -> AsyncGenerator[str, None]:
         """
         Stream a response from the LLM token by token.
 

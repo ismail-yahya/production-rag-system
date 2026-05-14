@@ -10,7 +10,7 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 # Add project root to path
 sys.path.append(os.getcwd())
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from src.api.dependencies import get_rag_pipeline
 from src.core.config import settings
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 logger = structlog.get_logger(__name__)
 
 
-async def run_evaluation(dataset_path: str):
+async def run_evaluation(dataset_path: str) -> dict[str, Any] | None:
     """
     Runs end-to-end RAG evaluation.
     1. Loads evaluation dataset.
@@ -32,7 +32,7 @@ async def run_evaluation(dataset_path: str):
     # 1. Load Dataset
     if not os.path.exists(dataset_path):
         logger.error("dataset_not_found", path=dataset_path)
-        return
+        return None
 
     with open(dataset_path) as f:
         dataset = json.load(f)
@@ -71,7 +71,7 @@ async def run_evaluation(dataset_path: str):
             questions.append(question)
             answers.append(result.answer)
             # RAGAS expects contexts as a list of strings
-            contexts.append([s.content for s in result.sources])
+            contexts.append([s.snippet for s in result.sources])
             ground_truths.append(gt)
 
         except Exception as e:
@@ -82,11 +82,11 @@ async def run_evaluation(dataset_path: str):
     # We use LangChain wrappers for RAGAS as it's the standard integration path.
     eval_llm = ChatOpenAI(
         model="gpt-4o",
-        api_key=settings.OPENAI_API_KEY.get_secret_value() if settings.OPENAI_API_KEY else None,
+        api_key=settings.OPENAI_API_KEY.get_secret_value() if settings.OPENAI_API_KEY else None,  # type: ignore[arg-type]
     )
     eval_embeddings = OpenAIEmbeddings(
         model=settings.OPENAI_EMBEDDING_MODEL,
-        api_key=settings.OPENAI_API_KEY.get_secret_value() if settings.OPENAI_API_KEY else None,
+        api_key=settings.OPENAI_API_KEY.get_secret_value() if settings.OPENAI_API_KEY else None,  # type: ignore[arg-type]
     )
 
     evaluator = RagasEvaluator(llm=eval_llm, embeddings=eval_embeddings)
@@ -94,7 +94,7 @@ async def run_evaluation(dataset_path: str):
     # 5. Run Evaluation
     if not questions:
         logger.error("no_results_to_evaluate")
-        return
+        return None
 
     scores = await evaluator.evaluate_rag(
         questions=questions, answers=answers, contexts=contexts, ground_truths=ground_truths

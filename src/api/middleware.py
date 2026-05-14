@@ -1,3 +1,5 @@
+from typing import Any
+
 import structlog
 from fastapi import Request, Response, status
 from redis import asyncio as redis
@@ -14,9 +16,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     Currently applies a global per-IP limit for simplicity.
     """
 
-    def __init__(self, app, redis_url: str, limit: int = 100, window_seconds: int = 60) -> None:
+    def __init__(
+        self, app: Any, redis_url: str, limit: int = 100, window_seconds: int = 60
+    ) -> None:
         super().__init__(app)
-        self.redis = redis.from_url(redis_url, decode_responses=True)
+        self.redis = redis.from_url(redis_url, decode_responses=True)  # type: ignore[no-untyped-call]
         self.limit = limit
         self.window = window_seconds
 

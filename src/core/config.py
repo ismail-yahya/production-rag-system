@@ -72,8 +72,5 @@ class Settings(BaseSettings):
     CHUNK_SIZE: int = 1000
     CHUNK_OVERLAP: int = 200
 
-    # RAG Pipeline Configuration
-    RAG_CONTEXT_MAX_TOKENS: int = 4000
 
-
-settings = Settings()
+settings = Settings()  # type: ignore[call-arg]

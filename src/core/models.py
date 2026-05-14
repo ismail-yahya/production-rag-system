@@ -1,5 +1,6 @@
 import uuid
 from datetime import UTC, datetime
+from typing import Any
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -54,7 +55,7 @@ class Document(Base):
     content_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
     version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
     chunk_count: Mapped[int | None] = mapped_column(nullable=True)
-    metadata_json: Mapped[dict | None] = mapped_column("metadata", JSONB, nullable=True)
+    metadata_json: Mapped[dict[str, Any] | None] = mapped_column("metadata", JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
     )
@@ -157,7 +158,7 @@ class QueryLog(Base):
         ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False
     )
     query_text: Mapped[str] = mapped_column(String, nullable=False)
-    retrieved_chunk_ids: Mapped[list | None] = mapped_column(JSONB, nullable=True)
+    retrieved_chunk_ids: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
     latency_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
     cache_hit: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(

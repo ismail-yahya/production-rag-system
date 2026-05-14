@@ -5,10 +5,10 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.cache import SemanticCache
+# from src.core.cache import SemanticCache
 from src.core.config import settings
 from src.core.context import tenant_id_context
-from src.core.database import get_session
+from src.core.database import get_session as get_session
 from src.core.models import Tenant
 from src.embeddings.factory import EmbedderFactory
 from src.llm.factory import LLMFactory
@@ -64,7 +64,8 @@ def get_rag_pipeline() -> RAGPipeline:
     reranker = CohereReranker()
     query_processor = QueryProcessor(llm)
     context_builder = ContextBuilder(max_tokens=settings.RAG_CONTEXT_MAX_TOKENS)
-    cache = SemanticCache(embedder)
+    # TEMPORARILY DISABLED
+    # cache = SemanticCache(embedder)
 
     return RAGPipeline(
         llm=llm,
@@ -72,7 +73,7 @@ def get_rag_pipeline() -> RAGPipeline:
         reranker=reranker,
         query_processor=query_processor,
         context_builder=context_builder,
-        cache=cache,
+        # cache=cache,
     )
 
 

@@ -166,7 +166,7 @@ class QdrantVectorStore(BaseVectorStore):
                     models.FieldCondition(key=key, match=models.MatchValue(value=value))
                 )
 
-        return models.Filter(must=must_filters)
+        return models.Filter(must=must_filters)  # type: ignore[arg-type]
 
     async def is_healthy(self) -> bool:
         """
