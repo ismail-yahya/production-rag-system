@@ -40,7 +40,11 @@ class BM25Retriever:
 
         # Improved tokenization: lowercase, split, and strip punctuation
         def tokenize(text: str) -> list[str]:
-            return [word.strip(".,!?;:()[]\"'") for word in text.lower().split() if word.strip(".,!?;:()[]\"'")]
+            return [
+                word.strip(".,!?;:()[]\"'")
+                for word in text.lower().split()
+                if word.strip(".,!?;:()[]\"'")
+            ]
 
         tokenized_query = tokenize(query)
         tokenized_corpus = [tokenize(doc.content) for doc in candidates]

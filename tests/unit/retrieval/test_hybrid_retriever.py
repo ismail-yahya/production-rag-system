@@ -71,9 +71,7 @@ async def test_hybrid_retriever_rrf_logic():
     # Note: v1 and v3 have no matching terms, so they will share the same score (0)
     # and their relative rank will depend on original order.
 
-    config = HybridSearchConfig(
-        vector_weight=0.3, keyword_weight=0.7, rrf_k=0, final_top_k=10
-    )
+    config = HybridSearchConfig(vector_weight=0.3, keyword_weight=0.7, rrf_k=0, final_top_k=10)
     retriever = HybridRetriever(
         vector_store=mock_vector_store, embedder=mock_embedder, config=config
     )

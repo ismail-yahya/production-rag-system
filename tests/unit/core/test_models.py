@@ -9,11 +9,13 @@ def test_tenant_repr():
     assert f"id='{tenant_id}'" in repr(tenant)
     assert "name='Test'" in repr(tenant)
 
+
 def test_document_repr():
     doc_id = uuid.uuid4()
     doc = Document(id=doc_id, file_name="test.pdf")
     assert f"id='{doc_id}'" in repr(doc)
     assert "name='test.pdf'" in repr(doc)
+
 
 def test_model_instantiation():
     """Verify basic instantiation of all models."""
@@ -23,7 +25,7 @@ def test_model_instantiation():
     job = IngestionJob(document_id=doc.id, status="pending")
     log = QueryLog(tenant_id=tenant.id, query_text="Q")
     eval_data = EvalDataset(question="Q", ground_truth_answer="A", question_type="T")
-    
+
     assert tenant.name == "T"
     assert doc.file_name == "F"
     assert chunk.chunk_index == 0

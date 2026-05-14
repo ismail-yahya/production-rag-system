@@ -1,4 +1,5 @@
 import json
+
 import structlog
 
 from src.core.exceptions import LLMError
@@ -35,7 +36,7 @@ class QueryProcessor:
 
         try:
             response = await self.llm.generate(messages, temperature=0.0)
-            
+
             # Clean up the response in case the model added markdown blocks like ```json ... ```
             content = response.content.strip()
             if content.startswith("```json"):
@@ -48,7 +49,7 @@ class QueryProcessor:
 
             parsed_data = json.loads(content)
             result = QueryProcessingResult(**parsed_data)
-            
+
             expanded = result.expanded_queries.copy()
             # Ensure the original query is included if not already there
             if query not in expanded:

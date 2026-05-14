@@ -143,9 +143,7 @@ class QdrantVectorStore(BaseVectorStore):
                 collection_name=self.collection_name,
                 points_selector=models.FilterSelector(filter=qdrant_filter),
             )
-            logger.info(
-                "qdrant_delete_completed", collection=self.collection_name, filters=filters
-            )
+            logger.info("qdrant_delete_completed", collection=self.collection_name, filters=filters)
         except Exception as e:
             logger.error("qdrant_delete_failed", error=str(e), collection=self.collection_name)
             raise RetrievalError(f"Failed to delete from Qdrant: {str(e)}") from e

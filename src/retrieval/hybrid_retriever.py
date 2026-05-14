@@ -86,9 +86,7 @@ class HybridRetriever:
         context_tenant_id = tenant_id_context.get()
         if context_tenant_id and context_tenant_id != tenant_id:
             logger.warning(
-                "tenant_id_override",
-                provided=str(tenant_id),
-                context=str(context_tenant_id)
+                "tenant_id_override", provided=str(tenant_id), context=str(context_tenant_id)
             )
             tenant_id = context_tenant_id
 
@@ -99,7 +97,11 @@ class HybridRetriever:
         v_weight = vector_weight if vector_weight is not None else self._config.vector_weight
         k_weight = keyword_weight if keyword_weight is not None else self._config.keyword_weight
         t_k = top_k or self._config.top_k
-        threshold = similarity_threshold if similarity_threshold is not None else self._config.similarity_threshold
+        threshold = (
+            similarity_threshold
+            if similarity_threshold is not None
+            else self._config.similarity_threshold
+        )
 
         # Adjust weights and parameters based on search type
         if s_type == "semantic":
@@ -170,10 +172,7 @@ class HybridRetriever:
         if threshold > 0:
             # Map vector scores for quick lookup
             v_scores = {doc.id: doc.score or 0.0 for doc in vector_results}
-            fused_results = [
-                doc for doc in fused_results 
-                if v_scores.get(doc.id, 0.0) >= threshold
-            ]
+            fused_results = [doc for doc in fused_results if v_scores.get(doc.id, 0.0) >= threshold]
 
         # 5. Limit to final top_k
         final_results = fused_results[: self._config.final_top_k]

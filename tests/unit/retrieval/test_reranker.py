@@ -55,9 +55,7 @@ async def test_cohere_reranker_api_failure():
 
     # Act & Assert
     with pytest.raises(RetrievalError) as exc:
-        await reranker.rerank(
-            query="test", documents=[Document(id=uuid4(), content="test")]
-        )
+        await reranker.rerank(query="test", documents=[Document(id=uuid4(), content="test")])
     assert "Cohere rerank failed" in str(exc.value)
 
 

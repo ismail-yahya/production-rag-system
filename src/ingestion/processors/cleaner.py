@@ -8,8 +8,8 @@ logger = structlog.get_logger(__name__)
 
 class TextCleaner:
     """Processor for cleaning and normalizing raw text content extracted from documents.
-    
-    This class handles unicode normalization, whitespace cleanup, and removal 
+
+    This class handles unicode normalization, whitespace cleanup, and removal
     of common document extraction artifacts.
     """
 
@@ -33,15 +33,12 @@ class TextCleaner:
 
         # 2. Remove control characters except newline and tab
         # 'C' category includes control characters, surrogates, etc.
-        text = "".join(
-            ch for ch in text 
-            if unicodedata.category(ch)[0] != "C" or ch in "\n\t"
-        )
+        text = "".join(ch for ch in text if unicodedata.category(ch)[0] != "C" or ch in "\n\t")
 
         # 3. Normalize whitespace
         # Replace multiple horizontal spaces (space, non-breaking space, etc.) with a single space
         text = re.sub(r"[ \t\u00A0]+", " ", text)
-        
+
         # Replace 3 or more newlines with exactly 2 (preserves paragraph breaks but removes excessive gaps)
         text = re.sub(r"\n{3,}", "\n\n", text)
 
@@ -49,9 +46,7 @@ class TextCleaner:
         text = text.strip()
 
         logger.debug(
-            "Text cleaning complete", 
-            original_length=original_length, 
-            cleaned_length=len(text)
+            "Text cleaning complete", original_length=original_length, cleaned_length=len(text)
         )
 
         return text

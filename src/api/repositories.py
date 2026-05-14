@@ -65,10 +65,7 @@ class DocumentRepository:
             return await self.session.get(Document, document_id)
 
         stmt = (
-            update(Document)
-            .where(Document.id == document_id)
-            .values(**kwargs)
-            .returning(Document)
+            update(Document).where(Document.id == document_id).values(**kwargs).returning(Document)
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()

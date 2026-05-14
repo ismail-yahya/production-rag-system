@@ -24,9 +24,7 @@ class CohereReranker:
             model: Rerank model to use. Defaults to settings.COHERE_RERANK_MODEL.
         """
         self._api_key = api_key or (
-            settings.COHERE_API_KEY.get_secret_value()
-            if settings.COHERE_API_KEY
-            else None
+            settings.COHERE_API_KEY.get_secret_value() if settings.COHERE_API_KEY else None
         )
         self._model = model or settings.COHERE_RERANK_MODEL
 

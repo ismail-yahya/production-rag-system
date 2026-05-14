@@ -52,12 +52,8 @@ class SecurityGuard:
         """
         for pattern in INJECTION_PATTERNS:
             if re.search(pattern, query):
-                logger.warning(
-                    "prompt_injection_detected", pattern=pattern, query=query[:100]
-                )
-                raise SecurityError(
-                    "Potential prompt injection detected. Query rejected."
-                )
+                logger.warning("prompt_injection_detected", pattern=pattern, query=query[:100])
+                raise SecurityError("Potential prompt injection detected. Query rejected.")
 
         return query
 

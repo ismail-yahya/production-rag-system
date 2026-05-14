@@ -23,5 +23,6 @@ async def check():
     except Exception as e:
         print(f"Vector Store: FAIL - {e}")
 
+
 if __name__ == "__main__":
     asyncio.run(check())

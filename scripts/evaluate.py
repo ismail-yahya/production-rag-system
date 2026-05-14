@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
 logger = structlog.get_logger(__name__)
 
+
 async def run_evaluation(dataset_path: str):
     """
     Runs end-to-end RAG evaluation.
@@ -32,10 +33,10 @@ async def run_evaluation(dataset_path: str):
     if not os.path.exists(dataset_path):
         logger.error("dataset_not_found", path=dataset_path)
         return
-        
+
     with open(dataset_path) as f:
         dataset = json.load(f)
-    
+
     logger.info("evaluation_started", sample_count=len(dataset))
 
     # 2. Initialize RAG Pipeline
@@ -43,39 +44,36 @@ async def run_evaluation(dataset_path: str):
     # or we mock the retriever if we only want to test the generation/evaluation.
     # In a real CI, this would run against a test environment.
     pipeline = get_rag_pipeline()
-    
+
     # 3. Collect Pipeline Responses
     questions = []
     answers = []
     contexts = []
     ground_truths = []
-    
+
     # For MVP evaluation, we use a fixed tenant_id for consistency in CI
     test_tenant_id = UUID("00000000-0000-0000-0000-000000000000")
-    
+
     for item in dataset:
         question = item["question"]
         gt = item["ground_truth"]
-        
+
         logger.info("processing_query", question=question[:50])
-        
+
         try:
             # We run the query through the actual pipeline
             # Note: This requires the retrieval layer to have the relevant context indexed.
-            # For the baseline test, we'll use the provided contexts if retrieval fails or 
+            # For the baseline test, we'll use the provided contexts if retrieval fails or
             # if we want to isolate generation.
-            
-            result: RAGResponse = await pipeline.query(
-                question=question,
-                tenant_id=test_tenant_id
-            )
-            
+
+            result: RAGResponse = await pipeline.query(question=question, tenant_id=test_tenant_id)
+
             questions.append(question)
             answers.append(result.answer)
             # RAGAS expects contexts as a list of strings
             contexts.append([s.content for s in result.sources])
             ground_truths.append(gt)
-            
+
         except Exception as e:
             logger.error("pipeline_query_failed", question=question[:50], error=str(e))
             continue
@@ -83,42 +81,40 @@ async def run_evaluation(dataset_path: str):
     # 4. Initialize RAGAS Evaluator
     # We use LangChain wrappers for RAGAS as it's the standard integration path.
     eval_llm = ChatOpenAI(
-        model="gpt-4o", 
-        api_key=settings.OPENAI_API_KEY.get_secret_value() if settings.OPENAI_API_KEY else None
+        model="gpt-4o",
+        api_key=settings.OPENAI_API_KEY.get_secret_value() if settings.OPENAI_API_KEY else None,
     )
     eval_embeddings = OpenAIEmbeddings(
         model=settings.OPENAI_EMBEDDING_MODEL,
-        api_key=settings.OPENAI_API_KEY.get_secret_value() if settings.OPENAI_API_KEY else None
+        api_key=settings.OPENAI_API_KEY.get_secret_value() if settings.OPENAI_API_KEY else None,
     )
-    
+
     evaluator = RagasEvaluator(llm=eval_llm, embeddings=eval_embeddings)
-    
+
     # 5. Run Evaluation
     if not questions:
         logger.error("no_results_to_evaluate")
         return
 
     scores = await evaluator.evaluate_rag(
-        questions=questions,
-        answers=answers,
-        contexts=contexts,
-        ground_truths=ground_truths
+        questions=questions, answers=answers, contexts=contexts, ground_truths=ground_truths
     )
-    
+
     # 6. Report Results
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("RAGAS EVALUATION RESULTS")
-    print("="*50)
+    print("=" * 50)
     for metric, score in scores.items():
         print(f"{metric:20}: {score:.4f}")
-    print("="*50 + "\n")
-    
+    print("=" * 50 + "\n")
+
     return scores
+
 
 if __name__ == "__main__":
     dataset_file = "tests/eval_dataset.json"
     scores = asyncio.run(run_evaluation(dataset_file))
-    
+
     # Threshold check
     threshold = 0.7
     if scores:

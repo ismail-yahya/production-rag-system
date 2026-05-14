@@ -13,7 +13,7 @@ logger = structlog.get_logger(__name__)
 
 class PDFLoader(BaseLoader):
     """Loader for PDF documents using pymupdf4llm.
-    
+
     This loader extracts text content in Markdown format, which is better
     suited for LLM context windows as it preserves some structural information.
     """
@@ -32,17 +32,19 @@ class PDFLoader(BaseLoader):
         """
         try:
             if isinstance(source, bytes):
-                # pymupdf4llm.to_markdown can take a stream/bytes if supported, 
-                # but often it's easier to handle via a temporary file or 
+                # pymupdf4llm.to_markdown can take a stream/bytes if supported,
+                # but often it's easier to handle via a temporary file or
                 # direct bytes if the library supports it.
                 # In current versions, to_markdown usually takes a file path.
                 # We'll handle bytes by writing to a temporary location if needed,
                 # but first we check if we can pass it directly.
                 logger.debug("Parsing PDF from bytes", size=len(source))
-                # For simplicity and reliability with pymupdf4llm, we'll assume 
+                # For simplicity and reliability with pymupdf4llm, we'll assume
                 # a path is preferred. If bytes are passed, we might need a temp file.
                 # However, many implementations use a path in this RAG system.
-                raise IngestionError("Byte-based loading for PDF not yet implemented. Please provide a file path.")
+                raise IngestionError(
+                    "Byte-based loading for PDF not yet implemented. Please provide a file path."
+                )
 
             file_path = Path(source)
             if not file_path.exists():
@@ -60,9 +62,9 @@ class PDFLoader(BaseLoader):
                 "file_name": file_path.name,
             }
 
-            logger.info("PDF document loaded successfully", 
-                        path=str(file_path), 
-                        content_length=len(content))
+            logger.info(
+                "PDF document loaded successfully", path=str(file_path), content_length=len(content)
+            )
 
             return RawDocument(content=content, metadata=metadata)
 

@@ -14,13 +14,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     Currently applies a global per-IP limit for simplicity.
     """
 
-    def __init__(
-        self, 
-        app, 
-        redis_url: str, 
-        limit: int = 100, 
-        window_seconds: int = 60
-    ) -> None:
+    def __init__(self, app, redis_url: str, limit: int = 100, window_seconds: int = 60) -> None:
         super().__init__(app)
         self.redis = redis.from_url(redis_url, decode_responses=True)
         self.limit = limit
@@ -42,13 +36,10 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         try:
             # We use a simple fixed-window strategy for MVP
             current_count = await self.redis.get(key)
-            
+
             if current_count and int(current_count) >= self.limit:
                 logger.warning(
-                    "Rate limit exceeded", 
-                    client_ip=client_ip, 
-                    limit=self.limit, 
-                    window=self.window
+                    "Rate limit exceeded", client_ip=client_ip, limit=self.limit, window=self.window
                 )
                 return Response(
                     content='{"detail": "Rate limit exceeded. Please try again later."}',
@@ -61,7 +52,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 await pipe.incr(key)
                 await pipe.expire(key, self.window, nx=True)
                 await pipe.execute()
-                
+
         except Exception as e:
             # Fail-open: If Redis is unavailable, allow the request but log the error
             # This ensures that a Redis failure doesn't cause a total system outage.

@@ -1,6 +1,7 @@
 """
 Embedding provider abstractions and factory.
 """
+
 from src.embeddings.base import BaseEmbedder
 from src.embeddings.factory import EmbedderFactory, EmbeddingProvider
 

@@ -2,6 +2,7 @@
 Core utilities and configuration for the RAG system.
 Exposes settings, logging, and common exceptions.
 """
+
 from src.core.config import Settings, settings
 from src.core.database import get_session
 from src.core.exceptions import (

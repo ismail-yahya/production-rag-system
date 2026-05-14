@@ -27,7 +27,9 @@ async def query(
         mode=request.mode.value,
         filters=request.filters.model_dump() if request.filters else None,
         search_type=request.search_type.value,
-        search_config=request.search_config.model_dump(exclude_none=True) if request.search_config else None,
+        search_config=request.search_config.model_dump(exclude_none=True)
+        if request.search_config
+        else None,
     )
 
     # RAGResponse and QueryResponse are compatible
@@ -52,7 +54,9 @@ async def stream_query(
             mode=request.mode.value,
             filters=request.filters.model_dump() if request.filters else None,
             search_type=request.search_type.value,
-            search_config=request.search_config.model_dump(exclude_none=True) if request.search_config else None,
+            search_config=request.search_config.model_dump(exclude_none=True)
+            if request.search_config
+            else None,
         ):
             yield f"data: {json.dumps(event)}\n\n"
 

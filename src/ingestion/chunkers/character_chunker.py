@@ -10,9 +10,9 @@ logger = structlog.get_logger(__name__)
 
 class RecursiveCharacterChunker(BaseChunker):
     """Chunker that splits text recursively using a list of separators.
-    
-    This implementation tries to split text by a sequence of separators 
-    (e.g., double newlines, single newlines, spaces) to keep chunks 
+
+    This implementation tries to split text by a sequence of separators
+    (e.g., double newlines, single newlines, spaces) to keep chunks
     semantically coherent while staying within size limits.
     """
 
@@ -55,7 +55,7 @@ class RecursiveCharacterChunker(BaseChunker):
 
         final_chunks: list[Chunk] = []
         raw_text_chunks = self._recursive_split(text, self.separators)
-        
+
         # Merge the small pieces into actual chunks with overlap
         merged_contents = self._merge_splits(raw_text_chunks)
 
@@ -80,11 +80,11 @@ class RecursiveCharacterChunker(BaseChunker):
     def _recursive_split(self, text: str, separators: list[str]) -> list[str]:
         """Split text into pieces using the provided separators recursively."""
         final_chunks: list[str] = []
-        
+
         # Get the current separator to try
         separator = separators[0] if separators else ""
         next_separators = separators[1:] if len(separators) > 1 else []
-        
+
         # Split the text
         splits = text.split(separator) if separator else list(text)
 
@@ -98,7 +98,7 @@ class RecursiveCharacterChunker(BaseChunker):
                 # No more separators, force split by size
                 for i in range(0, len(s), self.chunk_size):
                     final_chunks.append(s[i : i + self.chunk_size])
-                    
+
         return final_chunks
 
     def _merge_splits(self, splits: list[str]) -> list[str]:
@@ -110,7 +110,7 @@ class RecursiveCharacterChunker(BaseChunker):
         for s in splits:
             if total_len + len(s) > self.chunk_size and current_doc:
                 merged.append("".join(current_doc))
-                
+
                 # Handle overlap: backtrack from the current_doc
                 # to start the next chunk with some context
                 overlap_doc: list[str] = []
@@ -123,7 +123,7 @@ class RecursiveCharacterChunker(BaseChunker):
                         break
                 current_doc = overlap_doc
                 total_len = overlap_len
-            
+
             current_doc.append(s)
             total_len += len(s)
 

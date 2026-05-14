@@ -35,9 +35,7 @@ def pipeline(mock_dependencies: dict[str, Any]) -> RAGPipeline:
 
 
 @pytest.mark.asyncio
-async def test_query_success(
-    pipeline: RAGPipeline, mock_dependencies: dict[str, Any]
-) -> None:
+async def test_query_success(pipeline: RAGPipeline, mock_dependencies: dict[str, Any]) -> None:
     # Arrange
     question = "What is the capital of France?"
     tenant_id = uuid4()
@@ -121,10 +119,9 @@ async def test_stream_query_success(
     ]
     mock_dependencies["llm"].stream.assert_called_once()
 
+
 @pytest.mark.asyncio
-async def test_query_strict_mode(
-    pipeline: RAGPipeline, mock_dependencies: dict[str, Any]
-) -> None:
+async def test_query_strict_mode(pipeline: RAGPipeline, mock_dependencies: dict[str, Any]) -> None:
     # Arrange
     question = "Fact check this."
     tenant_id = uuid4()
@@ -142,6 +139,7 @@ async def test_query_strict_mode(
     messages = args[0]
     system_msg = next(m for m in messages if m.role == "system")
     from src.rag.prompt_templates import ANTI_HALLUCINATION_SYSTEM_PROMPT
+
     assert ANTI_HALLUCINATION_SYSTEM_PROMPT in system_msg.content
 
 
@@ -170,6 +168,7 @@ async def test_stream_query_strict_mode(
     messages = args[0]
     system_msg = next(m for m in messages if m.role == "system")
     from src.rag.prompt_templates import ANTI_HALLUCINATION_SYSTEM_PROMPT
+
     assert ANTI_HALLUCINATION_SYSTEM_PROMPT in system_msg.content
 
 
@@ -183,16 +182,17 @@ async def test_stream_query_deduplication(
     doc_id = uuid4()
     doc_low = Document(id=doc_id, content="low", metadata={}, score=0.5)
     doc_high = Document(id=doc_id, content="high", metadata={}, score=0.9)
-    
+
     mock_dependencies["query_processor"].process_query.return_value = (["q1", "q2"], "other")
     # Return different versions of the same doc for different expansions
     mock_dependencies["retriever"].retrieve.side_effect = [[doc_low], [doc_high]]
-    
+
     # Reranker should receive only one doc (the one with higher score)
     mock_dependencies["reranker"].rerank.return_value = [doc_high]
 
     async def mock_stream(messages: list[Any]) -> AsyncGenerator[str, None]:
         yield "ok"
+
     mock_dependencies["llm"].stream.side_effect = mock_stream
 
     # Act

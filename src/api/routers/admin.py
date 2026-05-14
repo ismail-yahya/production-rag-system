@@ -44,7 +44,7 @@ async def run_evaluation(
     Trigger an evaluation run against the committed dataset.
     """
     task = run_ragas_eval.delay()
-    
+
     return EvalRunResponse(
         job_id=uuid.UUID(task.id),
         status="pending",
@@ -61,11 +61,11 @@ async def get_evaluation_results(
     """
     r = redis.from_url(settings.REDIS_BACKEND_URL, decode_responses=True)
     cached_results = r.get("latest_eval_results")
-    
+
     if cached_results:
         data = json.loads(cached_results)
         return EvalResultsResponse(**data)
-    
+
     # Return empty results if nothing is cached yet
     return EvalResultsResponse(
         dataset_id=None,

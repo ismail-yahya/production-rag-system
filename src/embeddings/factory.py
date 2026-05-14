@@ -2,9 +2,9 @@ from enum import StrEnum
 
 from src.core import Settings
 from src.embeddings.base import BaseEmbedder
+from src.embeddings.cohere_embedder import CohereEmbedder
 from src.embeddings.local_embedder import LocalEmbedder
 from src.embeddings.openai_embedder import OpenAIEmbedder
-from src.embeddings.cohere_embedder import CohereEmbedder
 
 
 class EmbeddingProvider(StrEnum):

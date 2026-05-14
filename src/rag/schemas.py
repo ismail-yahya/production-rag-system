@@ -20,7 +20,7 @@ class Source(BaseModel):
 class RAGResponse(BaseModel):
     """
     The final response object returned by the RAG pipeline.
-    
+
     This model is frozen to ensure immutability once created by the pipeline.
     """
 

@@ -9,7 +9,9 @@ from src.core.config import settings
 if settings.LANGSMITH_API_KEY:
     os.environ["LANGCHAIN_TRACING_V2"] = "true"
     os.environ["LANGCHAIN_API_KEY"] = settings.LANGSMITH_API_KEY.get_secret_value()
-    os.environ["LANGCHAIN_PROJECT"] = getattr(settings, "LANGCHAIN_PROJECT", "production-rag-system")
+    os.environ["LANGCHAIN_PROJECT"] = getattr(
+        settings, "LANGCHAIN_PROJECT", "production-rag-system"
+    )
 else:
     # Disable tracing if no API key is provided
     os.environ["LANGCHAIN_TRACING_V2"] = "false"

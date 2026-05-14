@@ -1,11 +1,13 @@
 import asyncio
+import contextlib
 import os
-import tempfile
 import uuid
 from typing import Any
 
 import structlog
 from celery import Task
+from sqlalchemy import pool
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from src.api.repositories import DocumentRepository, IngestionJobRepository
 from src.core.config import settings
@@ -28,9 +30,6 @@ class IngestionTask(Task):
 
     pass
 
-
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy import pool
 
 @celery_app.task(
     name="src.workers.ingestion_worker.ingest_document",
@@ -71,24 +70,24 @@ def ingest_document(
         # Helper for DB updates
         async def _update_status(status_str: str, **kwargs: Any) -> None:
             from datetime import UTC, datetime
-            
+
             async with local_session_factory() as session:
                 job_repo = IngestionJobRepository(session)
                 doc_repo = DocumentRepository(session)
-                
+
                 doc_kwargs = {"status": status_str}
                 # Safely handle chunk_count which is a Document field, not IngestionJob
                 if "chunk_count" in kwargs:
                     doc_kwargs["chunk_count"] = kwargs.pop("chunk_count")
-                
+
                 if status_str == "indexed":
                     doc_kwargs["indexed_at"] = datetime.now(UTC)
-                    
+
                 job = await job_repo.get_by_document_id(uuid.UUID(document_id))
                 if job:
                     # Update job status (remaining kwargs should be IngestionJob fields like error_message)
                     await job_repo.update(job.id, status=status_str, **kwargs)
-                
+
                 await doc_repo.update(uuid.UUID(document_id), **doc_kwargs)
                 await session.commit()
 
@@ -96,12 +95,12 @@ def ingest_document(
         try:
             # 1. Update job status to processing
             await _update_status("processing")
-            
+
             # 2. Download file from storage to local temporary path
             temp_dir = "/tmp/rag_worker"
             os.makedirs(temp_dir, exist_ok=True)
             local_path = os.path.join(temp_dir, f"{document_id}_{os.path.basename(file_path)}")
-            
+
             log.info("Downloading file from storage", storage_path=file_path, local_path=local_path)
             storage_service.download_file(file_path, local_path)
 
@@ -141,10 +140,8 @@ def ingest_document(
             return {"status": "failed", "document_id": document_id, "error": str(e)}
         finally:
             if local_path and os.path.exists(local_path):
-                try:
+                with contextlib.suppress(Exception):
                     os.remove(local_path)
-                except Exception:
-                    pass
             # Crucial: Dispose local engine to release resources cleanly
             await local_engine.dispose()
 

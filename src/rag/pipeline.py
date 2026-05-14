@@ -9,7 +9,6 @@ import structlog
 # TEMPORARILY DISABLED — Semantic Cache feature paused (see steps 2 & 9 below).
 # تم تعليق ميزة الذاكرة المخبئية الدلالية مؤقتاً — راجع الخطوتين 2 و 9 أدناه.
 # from src.core.cache import SemanticCache
-from src.core.exceptions import LLMError, SecurityError
 from src.llm.base import BaseLLM, LLMMessage
 from src.observability.tracer import traceable
 from src.rag.context_builder import ContextBuilder
@@ -122,17 +121,15 @@ class RAGPipeline:
         # 3. Retrieval: Search for each expansion in parallel
         retrieval_tasks = [
             self.retriever.retrieve(
-                q, 
-                tenant_id, 
-                filters,
-                search_type=search_type,
-                **(search_config or {})
-            ) for q in expansions
+                q, tenant_id, filters, search_type=search_type, **(search_config or {})
+            )
+            for q in expansions
         ]
         retrieval_results = await asyncio.gather(*retrieval_tasks)
 
         # 4. Deduplication: Flatten and keep highest score for each unique content
         import hashlib
+
         unique_docs: dict[str, Document] = {}
         for doc_list in retrieval_results:
             for doc in doc_list:
@@ -235,21 +232,16 @@ class RAGPipeline:
 
         retrieval_tasks = [
             self.retriever.retrieve(
-                q, 
-                tenant_id, 
-                filters,
-                search_type=search_type,
-                **(search_config or {})
-            ) for q in expansions
+                q, tenant_id, filters, search_type=search_type, **(search_config or {})
+            )
+            for q in expansions
         ]
         retrieval_results = await asyncio.gather(*retrieval_tasks)
 
         unique_docs: dict[UUID, Document] = {}
         for doc_list in retrieval_results:
             for doc in doc_list:
-                if doc.id not in unique_docs or (doc.score or 0) > (
-                    unique_docs[doc.id].score or 0
-                ):
+                if doc.id not in unique_docs or (doc.score or 0) > (unique_docs[doc.id].score or 0):
                     unique_docs[doc.id] = doc
 
         reranked_docs = await self.reranker.rerank(question, list(unique_docs.values()))

@@ -1,4 +1,3 @@
-
 import pytest
 
 from src.embeddings.base import BaseEmbedder

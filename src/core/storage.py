@@ -1,4 +1,3 @@
-
 import boto3
 from botocore.client import Config
 
@@ -14,8 +13,12 @@ class StorageService:
         self.s3 = boto3.client(
             "s3",
             endpoint_url=f"http://{settings.MINIO_ENDPOINT}",
-            aws_access_key_id=settings.MINIO_ACCESS_KEY.get_secret_value() if settings.MINIO_ACCESS_KEY else "minioadmin",
-            aws_secret_access_key=settings.MINIO_SECRET_KEY.get_secret_value() if settings.MINIO_SECRET_KEY else "minioadmin",
+            aws_access_key_id=settings.MINIO_ACCESS_KEY.get_secret_value()
+            if settings.MINIO_ACCESS_KEY
+            else "minioadmin",
+            aws_secret_access_key=settings.MINIO_SECRET_KEY.get_secret_value()
+            if settings.MINIO_SECRET_KEY
+            else "minioadmin",
             config=Config(signature_version="s3v4"),
             region_name="us-east-1",  # MinIO default
         )
@@ -32,5 +35,6 @@ class StorageService:
     def delete_file(self, storage_path: str) -> None:
         """Delete a file from storage."""
         self.s3.delete_object(Bucket=self.bucket, Key=storage_path)
+
 
 storage_service = StorageService()

@@ -35,6 +35,6 @@ def test_factory_create_unsupported_string(mock_settings: Settings) -> None:
 def test_factory_create_unsupported_enum(mock_settings: Settings) -> None:
     class FakeEnum:
         pass
-    
+
     with pytest.raises(ValueError, match="Unsupported vector store provider"):
         VectorStoreFactory.create(FakeEnum(), mock_settings)  # type: ignore

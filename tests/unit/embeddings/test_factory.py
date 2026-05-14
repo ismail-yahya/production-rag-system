@@ -27,12 +27,13 @@ def test_factory_create_openai(mock_settings: Settings) -> None:
     assert isinstance(embedder, OpenAIEmbedder)
 
 
-@patch("src.embeddings.local_embedder.SentenceTransformer")
-def test_factory_create_local(mock_st: MagicMock, mock_settings: Settings) -> None:
-    embedder = EmbedderFactory.create(EmbeddingProvider.LOCAL, mock_settings)
-    assert isinstance(embedder, BaseEmbedder)
-    assert isinstance(embedder, LocalEmbedder)
-    mock_st.assert_called_once_with("BAAI/bge-m3", device="cpu")
+def test_factory_create_local(mock_settings: Settings) -> None:
+    mock_st = MagicMock()
+    with patch.dict("sys.modules", {"sentence_transformers": MagicMock(SentenceTransformer=mock_st)}):
+        embedder = EmbedderFactory.create(EmbeddingProvider.LOCAL, mock_settings)
+        assert isinstance(embedder, BaseEmbedder)
+        assert isinstance(embedder, LocalEmbedder)
+        mock_st.assert_called_once_with("BAAI/bge-m3", device="cpu")
 
 
 def test_factory_create_with_string_provider(mock_settings: Settings) -> None:
@@ -48,6 +49,6 @@ def test_factory_create_unsupported_string(mock_settings: Settings) -> None:
 def test_factory_create_unsupported_enum(mock_settings: Settings) -> None:
     class FakeEnum:
         pass
-    
+
     with pytest.raises(ValueError, match="Unsupported embedding provider"):
         EmbedderFactory.create(FakeEnum(), mock_settings)  # type: ignore

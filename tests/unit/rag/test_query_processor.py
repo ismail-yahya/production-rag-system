@@ -26,11 +26,14 @@ async def test_process_query_success(query_processor: QueryProcessor, mock_llm: 
     query = "What is RAG?"
     mock_response_dict = {
         "category": "factual",
-        "expanded_queries": ["What is retrieval augmented generation?", "How does RAG work?", "Benefits of RAG"]
+        "expanded_queries": [
+            "What is retrieval augmented generation?",
+            "How does RAG work?",
+            "Benefits of RAG",
+        ],
     }
     mock_llm.generate.return_value = LLMResponse(
-        content=json.dumps(mock_response_dict),
-        model="test-model"
+        content=json.dumps(mock_response_dict), model="test-model"
     )
 
     # Act
@@ -52,13 +55,9 @@ async def test_process_query_handles_original_missing(
 ) -> None:
     # Arrange
     query = "Original query"
-    mock_response_dict = {
-        "category": "analytical",
-        "expanded_queries": ["Exp 1", "Exp 2"]
-    }
+    mock_response_dict = {"category": "analytical", "expanded_queries": ["Exp 1", "Exp 2"]}
     mock_llm.generate.return_value = LLMResponse(
-        content=json.dumps(mock_response_dict),
-        model="test-model"
+        content=json.dumps(mock_response_dict), model="test-model"
     )
 
     # Act
@@ -76,14 +75,10 @@ async def test_process_query_cleans_markdown_json(
 ) -> None:
     # Arrange
     query = "test"
-    mock_response_content = "```json\n" + json.dumps({
-        "category": "comparative",
-        "expanded_queries": ["q1"]
-    }) + "\n```"
-    mock_llm.generate.return_value = LLMResponse(
-        content=mock_response_content,
-        model="test-model"
+    mock_response_content = (
+        "```json\n" + json.dumps({"category": "comparative", "expanded_queries": ["q1"]}) + "\n```"
     )
+    mock_llm.generate.return_value = LLMResponse(content=mock_response_content, model="test-model")
 
     # Act
     expanded, category = await query_processor.process_query(query)
@@ -99,13 +94,9 @@ async def test_process_query_invalid_category(
 ) -> None:
     # Arrange
     query = "test"
-    mock_response_dict = {
-        "category": "invalid_cat",
-        "expanded_queries": ["q1"]
-    }
+    mock_response_dict = {"category": "invalid_cat", "expanded_queries": ["q1"]}
     mock_llm.generate.return_value = LLMResponse(
-        content=json.dumps(mock_response_dict),
-        model="test-model"
+        content=json.dumps(mock_response_dict), model="test-model"
     )
 
     # Act
@@ -121,8 +112,7 @@ async def test_process_query_raises_llm_error_on_bad_json(
 ) -> None:
     # Arrange
     mock_llm.generate.return_value = LLMResponse(
-        content="This is not valid JSON",
-        model="test-model"
+        content="This is not valid JSON", model="test-model"
     )
 
     # Act & Assert

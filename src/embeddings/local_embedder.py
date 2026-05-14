@@ -12,7 +12,7 @@ logger = structlog.get_logger(__name__)
 class LocalEmbedder(BaseEmbedder):
     """
     Local implementation of the BaseEmbedder interface using sentence-transformers.
-    
+
     This implementation runs models locally (e.g., BGE-M3) and uses asyncio.to_thread
     to ensure that the synchronous CPU-bound encoding process does not block the
     event loop.
@@ -67,10 +67,10 @@ class LocalEmbedder(BaseEmbedder):
                 convert_to_list=True,
                 show_progress_bar=False,
             )
-            
+
             # Ensure the output is a list of lists of floats
             return [[float(val) for val in vec] for vec in embeddings]
-            
+
         except Exception as e:
             logger.error("local_embedding_failed", error=str(e), model=self._model_name)
             raise EmbeddingError(f"Local embedding generation failed: {e}") from e
@@ -78,7 +78,7 @@ class LocalEmbedder(BaseEmbedder):
     async def embed_query(self, query: str) -> list[float]:
         """
         Embed a single query string.
-        
+
         Overridden to ensure single text processing follows the same thread pattern.
         """
         results = await self.embed_texts([query])

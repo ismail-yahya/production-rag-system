@@ -44,7 +44,7 @@ class QueryMode(StrEnum):
     STRICT = "strict"
 
 
-class SearchType(str, Enum):
+class SearchType(StrEnum):
     """Available search types."""
 
     LITERAL = "literal"

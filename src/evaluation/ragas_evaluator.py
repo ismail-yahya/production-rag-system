@@ -12,6 +12,7 @@ from ragas.metrics import (
 
 logger = structlog.get_logger(__name__)
 
+
 class RagasEvaluator:
     """
     Wrapper for RAGAS evaluation library.
@@ -25,7 +26,7 @@ class RagasEvaluator:
     ) -> None:
         """
         Initialize the evaluator with LLM and Embeddings providers.
-        
+
         Args:
             llm: LLM provider (must be compatible with RAGAS, typically LangChain based).
             embeddings: Embeddings provider (LangChain compatible).
@@ -40,7 +41,7 @@ class RagasEvaluator:
         ]
 
     async def evaluate_rag(
-        self, 
+        self,
         questions: list[str],
         answers: list[str],
         contexts: list[list[str]],
@@ -48,13 +49,13 @@ class RagasEvaluator:
     ) -> dict[str, float]:
         """
         Run RAGAS evaluation on a set of results.
-        
+
         Args:
             questions: List of user questions.
             answers: List of generated answers.
             contexts: List of lists of retrieved context strings.
             ground_truths: Optional list of reference answers.
-            
+
         Returns:
             Dictionary of metric scores.
         """
@@ -63,18 +64,18 @@ class RagasEvaluator:
             "answer": answers,
             "contexts": contexts,
         }
-        
+
         if ground_truths:
             data["ground_truth"] = ground_truths
-            
+
         dataset = Dataset.from_dict(data)
-        
+
         logger.info(
-            "ragas_evaluation_started", 
+            "ragas_evaluation_started",
             sample_count=len(questions),
-            metrics=[m.name for m in self.metrics]
+            metrics=[m.name for m in self.metrics],
         )
-        
+
         try:
             # RAGAS 0.4.x requires explicit wrapping for LangChain components
             # and the evaluate call is async.
@@ -90,14 +91,14 @@ class RagasEvaluator:
                 llm=ragas_llm,
                 embeddings=ragas_embeddings,
             )
-            
+
             scores = result.scores
             # Convert to dict for easier consumption
             final_scores = {k: float(v) for k, v in scores.items()}
-            
+
             logger.info("ragas_evaluation_completed", scores=final_scores)
             return final_scores
-            
+
         except Exception as e:
             logger.error("ragas_evaluation_failed", error=str(e))
             raise

@@ -17,5 +17,5 @@ async def test_get_session():
     with patch("src.core.database.async_session_factory", mock_factory):
         async for session in get_session():
             assert session == mock_session
-        
+
         mock_session.close.assert_called_once()

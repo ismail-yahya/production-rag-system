@@ -42,6 +42,7 @@ async def upload_document(
 
     content = await file.read()
     import hashlib
+
     content_hash = hashlib.sha256(content).hexdigest()
 
     # Create database records

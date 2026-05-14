@@ -18,6 +18,7 @@ def test_exceptions_inheritance():
     assert issubclass(LLMError, RAGSystemError)
     assert issubclass(SecurityError, RAGSystemError)
 
+
 def test_exception_message():
     """Verify that exceptions preserve the provided message."""
     msg = "test error"

@@ -18,6 +18,8 @@ def mock_settings() -> Settings:
     settings.OPENAI_API_KEY = SecretStr("sk-test-openai")
     settings.ANTHROPIC_API_KEY = SecretStr("sk-test-anthropic")
     settings.GOOGLE_API_KEY = SecretStr("sk-test-google")
+    settings.GEMINI_MODEL = "gemini-3-flash-preview"
+    settings.GEMINI_STREAMING_MODEL = "gemini-3-flash-preview"
     return settings
 
 
@@ -61,7 +63,7 @@ def test_factory_create_unsupported_enum(mock_settings: Settings) -> None:
     # but we can pass an object that evaluates to true but isn't in registry.
     class FakeEnum:
         pass
-    
+
     with pytest.raises(ValueError, match="Unsupported LLM provider"):
         # We need to bypass the type checking to test the runtime error
         LLMFactory.create(FakeEnum(), mock_settings)  # type: ignore

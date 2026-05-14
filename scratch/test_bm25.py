@@ -1,7 +1,11 @@
 from rank_bm25 import BM25Okapi
 
+
 def tokenize(text: str) -> list[str]:
-    return [word.strip(".,!?;:()[]\"'") for word in text.lower().split() if word.strip(".,!?;:()[]\"'")]
+    return [
+        word.strip(".,!?;:()[]\"'") for word in text.lower().split() if word.strip(".,!?;:()[]\"'")
+    ]
+
 
 query = "banana"
 corpus = ["apple", "banana", "cherry", "date"]

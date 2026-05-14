@@ -21,27 +21,27 @@ def run_ragas_eval():
         # Run the modular evaluation logic
         # Defaulting to the baseline dataset for now
         scores = asyncio.run(run_evaluation("tests/eval_dataset.json"))
-        
+
         # Store results in Redis for the API to retrieve
         from datetime import UTC, datetime
 
         import redis
 
         from src.core.config import settings
-        
+
         r = redis.from_url(settings.REDIS_BACKEND_URL)
         results = {
             "results": [
                 {"metric_name": k, "score": float(v), "description": "RAGAS automated metric"}
                 for k, v in scores.items()
             ],
-            "evaluated_at": datetime.now(UTC).isoformat()
+            "evaluated_at": datetime.now(UTC).isoformat(),
         }
         r.set("latest_eval_results", json.dumps(results))
-        
+
         logger.info("eval_task_completed", scores=scores)
         return {"status": "success", "scores": scores}
-        
+
     except Exception as e:
         logger.error("eval_task_failed", error=str(e))
         return {"status": "failed", "error": str(e)}
