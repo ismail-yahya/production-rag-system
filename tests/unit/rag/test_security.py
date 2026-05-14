@@ -1,6 +1,7 @@
 import pytest
-from src.rag.security import SecurityGuard
+
 from src.core.exceptions import SecurityError
+from src.rag.security import SecurityGuard
 
 
 def test_security_guard_sanitize_query_success():

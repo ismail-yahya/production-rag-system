@@ -1,9 +1,11 @@
 import json
-import pytest
 from unittest.mock import AsyncMock
-from src.rag.query_processor import QueryProcessor
-from src.llm.base import LLMResponse
+
+import pytest
+
 from src.core.exceptions import LLMError
+from src.llm.base import LLMResponse
+from src.rag.query_processor import QueryProcessor
 
 
 @pytest.fixture

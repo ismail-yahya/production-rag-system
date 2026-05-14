@@ -1,8 +1,7 @@
-import os
-from pathlib import Path
 
 import boto3
 from botocore.client import Config
+
 from src.core.config import settings
 
 

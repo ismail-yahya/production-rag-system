@@ -2,7 +2,6 @@ import asyncio
 from typing import Any
 
 import structlog
-from sentence_transformers import SentenceTransformer
 
 from src.core import EmbeddingError
 from src.embeddings.base import BaseEmbedder
@@ -34,6 +33,8 @@ class LocalEmbedder(BaseEmbedder):
             **kwargs: Additional arguments passed to the SentenceTransformer constructor.
         """
         try:
+            from sentence_transformers import SentenceTransformer  # noqa: PLC0415
+
             logger.info("loading_local_embedding_model", model=model_name, device=device)
             self._model = SentenceTransformer(model_name, device=device, **kwargs)
             self._model_name = model_name

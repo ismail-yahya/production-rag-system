@@ -86,10 +86,7 @@ class RecursiveCharacterChunker(BaseChunker):
         next_separators = separators[1:] if len(separators) > 1 else []
         
         # Split the text
-        if separator:
-            splits = text.split(separator)
-        else:
-            splits = list(text)  # Last resort: split by character
+        splits = text.split(separator) if separator else list(text)
 
         for s in splits:
             if len(s) <= self.chunk_size:
@@ -111,22 +108,21 @@ class RecursiveCharacterChunker(BaseChunker):
         total_len = 0
 
         for s in splits:
-            if total_len + len(s) > self.chunk_size:
-                if current_doc:
-                    merged.append("".join(current_doc))
-                    
-                    # Handle overlap: backtrack from the current_doc
-                    # to start the next chunk with some context
-                    overlap_doc: list[str] = []
-                    overlap_len = 0
-                    for prev_s in reversed(current_doc):
-                        if overlap_len + len(prev_s) <= self.chunk_overlap:
-                            overlap_doc.insert(0, prev_s)
-                            overlap_len += len(prev_s)
-                        else:
-                            break
-                    current_doc = overlap_doc
-                    total_len = overlap_len
+            if total_len + len(s) > self.chunk_size and current_doc:
+                merged.append("".join(current_doc))
+                
+                # Handle overlap: backtrack from the current_doc
+                # to start the next chunk with some context
+                overlap_doc: list[str] = []
+                overlap_len = 0
+                for prev_s in reversed(current_doc):
+                    if overlap_len + len(prev_s) <= self.chunk_overlap:
+                        overlap_doc.insert(0, prev_s)
+                        overlap_len += len(prev_s)
+                    else:
+                        break
+                current_doc = overlap_doc
+                total_len = overlap_len
             
             current_doc.append(s)
             total_len += len(s)

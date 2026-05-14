@@ -25,7 +25,7 @@ class OpenAILLM(BaseLLM):
         try:
             self._client = AsyncOpenAI(api_key=api_key.get_secret_value())
         except Exception as e:
-            raise LLMError(f"Failed to initialize OpenAI client: {e}")
+            raise LLMError(f"Failed to initialize OpenAI client: {e}") from e
 
     async def generate(self, messages: list[LLMMessage], **kwargs: Any) -> LLMResponse:
         """Generate a complete response using the OpenAI API."""
@@ -58,9 +58,9 @@ class OpenAILLM(BaseLLM):
                 usage=usage
             )
         except openai.OpenAIError as e:
-            raise LLMError(f"OpenAI API error during generate: {e}")
+            raise LLMError(f"OpenAI API error during generate: {e}") from e
         except Exception as e:
-            raise LLMError(f"Unexpected error during generate: {e}")
+            raise LLMError(f"Unexpected error during generate: {e}") from e
 
     async def stream(self, messages: list[LLMMessage], **kwargs: Any) -> AsyncGenerator[str, None]:
         """Stream a response from the OpenAI API token by token."""
@@ -83,6 +83,6 @@ class OpenAILLM(BaseLLM):
                     yield chunk.choices[0].delta.content
                     
         except openai.OpenAIError as e:
-            raise LLMError(f"OpenAI API error during stream: {e}")
+            raise LLMError(f"OpenAI API error during stream: {e}") from e
         except Exception as e:
-            raise LLMError(f"Unexpected error during stream: {e}")
+            raise LLMError(f"Unexpected error during stream: {e}") from e

@@ -1,15 +1,14 @@
 import json
 import uuid
-import redis
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Annotated
 
+import redis
 from fastapi import APIRouter, Depends, status
 
 from src.api.dependencies import get_admin
 from src.api.routers.schemas import (
     AdminStatsResponse,
-    EvalResult,
     EvalResultsResponse,
     EvalRunResponse,
 )

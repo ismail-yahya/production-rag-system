@@ -1,9 +1,10 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
-from src.retrieval.reranker import CohereReranker
+import pytest
+
 from src.core.exceptions import RetrievalError
+from src.retrieval.reranker import CohereReranker
 from src.vectorstore.base import Document
 
 

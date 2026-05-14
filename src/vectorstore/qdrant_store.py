@@ -1,7 +1,7 @@
-import structlog
 from typing import Any
 from uuid import UUID
 
+import structlog
 from qdrant_client import AsyncQdrantClient, models
 
 from src.core import IngestionError, RetrievalError, settings
@@ -91,9 +91,9 @@ class QdrantVectorStore(BaseVectorStore):
         qdrant_filter = self._build_filter(filters)
 
         try:
-            results = await self._client.search(
+            response = await self._client.query_points(
                 collection_name=self.collection_name,
-                query_vector=query_vector,
+                query=query_vector,
                 limit=top_k,
                 query_filter=qdrant_filter,
                 with_vectors=False,
@@ -101,7 +101,7 @@ class QdrantVectorStore(BaseVectorStore):
             )
 
             documents = []
-            for res in results:
+            for res in response.points:
                 payload = res.payload or {}
                 # Extract content and leave the rest as metadata
                 content = str(payload.pop("content", ""))

@@ -1,7 +1,8 @@
 import json
-import pytest
 from unittest.mock import MagicMock
-from uuid import uuid4
+
+import pytest
+
 
 @pytest.mark.asyncio
 async def test_query_success(client_with_mock_pipeline, test_tenant, mock_rag_pipeline):

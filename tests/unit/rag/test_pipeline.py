@@ -1,12 +1,15 @@
-from typing import Any, AsyncGenerator
-import pytest
+from collections.abc import AsyncGenerator
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
-from src.rag.pipeline import RAGPipeline
-from src.llm.base import LLMResponse
-from src.vectorstore.base import Document
-from src.rag.schemas import RAGResponse
+
+import pytest
+
 from src.core.exceptions import SecurityError
+from src.llm.base import LLMResponse
+from src.rag.pipeline import RAGPipeline
+from src.rag.schemas import RAGResponse
+from src.vectorstore.base import Document
 
 
 @pytest.fixture

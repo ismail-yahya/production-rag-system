@@ -1,12 +1,13 @@
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+from pydantic import SecretStr
 
 from src.core.config import Settings
 from src.embeddings.base import BaseEmbedder
 from src.embeddings.factory import EmbedderFactory, EmbeddingProvider
-from src.embeddings.openai_embedder import OpenAIEmbedder
 from src.embeddings.local_embedder import LocalEmbedder
-from pydantic import SecretStr
+from src.embeddings.openai_embedder import OpenAIEmbedder
 
 
 @pytest.fixture

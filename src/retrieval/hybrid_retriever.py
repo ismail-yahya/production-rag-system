@@ -1,15 +1,16 @@
 import time
-import structlog
 from typing import Any
 from uuid import UUID
+
+import structlog
 from pydantic import BaseModel, ConfigDict
 
 from src.core.config import settings
-from src.vectorstore.base import BaseVectorStore, Document
-from src.embeddings.base import BaseEmbedder
 from src.core.context import tenant_id_context
-from src.retrieval.vector_retriever import VectorRetriever
+from src.embeddings.base import BaseEmbedder
 from src.retrieval.bm25_retriever import BM25Retriever
+from src.retrieval.vector_retriever import VectorRetriever
+from src.vectorstore.base import BaseVectorStore, Document
 
 logger = structlog.get_logger(__name__)
 

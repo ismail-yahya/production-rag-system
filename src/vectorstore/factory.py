@@ -1,11 +1,11 @@
-from enum import Enum
+from enum import StrEnum
 
 from src.core import Settings
 from src.vectorstore.base import BaseVectorStore
 from src.vectorstore.qdrant_store import QdrantVectorStore
 
 
-class VectorStoreProvider(str, Enum):
+class VectorStoreProvider(StrEnum):
     """Supported vector store providers."""
 
     QDRANT = "qdrant"
@@ -39,8 +39,8 @@ class VectorStoreFactory:
         if isinstance(provider, str):
             try:
                 provider_enum = VectorStoreProvider(provider.lower())
-            except ValueError:
-                raise ValueError(f"Unsupported vector store provider: {provider}")
+            except ValueError as e:
+                raise ValueError(f"Unsupported vector store provider: {provider}") from e
         else:
             provider_enum = provider
 

@@ -1,5 +1,6 @@
 import structlog
 from rank_bm25 import BM25Okapi
+
 from src.vectorstore.base import Document
 
 logger = structlog.get_logger(__name__)

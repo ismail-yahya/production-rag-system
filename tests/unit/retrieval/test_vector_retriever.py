@@ -1,10 +1,11 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
+import pytest
+
+from src.embeddings.base import BaseEmbedder
 from src.retrieval.vector_retriever import VectorRetriever
 from src.vectorstore.base import BaseVectorStore, Document
-from src.embeddings.base import BaseEmbedder
 
 
 @pytest.mark.asyncio

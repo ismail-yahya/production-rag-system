@@ -1,16 +1,18 @@
-from enum import Enum
+from enum import StrEnum
 
 from src.core import Settings
 from src.embeddings.base import BaseEmbedder
 from src.embeddings.local_embedder import LocalEmbedder
 from src.embeddings.openai_embedder import OpenAIEmbedder
+from src.embeddings.cohere_embedder import CohereEmbedder
 
 
-class EmbeddingProvider(str, Enum):
+class EmbeddingProvider(StrEnum):
     """Supported embedding providers."""
 
     OPENAI = "openai"
     LOCAL = "local"
+    COHERE = "cohere"
 
 
 class EmbedderFactory:
@@ -22,6 +24,7 @@ class EmbedderFactory:
     _registry: dict[EmbeddingProvider, type[BaseEmbedder]] = {
         EmbeddingProvider.OPENAI: OpenAIEmbedder,
         EmbeddingProvider.LOCAL: LocalEmbedder,
+        EmbeddingProvider.COHERE: CohereEmbedder,
     }
 
     @classmethod
@@ -43,11 +46,11 @@ class EmbedderFactory:
         if isinstance(provider, str):
             try:
                 provider_enum = EmbeddingProvider(provider.lower())
-            except ValueError:
-                raise ValueError(f"Unsupported embedding provider: {provider}")
+            except ValueError as e:
+                raise ValueError(f"Unsupported embedding provider: {provider}") from e
             except Exception as e:
                 # Handle unexpected errors gracefully
-                raise ValueError(f"Error resolving embedding provider '{provider}': {e}")
+                raise ValueError(f"Error resolving embedding provider '{provider}': {e}") from e
         else:
             provider_enum = provider
 
@@ -67,6 +70,12 @@ class EmbedderFactory:
             return LocalEmbedder(
                 model_name=settings.LOCAL_EMBEDDING_MODEL,
                 device=settings.EMBEDDING_DEVICE,
+            )
+
+        if provider_enum == EmbeddingProvider.COHERE:
+            return CohereEmbedder(
+                api_key=settings.COHERE_API_KEY,
+                model=settings.COHERE_EMBEDDING_MODEL,
             )
 
         raise ValueError(f"Unsupported embedding provider: {provider_enum}")  # pragma: no cover

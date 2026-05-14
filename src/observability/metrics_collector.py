@@ -1,5 +1,6 @@
 from prometheus_client import Counter, Histogram
 
+
 class MetricsCollector:
     """
     Centralized collector for Prometheus metrics.

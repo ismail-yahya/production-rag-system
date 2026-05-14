@@ -1,7 +1,7 @@
-import pytest
 from uuid import uuid4
-from src.vectorstore.base import Document
+
 from src.rag.context_builder import ContextBuilder
+from src.vectorstore.base import Document
 
 
 def test_build_context_success() -> None:

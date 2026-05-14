@@ -1,6 +1,7 @@
 import uuid
-from datetime import datetime, UTC
-from typing import Any, Sequence
+from collections.abc import Sequence
+from datetime import UTC, datetime
+from typing import Any
 
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,6 +31,17 @@ class DocumentRepository:
         Retrieve a document by ID and tenant ID for scoping.
         """
         stmt = select(Document).where(Document.id == document_id, Document.tenant_id == tenant_id)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def get_by_hash(self, content_hash: str, tenant_id: uuid.UUID) -> Document | None:
+        """
+        Retrieve a document by content hash and tenant ID.
+        Used for deduplication.
+        """
+        stmt = select(Document).where(
+            Document.content_hash == content_hash, Document.tenant_id == tenant_id
+        )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 

@@ -1,5 +1,7 @@
-import pytest
 from uuid import uuid4
+
+import pytest
+
 from src.retrieval.bm25_retriever import BM25Retriever
 from src.vectorstore.base import Document
 

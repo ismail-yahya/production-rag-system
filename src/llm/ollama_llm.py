@@ -24,7 +24,7 @@ class OllamaLLM(BaseLLM):
             host = base_url or "http://localhost:11434"
             self._client = AsyncClient(host=host)
         except Exception as e:
-            raise LLMError(f"Failed to initialize Ollama client: {e}")
+            raise LLMError(f"Failed to initialize Ollama client: {e}") from e
 
     async def generate(self, messages: list[LLMMessage], **kwargs: Any) -> LLMResponse:
         """Generate a complete response using the Ollama API."""
@@ -62,9 +62,9 @@ class OllamaLLM(BaseLLM):
                 usage=usage
             )
         except ollama.ResponseError as e:
-            raise LLMError(f"Ollama API error during generate: {e}")
+            raise LLMError(f"Ollama API error during generate: {e}") from e
         except Exception as e:
-            raise LLMError(f"Unexpected error during generate: {e}")
+            raise LLMError(f"Unexpected error during generate: {e}") from e
 
     async def stream(self, messages: list[LLMMessage], **kwargs: Any) -> AsyncGenerator[str, None]:
         """Stream a response from the Ollama API token by token."""
@@ -89,6 +89,6 @@ class OllamaLLM(BaseLLM):
                     yield content
                     
         except ollama.ResponseError as e:
-            raise LLMError(f"Ollama API error during stream: {e}")
+            raise LLMError(f"Ollama API error during stream: {e}") from e
         except Exception as e:
-            raise LLMError(f"Unexpected error during stream: {e}")
+            raise LLMError(f"Unexpected error during stream: {e}") from e

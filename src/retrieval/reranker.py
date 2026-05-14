@@ -1,5 +1,6 @@
 import structlog
 from cohere import AsyncClientV2
+
 from src.core.config import settings
 from src.core.exceptions import RetrievalError
 from src.vectorstore.base import Document

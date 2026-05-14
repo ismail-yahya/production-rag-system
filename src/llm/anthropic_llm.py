@@ -25,7 +25,7 @@ class AnthropicLLM(BaseLLM):
         try:
             self._client = AsyncAnthropic(api_key=api_key.get_secret_value())
         except Exception as e:
-            raise LLMError(f"Failed to initialize Anthropic client: {e}")
+            raise LLMError(f"Failed to initialize Anthropic client: {e}") from e
 
     def _prepare_kwargs(self, messages: list[LLMMessage], kwargs: dict[str, Any]) -> dict[str, Any]:
         """Extract the system message and prepare kwargs for the Anthropic API."""
@@ -79,9 +79,9 @@ class AnthropicLLM(BaseLLM):
                 usage=usage
             )
         except anthropic.AnthropicError as e:
-            raise LLMError(f"Anthropic API error during generate: {e}")
+            raise LLMError(f"Anthropic API error during generate: {e}") from e
         except Exception as e:
-            raise LLMError(f"Unexpected error during generate: {e}")
+            raise LLMError(f"Unexpected error during generate: {e}") from e
 
     async def stream(self, messages: list[LLMMessage], **kwargs: Any) -> AsyncGenerator[str, None]:
         """Stream a response from the Anthropic API token by token."""
@@ -93,6 +93,6 @@ class AnthropicLLM(BaseLLM):
                     yield text
                     
         except anthropic.AnthropicError as e:
-            raise LLMError(f"Anthropic API error during stream: {e}")
+            raise LLMError(f"Anthropic API error during stream: {e}") from e
         except Exception as e:
-            raise LLMError(f"Unexpected error during stream: {e}")
+            raise LLMError(f"Unexpected error during stream: {e}") from e

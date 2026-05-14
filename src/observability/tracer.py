@@ -1,6 +1,8 @@
 import os
-from src.core.config import settings
+
 from langsmith import traceable as ls_traceable
+
+from src.core.config import settings
 
 # Configure LangSmith environment variables from our Settings
 # This ensures that any component using @traceable is correctly instrumented.

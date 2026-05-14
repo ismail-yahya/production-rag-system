@@ -1,7 +1,7 @@
 import json
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 
 from src.api.dependencies import get_rag_pipeline, get_tenant

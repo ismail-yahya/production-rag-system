@@ -15,7 +15,7 @@ ENV UV_COMPILE_BYTECODE=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-WORKDIR /build
+WORKDIR /app
 
 # Install build dependencies (libpq-dev needed to compile asyncpg/psycopg2)
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -29,8 +29,8 @@ COPY pyproject.toml .
 # Create venv and install all dependencies declared in pyproject.toml.
 # --mount=type=cache keeps the uv download cache across rebuilds (BuildKit).
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv venv /build/.venv && \
-    uv pip install --python /build/.venv/bin/python .
+    uv venv /app/.venv && \
+    uv pip install --python /app/.venv/bin/python .
 
 # ── Runtime stage ─────────────────────────────────────────────────────────────
 FROM python:3.12-slim-bookworm AS runtime
@@ -56,11 +56,13 @@ RUN groupadd -g 10001 appgroup && \
     useradd -u 10001 -g appgroup -m -s /bin/bash appuser
 
 # Copy the fully-built venv from builder (no pip, no uv needed at runtime)
-COPY --from=builder /build/.venv /app/.venv
+COPY --from=builder /app/.venv /app/.venv
 
 # Copy source with correct ownership
 COPY --chown=appuser:appgroup src/ /app/src/
 COPY --chown=appuser:appgroup infrastructure/ /app/infrastructure/
+COPY --chown=appuser:appgroup scripts/ /app/scripts/
+COPY --chown=appuser:appgroup alembic.ini /app/alembic.ini
 
 USER appuser
 

@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 
 from src.core.config import Settings
 from src.vectorstore.base import BaseVectorStore

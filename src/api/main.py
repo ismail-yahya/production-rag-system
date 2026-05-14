@@ -1,14 +1,15 @@
 from typing import Annotated
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, FastAPI, Request, status
+
+import structlog
+from fastapi import Depends, FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from prometheus_client import make_asgi_app
-import structlog
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.routers import admin, ingestion, query
-from src.api.middleware import RateLimitMiddleware, TenantContextMiddleware
 from src.api.dependencies import get_session
+from src.api.middleware import RateLimitMiddleware, TenantContextMiddleware
+from src.api.routers import admin, ingestion, query
 from src.core.config import settings
 from src.core.exceptions import (
     IngestionError,

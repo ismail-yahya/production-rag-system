@@ -1,5 +1,6 @@
 import json
 import structlog
+
 from src.core.exceptions import LLMError
 from src.llm.base import BaseLLM, LLMMessage
 from src.rag.prompt_templates import QUERY_PROCESSING_PROMPT

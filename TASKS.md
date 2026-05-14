@@ -192,11 +192,11 @@
 
 **Definition of Done:** `pytest --cov` passes all module coverage thresholds. `ci.yml` passes on a clean branch. The Streamlit demo loads, accepts file uploads, polls status, and streams query responses. `docker-compose.prod.yml` starts the system with production limits.
 
-- [ ] **6.1** — Implement CI GitHub Actions workflow → `.github/workflows/ci.yml` `[Agent: Infrastructure & DevOps Engineer]`
-- [ ] **6.2** — Create production Docker Compose profile → `infrastructure/docker-compose.prod.yml` `[Agent: Infrastructure & DevOps Engineer]`
-- [ ] **6.3** — Write E2E testing flows for upload-to-query → `tests/e2e/test_flow.py` `[Agent: API Engineer]`
-- [ ] **6.4** — Achieve 100% test coverage for `src/core/` and provider factories → `tests/unit/` `[Agent: LLM & Embeddings Engineer]`
-- [ ] **6.5** — Achieve 100% integration test coverage for API routes → `tests/integration/api/` `[Agent: API Engineer]`
+- [x] **6.1** — Implement CI GitHub Actions workflow → `.github/workflows/ci.yml` `[Agent: Infrastructure & DevOps Engineer]`
+- [x] **6.2** — Create production Docker Compose profile → `infrastructure/docker-compose.prod.yml` `[Agent: Infrastructure & DevOps Engineer]`
+- [x] **6.3** — Write E2E testing flows for upload-to-query → `tests/e2e/test_flow.py` `[Agent: API Engineer]`
+- [x] **6.4** — Achieve 100% test coverage for `src/core/` and provider factories → `tests/unit/` `[Agent: LLM & Embeddings Engineer]`
+- [x] **6.5** — Achieve 100% integration test coverage for API routes → `tests/integration/api/` `[Agent: API Engineer]`
 - [x] **6.6** — Implement Streamlit demo interface → `demo/app.py` `[Agent: API Engineer]`
-- [ ] **6.7** — Finalize `README.md` with architecture diagram, benchmarks, and setup instructions → `README.md` `[Agent: Infrastructure & DevOps Engineer]`
+- [x] **6.7** — Finalize `README.md` with architecture diagram, benchmarks, and setup instructions → `README.md` `[Agent: Infrastructure & DevOps Engineer]`
       ↳ Depends on: 6.6

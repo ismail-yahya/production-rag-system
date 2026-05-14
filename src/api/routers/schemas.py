@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -37,7 +37,7 @@ class DocumentListResponse(BaseModel):
     documents: list[DocumentResponse]
 
 
-class QueryMode(str, Enum):
+class QueryMode(StrEnum):
     """Available query modes."""
 
     STANDARD = "standard"

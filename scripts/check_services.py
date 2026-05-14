@@ -1,12 +1,14 @@
 import asyncio
+
+from src.core.config import settings
 from src.core.database import engine
 from src.vectorstore.factory import VectorStoreFactory
-from src.core.config import settings
+
 
 async def check():
     print("Checking Database...")
     try:
-        async with engine.connect() as conn:
+        async with engine.connect():
             print("Database: OK")
     except Exception as e:
         print(f"Database: FAIL - {e}")

@@ -1,5 +1,5 @@
+
 import pytest
-from typing import Any
 
 from src.embeddings.base import BaseEmbedder
 
