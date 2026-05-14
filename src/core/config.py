@@ -58,6 +58,8 @@ class Settings(BaseSettings):
     RETRIEVAL_VECTOR_WEIGHT: float = 0.7
     RETRIEVAL_KEYWORD_WEIGHT: float = 0.3
     RETRIEVAL_FINAL_TOP_K: int = 5
+    RETRIEVAL_SIMILARITY_THRESHOLD: float = 0.0
+    RETRIEVAL_SEARCH_TYPE: str = "hybrid"
     COHERE_RERANK_MODEL: str = "rerank-multilingual-v3.0"
     RAG_CONTEXT_MAX_TOKENS: int = 6000
 

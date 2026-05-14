@@ -44,6 +44,23 @@ class QueryMode(str, Enum):
     STRICT = "strict"
 
 
+class SearchType(str, Enum):
+    """Available search types."""
+
+    LITERAL = "literal"
+    SEMANTIC = "semantic"
+    HYBRID = "hybrid"
+
+
+class SearchConfig(BaseModel):
+    """Advanced search configuration for fine-tuning retrieval."""
+
+    vector_weight: float | None = None
+    keyword_weight: float | None = None
+    similarity_threshold: float | None = None
+    top_k: int | None = None
+
+
 class QueryFilters(BaseModel):
     """Optional filters for a query."""
 
@@ -57,6 +74,8 @@ class QueryRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=1000)
     filters: QueryFilters | None = None
     mode: QueryMode = QueryMode.STANDARD
+    search_type: SearchType = SearchType.HYBRID
+    search_config: SearchConfig | None = None
 
 
 class QuerySource(BaseModel):

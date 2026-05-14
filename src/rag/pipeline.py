@@ -73,6 +73,8 @@ class RAGPipeline:
         tenant_id: UUID,
         mode: str = "standard",
         filters: dict[str, Any] | None = None,
+        search_type: str | None = None,
+        search_config: dict[str, Any] | None = None,
     ) -> RAGResponse:
         """
         Executes a complete RAG query flow (blocking).
@@ -117,7 +119,13 @@ class RAGPipeline:
 
         # 3. Retrieval: Search for each expansion in parallel
         retrieval_tasks = [
-            self.retriever.retrieve(q, tenant_id, filters) for q in expansions
+            self.retriever.retrieve(
+                q, 
+                tenant_id, 
+                filters,
+                search_type=search_type,
+                **(search_config or {})
+            ) for q in expansions
         ]
         retrieval_results = await asyncio.gather(*retrieval_tasks)
 
@@ -200,6 +208,8 @@ class RAGPipeline:
         tenant_id: UUID,
         mode: str = "standard",
         filters: dict[str, Any] | None = None,
+        search_type: str | None = None,
+        search_config: dict[str, Any] | None = None,
     ) -> AsyncGenerator[dict[str, Any], None]:
         """
         Executes a RAG query flow and yields tokens as they are generated.
@@ -219,7 +229,13 @@ class RAGPipeline:
         expansions, category = await self.query_processor.process_query(question)
 
         retrieval_tasks = [
-            self.retriever.retrieve(q, tenant_id, filters) for q in expansions
+            self.retriever.retrieve(
+                q, 
+                tenant_id, 
+                filters,
+                search_type=search_type,
+                **(search_config or {})
+            ) for q in expansions
         ]
         retrieval_results = await asyncio.gather(*retrieval_tasks)
 
