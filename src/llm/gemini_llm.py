@@ -78,8 +78,8 @@ class GeminiLLM(BaseLLM):
 
             response = await model.generate_content_async(
                 formatted_messages,
-                generation_config=generation_config,
-                **kwargs,  # type: ignore[arg-type]
+                generation_config=generation_config,  # type: ignore[arg-type]
+                **kwargs,
             )
 
             content = response.text
@@ -118,8 +118,8 @@ class GeminiLLM(BaseLLM):
             response = await model.generate_content_async(
                 formatted_messages,
                 stream=True,
-                generation_config=generation_config,
-                **kwargs,  # type: ignore[arg-type]
+                generation_config=generation_config,  # type: ignore[arg-type]
+                **kwargs,
             )
 
             async for chunk in response:
