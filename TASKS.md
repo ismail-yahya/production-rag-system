@@ -197,6 +197,6 @@
 - [ ] **6.3** — Write E2E testing flows for upload-to-query → `tests/e2e/test_flow.py` `[Agent: API Engineer]`
 - [ ] **6.4** — Achieve 100% test coverage for `src/core/` and provider factories → `tests/unit/` `[Agent: LLM & Embeddings Engineer]`
 - [ ] **6.5** — Achieve 100% integration test coverage for API routes → `tests/integration/api/` `[Agent: API Engineer]`
-- [ ] **6.6** — Implement Streamlit demo interface → `demo/app.py` `[Agent: API Engineer]`
+- [x] **6.6** — Implement Streamlit demo interface → `demo/app.py` `[Agent: API Engineer]`
 - [ ] **6.7** — Finalize `README.md` with architecture diagram, benchmarks, and setup instructions → `README.md` `[Agent: Infrastructure & DevOps Engineer]`
       ↳ Depends on: 6.6
