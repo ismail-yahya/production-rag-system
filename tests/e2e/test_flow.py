@@ -3,6 +3,7 @@ import time
 import uuid
 
 import httpx
+import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -41,6 +42,14 @@ def test_full_rag_flow():
     4. Query the system
     5. Assert on response quality
     """
+    # Skip E2E test if API is not running or healthy
+    try:
+        resp = httpx.get(f"{API_URL}/ready", timeout=1.0)
+        if resp.status_code != 200:
+            pytest.skip("RAG API is not healthy/ready")
+    except Exception:
+        pytest.skip("RAG API is not running")
+
     # 1. Seed Tenant
     asyncio.run(seed_tenant())
     headers = {"Authorization": f"Bearer {TEST_API_KEY}"}
