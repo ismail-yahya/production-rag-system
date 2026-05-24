@@ -33,6 +33,7 @@ def test_factory_create_cohere(mock_settings: Settings) -> None:
     embedder = EmbedderFactory.create(EmbeddingProvider.COHERE, mock_settings)
     assert isinstance(embedder, BaseEmbedder)
     from src.embeddings.cohere_embedder import CohereEmbedder
+
     assert isinstance(embedder, CohereEmbedder)
 
 
