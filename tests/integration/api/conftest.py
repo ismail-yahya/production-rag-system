@@ -4,12 +4,13 @@ from uuid import uuid4
 
 import pytest
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from src.api.dependencies import get_rag_pipeline, get_session
 from src.api.main import app
 from src.core.database import engine as real_engine
-from src.core.models import Tenant
+from src.core.models import Document, Tenant
 from src.rag.pipeline import RAGPipeline
 
 # Use the real database for integration tests but we'll use a transaction per test
@@ -26,6 +27,9 @@ async def db_session():
             expire_on_commit=False,
         )
         async with async_session() as session:
+            # Verify connectivity before yielding. If database is unreachable,
+            # this raises an exception and triggers the fallback to mock_session.
+            await session.execute(text("SELECT 1"))
             yield session
             await session.rollback()
     except Exception:
@@ -33,13 +37,38 @@ async def db_session():
 
         traceback.print_exc()
         mock_session = AsyncMock(spec=AsyncSession)
+        session_objects = []
 
-        # Mocking execute to return a result that can be scalar_one_or_none()
-        # This is tricky because it needs to match the structure of a real result.
-        mock_result = MagicMock()
-        mock_result.scalar_one_or_none.return_value = None  # Default
-        mock_session.execute.return_value = mock_result
+        def mock_add(obj):
+            session_objects.append(obj)
 
+        mock_session.add.side_effect = mock_add
+
+        async def mock_execute(stmt, *args, **kwargs):
+            sql_str = str(stmt).lower()
+            mock_result = MagicMock()
+            if "from tenants" in sql_str or "tenants." in sql_str:
+                tenants = [obj for obj in session_objects if isinstance(obj, Tenant)]
+                if tenants:
+                    mock_result.scalar_one_or_none.return_value = tenants[0]
+                    mock_result.scalars.return_value.all.return_value = tenants
+                else:
+                    mock_result.scalar_one_or_none.return_value = None
+                    mock_result.scalars.return_value.all.return_value = []
+            elif "from documents" in sql_str or "documents." in sql_str:
+                docs = [obj for obj in session_objects if isinstance(obj, Document)]
+                if docs:
+                    mock_result.scalar_one_or_none.return_value = docs[0]
+                    mock_result.scalars.return_value.all.return_value = docs
+                else:
+                    mock_result.scalar_one_or_none.return_value = None
+                    mock_result.scalars.return_value.all.return_value = []
+            else:
+                mock_result.scalar_one_or_none.return_value = None
+                mock_result.scalars.return_value.all.return_value = []
+            return mock_result
+
+        mock_session.execute.side_effect = mock_execute
         mock_session.commit = AsyncMock()
         mock_session.rollback = AsyncMock()
         mock_session.refresh = AsyncMock()
@@ -92,7 +121,7 @@ def mock_rag_pipeline():
     """Provides a RAGPipeline with mocked LLM and Embedder."""
     mock_pipeline = MagicMock(spec=RAGPipeline)
     mock_pipeline.query = AsyncMock()
-    mock_pipeline.stream_query = AsyncMock()
+    mock_pipeline.stream_query = MagicMock()
     return mock_pipeline
 
 

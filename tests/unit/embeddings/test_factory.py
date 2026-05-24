@@ -18,6 +18,8 @@ def mock_settings() -> Settings:
     settings.OPENAI_EMBEDDING_BATCH_SIZE = 100
     settings.LOCAL_EMBEDDING_MODEL = "BAAI/bge-m3"
     settings.EMBEDDING_DEVICE = "cpu"
+    settings.COHERE_API_KEY = SecretStr("sk-test-cohere")
+    settings.COHERE_EMBEDDING_MODEL = "embed-multilingual-v3.0"
     return settings
 
 
@@ -25,6 +27,13 @@ def test_factory_create_openai(mock_settings: Settings) -> None:
     embedder = EmbedderFactory.create(EmbeddingProvider.OPENAI, mock_settings)
     assert isinstance(embedder, BaseEmbedder)
     assert isinstance(embedder, OpenAIEmbedder)
+
+
+def test_factory_create_cohere(mock_settings: Settings) -> None:
+    embedder = EmbedderFactory.create(EmbeddingProvider.COHERE, mock_settings)
+    assert isinstance(embedder, BaseEmbedder)
+    from src.embeddings.cohere_embedder import CohereEmbedder
+    assert isinstance(embedder, CohereEmbedder)
 
 
 def test_factory_create_local(mock_settings: Settings) -> None:

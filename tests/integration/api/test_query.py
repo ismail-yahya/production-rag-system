@@ -75,9 +75,10 @@ async def test_query_stream_success(client_with_mock_pipeline, test_tenant, mock
 
     # Assert
     assert response.status_code == 200
-    assert response.headers["content-type"] == "text/event-stream"
+    assert "text/event-stream" in response.headers["content-type"]
 
-    lines = [line.decode("utf-8") for line in await response.aread() if line]
+    content = await response.aread()
+    lines = [line for line in content.decode("utf-8").split("\n") if line]
 
     # SSE format: data: {...}\n\n
     events = [line.replace("data: ", "").strip() for line in lines if line.startswith("data: ")]

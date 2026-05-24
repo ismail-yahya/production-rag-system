@@ -84,7 +84,7 @@ async def health_check() -> dict[str, str]:
     return {"status": "healthy"}
 
 
-@app.get("/ready")
+@app.get("/ready", response_model=None)
 async def readiness_check(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> JSONResponse | dict[str, str]:
