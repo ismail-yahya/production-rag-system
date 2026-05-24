@@ -39,8 +39,10 @@ jobs:
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
       - name: Install dependencies
         run: uv sync
+      - name: Create .env file
+        run: cp .env.example .env
       - name: Start Services
-        run: docker compose up -d
+        run: docker compose up -d postgres redis qdrant minio
       - name: Wait for Services
         run: |
           until docker exec rag_postgres pg_isready; do
