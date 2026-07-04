@@ -110,9 +110,9 @@
 - [x] **3.14** — Implement rate limiting middleware → `src/api/middleware.py` `[Agent: API Engineer]`
 - [x] **3.15** — Instantiate FastAPI app, register routers, and add global exception handler → `src/api/main.py` `[Agent: API Engineer]`
       ↳ Depends on: 3.12, 3.13, 3.14
-- [ ] **3.16** — Write unit tests for loaders, chunkers, cleaner, and pipeline → `tests/unit/ingestion/` `[Agent: Ingestion Engineer]`
+- [x] **3.16** — Write unit tests for loaders, chunkers, cleaner, and pipeline → `tests/unit/ingestion/` `[Agent: Ingestion Engineer]`
       ↳ Depends on: 3.7
-- [ ] **3.17** — Write integration tests for ingestion routes → `tests/integration/api/` `[Agent: API Engineer]`
+- [x] **3.17** — Write integration tests for ingestion routes → `tests/integration/api/` `[Agent: API Engineer]`
       ↳ Depends on: 3.15
 
 ---

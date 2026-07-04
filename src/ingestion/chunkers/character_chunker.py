@@ -29,8 +29,8 @@ class RecursiveCharacterChunker(BaseChunker):
             chunk_overlap: Overlap between consecutive chunks. Defaults to settings.CHUNK_OVERLAP.
             separators: List of separators to try in order.
         """
-        self.chunk_size = chunk_size or settings.CHUNK_SIZE
-        self.chunk_overlap = chunk_overlap or settings.CHUNK_OVERLAP
+        self.chunk_size = chunk_size if chunk_size is not None else settings.CHUNK_SIZE
+        self.chunk_overlap = chunk_overlap if chunk_overlap is not None else settings.CHUNK_OVERLAP
         self.separators = separators or ["\n\n", "\n", " ", ""]
 
     async def chunk(self, text: str, metadata: dict[str, Any] | None = None) -> list[Chunk]:
