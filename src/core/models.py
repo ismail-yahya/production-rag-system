@@ -132,6 +132,9 @@ class IngestionJob(Base):
         DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
     )
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_heartbeat_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     __table_args__ = (
         Index("ix_ingestion_jobs_document_id", "document_id"),
@@ -190,3 +193,28 @@ class EvalDataset(Base):
     )
 
     __table_args__ = (Index("ix_eval_datasets_question_type", "question_type"),)
+
+
+class TaskExecution(Base):
+    """
+    Tracks Celery task execution for idempotency.
+    """
+
+    __tablename__ = "task_executions"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    task_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    task_args_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    celery_task_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    status: Mapped[str] = mapped_column(String(50), default="pending", nullable=False)
+    result: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
+    error: Mapped[str | None] = mapped_column(String, nullable=True)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
+    )
+
+    __table_args__ = (
+        UniqueConstraint("task_name", "task_args_hash", name="uq_task_executions_name_hash"),
+    )

@@ -6,7 +6,7 @@ from typing import Any
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.models import Document, IngestionJob
+from src.core.models import Document, IngestionJob, TaskExecution
 
 
 class DocumentRepository:
@@ -136,3 +136,86 @@ class IngestionJobRepository:
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
+
+    async def try_start_job(self, document_id: uuid.UUID, celery_task_id: str) -> IngestionJob | None:
+        """
+        Atomic transition: pending/failed -> processing.
+        Uses SELECT ... FOR UPDATE SKIP LOCKED to avoid blocking.
+        Commits immediately to release the lock.
+        """
+        stmt = (
+            select(IngestionJob)
+            .where(IngestionJob.document_id == document_id)
+            .with_for_update(skip_locked=True)
+        )
+        result = await self.session.execute(stmt)
+        job = result.scalar_one_or_none()
+
+        if job and job.status in ("pending", "failed"):
+            job.status = "processing"
+            job.celery_task_id = celery_task_id
+            job.started_at = datetime.now(UTC)
+            job.last_heartbeat_at = datetime.now(UTC)
+            await self.session.commit()
+            return job
+        await self.session.rollback()
+        return None
+
+
+class TaskExecutionRepository:
+    """
+    Repository for TaskExecution-related database operations (Idempotency Manager).
+    """
+
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
+
+    async def acquire(self, task_name: str, task_args_hash: str, celery_task_id: str) -> bool:
+        """
+        Attempts to acquire a task lock.
+        Returns True if successful (lock acquired), False otherwise.
+        """
+        from sqlalchemy.dialects.postgresql import insert as pg_insert
+
+        stmt = (
+            pg_insert(TaskExecution)
+            .values(
+                task_name=task_name,
+                task_args_hash=task_args_hash,
+                celery_task_id=celery_task_id,
+                status="processing",
+                started_at=datetime.now(UTC),
+            )
+            .on_conflict_do_nothing(constraint="uq_task_executions_name_hash")
+            .returning(TaskExecution.id)
+        )
+        result = await self.session.execute(stmt)
+        await self.session.commit()
+        return result.scalar_one_or_none() is not None
+
+    async def release(
+        self,
+        task_name: str,
+        task_args_hash: str,
+        status: str,
+        result: dict[str, Any] | None = None,
+        error: str | None = None,
+    ) -> None:
+        """
+        Releases/updates a task lock.
+        """
+        stmt = (
+            update(TaskExecution)
+            .where(
+                TaskExecution.task_name == task_name,
+                TaskExecution.task_args_hash == task_args_hash,
+            )
+            .values(
+                status=status,
+                result=result,
+                error=error,
+                completed_at=datetime.now(UTC),
+            )
+        )
+        await self.session.execute(stmt)
+        await self.session.commit()

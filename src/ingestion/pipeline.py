@@ -136,9 +136,9 @@ class IngestionPipeline:
             for _i, (chunk, embedding) in enumerate(zip(chunks, embeddings, strict=False)):
                 vector_docs.append(
                     VectorDocument(
-                        id=uuid.uuid4(),
+                        id=uuid.uuid5(document_id, f"chunk_{_i}"),
                         content=chunk.content,
-                        metadata=chunk.metadata,
+                        metadata={**chunk.metadata, "document_id": str(document_id), "chunk_index": _i},
                         embedding=embedding,
                     )
                 )

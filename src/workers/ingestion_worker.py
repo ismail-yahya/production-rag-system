@@ -91,11 +91,48 @@ def ingest_document(
                 await doc_repo.update(uuid.UUID(document_id), **doc_kwargs)
                 await session.commit()
 
-        local_path = None
-        try:
-            # 1. Update job status to processing
-            await _update_status("processing")
+        # 1. Try to start the job atomically. Commit immediately to release Postgres lock.
+        async with local_session_factory() as session:
+            job_repo = IngestionJobRepository(session)
+            job = await job_repo.try_start_job(uuid.UUID(document_id), self.request.id)
+            if not job:
+                log.warning("Ingestion job already being processed or completed. Exiting early.")
+                return {
+                    "status": "skipped",
+                    "document_id": document_id,
+                    "reason": "already_processing_or_indexed",
+                }
 
+            # Also update Document status to processing
+            doc_repo = DocumentRepository(session)
+            await doc_repo.update(uuid.UUID(document_id), status="processing")
+            await session.commit()
+
+        local_path = None
+        heartbeat_stop = asyncio.Event()
+
+        async def _heartbeat_loop() -> None:
+            from datetime import UTC, datetime
+            while not heartbeat_stop.is_set():
+                try:
+                    await asyncio.sleep(30)
+                    if heartbeat_stop.is_set():
+                        break
+                    # Open separate isolated connection/session
+                    async with local_session_factory() as heartbeat_session:
+                        job_repo = IngestionJobRepository(heartbeat_session)
+                        job = await job_repo.get_by_document_id(uuid.UUID(document_id))
+                        if job:
+                            job.last_heartbeat_at = datetime.now(UTC)
+                            await heartbeat_session.commit()
+                            log.debug("Heartbeat updated successfully")
+                except Exception as heartbeat_exc:
+                    log.warning("Failed to send heartbeat", error=str(heartbeat_exc))
+
+        # Start heartbeat loop in background on the same event loop
+        heartbeat_task = asyncio.create_task(_heartbeat_loop())
+
+        try:
             # 2. Download file from storage to local temporary path
             temp_dir = "/tmp/rag_worker"
             os.makedirs(temp_dir, exist_ok=True)
@@ -139,6 +176,11 @@ def ingest_document(
             await _update_status("failed", error_message=str(e))
             return {"status": "failed", "document_id": document_id, "error": str(e)}
         finally:
+            # Signal heartbeat to stop and wait for it
+            heartbeat_stop.set()
+            with contextlib.suppress(Exception):
+                await heartbeat_task
+
             if local_path and os.path.exists(local_path):
                 with contextlib.suppress(Exception):
                     os.remove(local_path)
