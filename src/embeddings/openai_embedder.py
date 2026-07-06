@@ -4,7 +4,7 @@ from openai import AsyncOpenAI
 from pydantic import SecretStr
 
 from src.core import EmbeddingError
-from src.embeddings.base import BaseEmbedder
+from src.embeddings.base import BaseAPIEmbedder
 
 logger = structlog.get_logger(__name__)
 
@@ -14,12 +14,10 @@ logger = structlog.get_logger(__name__)
 _DEFAULT_BATCH_SIZE: int = 100
 
 
-class OpenAIEmbedder(BaseEmbedder):
-    """OpenAI implementation of the BaseEmbedder interface.
+class OpenAIEmbedder(BaseAPIEmbedder):
+    """OpenAI implementation of the BaseAPIEmbedder interface.
 
-    Calls ``client.embeddings.create()`` in batches of at most
-    ``batch_size`` texts to respect the OpenAI embeddings API limit and
-    minimise round-trips.
+    Calls ``client.embeddings.create()`` via the concurrent batching engine.
     """
 
     def __init__(
@@ -27,15 +25,19 @@ class OpenAIEmbedder(BaseEmbedder):
         api_key: SecretStr | None,
         model: str,
         batch_size: int = _DEFAULT_BATCH_SIZE,
+        max_concurrency: int = 5,
+        retry_attempts: int = 4,
     ) -> None:
         """
         Initialize the OpenAI embedder.
 
         Args:
-            api_key:    OpenAI API key as a SecretStr.
-            model:      Embedding model name (e.g. ``"text-embedding-3-large"``).
-            batch_size: Maximum number of texts per API call.  Must be between
-                        1 and 100 inclusive.
+            api_key:          OpenAI API key as a SecretStr.
+            model:            Embedding model name (e.g. ``"text-embedding-3-large"``).
+            batch_size:       Maximum number of texts per API call. Must be between
+                              1 and 100 inclusive.
+            max_concurrency:  Maximum concurrent API requests.
+            retry_attempts:   Number of retry attempts on failure.
 
         Raises:
             EmbeddingError: If the API key is missing or the client cannot be
@@ -49,57 +51,50 @@ class OpenAIEmbedder(BaseEmbedder):
                 f"batch_size must be between 1 and {_DEFAULT_BATCH_SIZE}, got {batch_size}."
             )
 
+        super().__init__(
+            batch_size=batch_size,
+            max_concurrency=max_concurrency,
+            retry_attempts=retry_attempts,
+        )
+
         try:
             self._client = AsyncOpenAI(api_key=api_key.get_secret_value())
         except Exception as exc:
             raise EmbeddingError(f"Failed to initialize OpenAI client: {exc}") from exc
 
         self._model = model
-        self._batch_size = batch_size
 
-    async def embed_texts(self, texts: list[str]) -> list[list[float]]:
+    async def _embed_batch(self, batch: list[str]) -> list[list[float]]:
         """
-        Embed a batch of texts using the OpenAI Embeddings API.
-
-        Texts are split into sub-batches of at most ``self._batch_size`` items.
-        Each sub-batch is sent as a single API request.  Results are
-        reassembled in the original input order.
+        Embed a single batch of texts using the OpenAI Embeddings API.
 
         Args:
-            texts: A non-empty list of strings to embed.
+            batch: A list of strings to embed (size <= batch_size).
 
         Returns:
-            A list of floating-point vectors in the same order as ``texts``.
+            A list of floating-point vectors.
 
         Raises:
-            EmbeddingError: If any OpenAI API call fails.
+            EmbeddingError: If the OpenAI API call fails.
         """
-        if not texts:
+        if not batch:
             return []
 
-        all_vectors: list[list[float]] = []
-
         try:
-            for batch_start in range(0, len(texts), self._batch_size):
-                batch = texts[batch_start : batch_start + self._batch_size]
+            logger.debug(
+                "openai_embedder.batch_request",
+                model=self._model,
+                batch_size=len(batch),
+            )
 
-                logger.debug(
-                    "openai_embedder.batch_request",
-                    model=self._model,
-                    batch_size=len(batch),
-                    batch_start=batch_start,
-                )
+            response = await self._client.embeddings.create(
+                model=self._model,
+                input=batch,
+            )
 
-                response = await self._client.embeddings.create(
-                    model=self._model,
-                    input=batch,
-                )
-
-                # OpenAI guarantees the response order matches the input order.
-                batch_vectors = [item.embedding for item in response.data]
-                all_vectors.extend(batch_vectors)
+            # OpenAI guarantees the response order matches the input order.
+            return [item.embedding for item in response.data]
 
         except openai.OpenAIError as exc:
             raise EmbeddingError(f"OpenAI API error during embed_texts: {exc}") from exc
 
-        return all_vectors

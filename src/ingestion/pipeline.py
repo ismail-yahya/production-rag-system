@@ -1,3 +1,4 @@
+import asyncio
 import time
 import uuid
 from pathlib import Path
@@ -104,7 +105,7 @@ class IngestionPipeline:
             )
 
             # 3. Clean and normalize text
-            cleaned_content = self.cleaner.clean(raw_doc.content)
+            cleaned_content = await asyncio.to_thread(self.cleaner.clean, raw_doc.content)
             logger.info(
                 "Stage 2: Text cleaning completed",
                 original_length=len(raw_doc.content),
@@ -132,6 +133,9 @@ class IngestionPipeline:
             )
 
             # 6. Construct vector store documents and upsert
+            logger.info("Purging old document chunks from vector store", document_id=str(document_id))
+            await self.vector_store.delete(filters={"document_id": str(document_id), "tenant_id": tenant_id})
+
             vector_docs = []
             for _i, (chunk, embedding) in enumerate(zip(chunks, embeddings, strict=False)):
                 vector_docs.append(

@@ -139,7 +139,7 @@ def ingest_document(
             local_path = os.path.join(temp_dir, f"{document_id}_{os.path.basename(file_path)}")
 
             log.info("Downloading file from storage", storage_path=file_path, local_path=local_path)
-            storage_service.download_file(file_path, local_path)
+            await asyncio.to_thread(storage_service.download_file, file_path, local_path)
 
             # 3. Initialize providers inside the loop to ensure they attach to the correct loop.
             embedder = EmbedderFactory.create(settings.EMBEDDING_PROVIDER, settings)

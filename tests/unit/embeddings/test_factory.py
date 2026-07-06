@@ -20,6 +20,8 @@ def mock_settings() -> Settings:
     settings.EMBEDDING_DEVICE = "cpu"
     settings.COHERE_API_KEY = SecretStr("sk-test-cohere")
     settings.COHERE_EMBEDDING_MODEL = "embed-multilingual-v3.0"
+    settings.EMBEDDING_CONCURRENCY_LIMIT = 5
+    settings.EMBEDDING_RETRY_ATTEMPTS = 4
     return settings
 
 

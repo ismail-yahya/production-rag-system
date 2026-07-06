@@ -3,7 +3,7 @@ import structlog
 from pydantic import SecretStr
 
 from src.core.exceptions import EmbeddingError
-from src.embeddings.base import BaseEmbedder
+from src.embeddings.base import BaseAPIEmbedder
 
 logger = structlog.get_logger(__name__)
 
@@ -11,11 +11,10 @@ logger = structlog.get_logger(__name__)
 _DEFAULT_BATCH_SIZE: int = 96
 
 
-class CohereEmbedder(BaseEmbedder):
-    """Cohere implementation of the BaseEmbedder interface.
+class CohereEmbedder(BaseAPIEmbedder):
+    """Cohere implementation of the BaseAPIEmbedder interface.
 
-    Uses Cohere's async client to generate embeddings in batches.
-    Recommended for multilingual and high-performance RAG systems.
+    Uses Cohere's async client to generate embeddings concurrently in batches.
     """
 
     def __init__(
@@ -24,18 +23,28 @@ class CohereEmbedder(BaseEmbedder):
         model: str = "embed-multilingual-v3.0",
         batch_size: int = _DEFAULT_BATCH_SIZE,
         input_type: str = "search_document",
+        max_concurrency: int = 5,
+        retry_attempts: int = 4,
     ) -> None:
         """
         Initialize the Cohere embedder.
 
         Args:
-            api_key:    Cohere API key as a SecretStr.
-            model:      Embedding model name (default: "embed-multilingual-v3.0").
-            batch_size: Maximum number of texts per API call.
-            input_type: Type of input for the embedding (search_document, search_query, etc.)
+            api_key:          Cohere API key as a SecretStr.
+            model:            Embedding model name (default: "embed-multilingual-v3.0").
+            batch_size:       Maximum number of texts per API call.
+            input_type:       Type of input for the embedding (search_document, search_query, etc.)
+            max_concurrency:  Maximum concurrent API requests.
+            retry_attempts:   Number of retry attempts on failure.
         """
         if api_key is None:
             raise EmbeddingError("Cohere API key is required but was not provided.")
+
+        super().__init__(
+            batch_size=batch_size,
+            max_concurrency=max_concurrency,
+            retry_attempts=retry_attempts,
+        )
 
         try:
             # We use AsyncClient for non-blocking I/O
@@ -44,48 +53,40 @@ class CohereEmbedder(BaseEmbedder):
             raise EmbeddingError(f"Failed to initialize Cohere client: {exc}") from exc
 
         self._model = model
-        self._batch_size = batch_size
         self._input_type = input_type
 
-    async def embed_texts(self, texts: list[str]) -> list[list[float]]:
+    async def _embed_batch(self, batch: list[str]) -> list[list[float]]:
         """
-        Embed a batch of texts using Cohere's Embed API.
+        Embed a single batch of texts using Cohere's Embed API.
 
         Args:
-            texts: A non-empty list of strings to embed.
+            batch: A list of strings to embed.
 
         Returns:
-            A list of floating-point vectors in the same order as ``texts``.
+            A list of floating-point vectors in the same order as ``batch``.
         """
-        if not texts:
+        if not batch:
             return []
 
-        all_vectors: list[list[float]] = []
-
         try:
-            for batch_start in range(0, len(texts), self._batch_size):
-                batch = texts[batch_start : batch_start + self._batch_size]
+            logger.debug(
+                "cohere_embedder.batch_request",
+                model=self._model,
+                batch_size=len(batch),
+            )
 
-                logger.debug(
-                    "cohere_embedder.batch_request",
-                    model=self._model,
-                    batch_size=len(batch),
-                    batch_start=batch_start,
-                )
+            response = await self._client.embed(
+                texts=batch,
+                model=self._model,
+                input_type=self._input_type,
+                embedding_types=["float"],
+            )
 
-                response = await self._client.embed(
-                    texts=batch,
-                    model=self._model,
-                    input_type=self._input_type,
-                    embedding_types=["float"],
-                )
-
-                # Cohere V3 returns an object with embeddings inside
-                batch_vectors = response.embeddings.float  # type: ignore[union-attr]
-                all_vectors.extend(batch_vectors)
+            # Cohere V3 returns an object with embeddings inside
+            batch_vectors = response.embeddings.float  # type: ignore[union-attr]
+            return batch_vectors
 
         except Exception as exc:
-            logger.error("Cohere API error during embed_texts", error=str(exc))
+            logger.error("Cohere API error during _embed_batch", error=str(exc))
             raise EmbeddingError(f"Cohere API error: {exc}") from exc
 
-        return all_vectors

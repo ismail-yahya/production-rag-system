@@ -152,3 +152,6 @@ Thumbs.db
 data/
 docker-volumes/
 infrastructure/data/
+
+
+temp/

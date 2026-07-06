@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any
 
 import structlog
@@ -54,10 +55,12 @@ class RecursiveCharacterChunker(BaseChunker):
         )
 
         final_chunks: list[Chunk] = []
-        raw_text_chunks = self._recursive_split(text, self.separators)
+        # Run the CPU-bound recursive splitting and merging in a thread pool
+        def _run_split_and_merge() -> list[str]:
+            raw_text_chunks = self._recursive_split(text, self.separators)
+            return self._merge_splits(raw_text_chunks)
 
-        # Merge the small pieces into actual chunks with overlap
-        merged_contents = self._merge_splits(raw_text_chunks)
+        merged_contents = await asyncio.to_thread(_run_split_and_merge)
 
         for i, content in enumerate(merged_contents):
             chunk_metadata = (metadata or {}).copy()

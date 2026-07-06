@@ -64,6 +64,8 @@ class EmbedderFactory:
                 api_key=settings.OPENAI_API_KEY,
                 model=settings.OPENAI_EMBEDDING_MODEL,
                 batch_size=settings.OPENAI_EMBEDDING_BATCH_SIZE,
+                max_concurrency=settings.EMBEDDING_CONCURRENCY_LIMIT,
+                retry_attempts=settings.EMBEDDING_RETRY_ATTEMPTS,
             )
 
         if provider_enum == EmbeddingProvider.LOCAL:
@@ -76,6 +78,8 @@ class EmbedderFactory:
             return CohereEmbedder(
                 api_key=settings.COHERE_API_KEY,
                 model=settings.COHERE_EMBEDDING_MODEL,
+                max_concurrency=settings.EMBEDDING_CONCURRENCY_LIMIT,
+                retry_attempts=settings.EMBEDDING_RETRY_ATTEMPTS,
             )
 
         raise ValueError(f"Unsupported embedding provider: {provider_enum}")  # pragma: no cover

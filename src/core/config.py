@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     COHERE_API_KEY: SecretStr | None = None
     LANGSMITH_API_KEY: SecretStr | None = None
     LANGCHAIN_PROJECT: str = "production-rag-system"
+    LANGSMITH_PROJECT: str | None = None
+    LANGSMITH_TRACING: str | None = None
+    LANGSMITH_ENDPOINT: str | None = None
     GOOGLE_API_KEY: SecretStr | None = None
     # The programmer chose this model; do not change it unless explicitly requested.
     GEMINI_MODEL: str = "gemini-3-flash-preview"
@@ -57,6 +60,8 @@ class Settings(BaseSettings):
     LOCAL_EMBEDDING_MODEL: str = "BAAI/bge-m3"
     EMBEDDING_DEVICE: str = "cpu"
     EMBEDDING_DIMENSION: int = 1024  # Default for Cohere embed-multilingual-v3.0
+    EMBEDDING_CONCURRENCY_LIMIT: int = 5
+    EMBEDDING_RETRY_ATTEMPTS: int = 4
 
     # Retrieval Configuration
     RETRIEVAL_TOP_K: int = 10
