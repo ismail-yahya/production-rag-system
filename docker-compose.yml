@@ -96,6 +96,27 @@ services:
         limits:
           memory: 512M
 
+  prestart:
+    build:
+      context: .
+      target: runtime
+    container_name: rag_prestart
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    networks:
+      - backend
+    volumes:
+      - .:/app
+      - /app/.venv
+    # Runs Alembic migrations exactly once before api and worker start.
+    # Running migrations here (not in the app) prevents race conditions
+    # when multiple API workers start simultaneously.
+    command: alembic upgrade head
+    restart: "no"
+
   api:
     build:
       context: .
@@ -111,6 +132,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      prestart:
+        condition: service_completed_successfully
     env_file:
       - .env
     ports:
@@ -121,7 +144,7 @@ services:
     volumes:
       - .:/app
       - /app/.venv
-    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000
     deploy:
       resources:
         limits:
@@ -144,6 +167,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      prestart:
+        condition: service_completed_successfully
     env_file:
       - .env
     networks:

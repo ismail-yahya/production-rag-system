@@ -24,11 +24,11 @@ def test_build_context_success() -> None:
     context = builder.build_context(docs)
 
     # Assert
-    assert "SOURCE [1]" in context
+    assert "[Source 1]" in context
     assert "test1.pdf" in context
-    assert "Page: 1" in context
+    assert "p. 1" in context
     assert "Hello world" in context
-    assert "SOURCE [2]" in context
+    assert "[Source 2]" in context
     assert "test2.pdf" in context
     assert "Second chunk" in context
 
@@ -55,8 +55,8 @@ def test_build_context_truncation() -> None:
     context = builder.build_context(docs)
 
     # Assert
-    assert "SOURCE [1]" in context
-    assert "SOURCE [2]" not in context
+    assert "[Source 1]" in context
+    assert "[Source 2]" not in context
     assert "ignored.pdf" not in context
 
 

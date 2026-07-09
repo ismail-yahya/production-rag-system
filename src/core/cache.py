@@ -14,8 +14,11 @@ logger = structlog.get_logger(__name__)
 class SemanticCache:
     """
     Redis-based semantic cache for RAG queries.
-    Currently implements exact match caching for MVP, with a
-    placeholder for vector-based semantic similarity.
+    Implements exact-match caching (keyed by SHA-256 of the normalised query).
+
+    Cache invalidation is tenant-scoped: when a tenant uploads or deletes
+    a document, all their cached responses are cleared to prevent stale answers
+    that reference deleted content.
     """
 
     def __init__(self, embedder: BaseEmbedder) -> None:
@@ -27,7 +30,7 @@ class SemanticCache:
         """
         self.redis = redis.from_url(settings.REDIS_BACKEND_URL, decode_responses=True)  # type: ignore[no-untyped-call]
         self.embedder = embedder
-        self.ttl = 3600  # 1 hour cache TTL
+        self.ttl = settings.SEMANTIC_CACHE_TTL_SECONDS
 
     async def get(self, query: str, tenant_id: UUID) -> dict[str, Any] | None:
         """
@@ -70,6 +73,45 @@ class SemanticCache:
             logger.debug("semantic_cache_set", query=query[:50])
         except Exception as e:
             logger.error("semantic_cache_set_failure", error=str(e))
+
+    async def invalidate_tenant(self, tenant_id: UUID) -> int:
+        """
+        Invalidate ALL cached responses for a given tenant.
+
+        Called when a document is uploaded or deleted so stale responses
+        referencing removed content are never served.
+
+        Uses SCAN instead of KEYS to avoid blocking the Redis event loop
+        on large key sets.
+
+        Args:
+            tenant_id: The tenant whose cache entries should be cleared.
+
+        Returns:
+            Number of keys deleted.
+        """
+        pattern = f"cache:{tenant_id}:*"
+        deleted_count = 0
+
+        try:
+            cursor = 0
+            while True:
+                cursor, keys = await self.redis.scan(cursor, match=pattern, count=100)  # type: ignore[misc]
+                if keys:
+                    await self.redis.delete(*keys)
+                    deleted_count += len(keys)
+                if cursor == 0:
+                    break
+
+            logger.info(
+                "semantic_cache_invalidated",
+                tenant_id=str(tenant_id),
+                deleted_count=deleted_count,
+            )
+        except Exception as e:
+            logger.error("semantic_cache_invalidation_failure", error=str(e))
+
+        return deleted_count
 
     def _get_key(self, query: str, tenant_id: UUID) -> str:
         """Generate a cache key for the query."""

@@ -1,4 +1,10 @@
-from unittest.mock import ANY, MagicMock, patch
+"""
+Unit tests for StorageService async methods.
+
+All synchronous boto3 calls are wrapped with asyncio.to_thread(), so
+these tests verify that the public interface is properly awaitable.
+"""
+from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -30,31 +36,59 @@ def test_storage_init(mock_boto):
         )
 
 
-def test_storage_upload(mock_boto):
-    """Verify upload_file calls boto3 client."""
+@pytest.mark.asyncio
+async def test_storage_upload_async(mock_boto):
+    """Verify upload_file is awaitable and calls boto3 via to_thread."""
     mock_s3 = MagicMock()
     mock_boto.return_value = mock_s3
     service = StorageService()
 
-    service.upload_file("local.txt", "remote.txt")
-    mock_s3.upload_file.assert_called_with("local.txt", "documents", "remote.txt")
+    with patch("asyncio.to_thread", new=AsyncMock(return_value=None)) as mock_to_thread:
+        await service.upload_file("local.txt", "remote.txt")
+        mock_to_thread.assert_called_once_with(
+            mock_s3.upload_file, "local.txt", "documents", "remote.txt"
+        )
 
 
-def test_storage_download(mock_boto):
-    """Verify download_file calls boto3 client."""
+@pytest.mark.asyncio
+async def test_storage_download_async(mock_boto):
+    """Verify download_file is awaitable and calls boto3 via to_thread."""
     mock_s3 = MagicMock()
     mock_boto.return_value = mock_s3
     service = StorageService()
 
-    service.download_file("remote.txt", "local.txt")
-    mock_s3.download_file.assert_called_with("documents", "remote.txt", "local.txt")
+    with patch("asyncio.to_thread", new=AsyncMock(return_value=None)) as mock_to_thread:
+        await service.download_file("remote.txt", "local.txt")
+        mock_to_thread.assert_called_once_with(
+            mock_s3.download_file, "documents", "remote.txt", "local.txt"
+        )
 
 
-def test_storage_delete(mock_boto):
-    """Verify delete_file calls boto3 client."""
+@pytest.mark.asyncio
+async def test_storage_delete_async(mock_boto):
+    """Verify delete_file is awaitable and calls delete_object via to_thread."""
     mock_s3 = MagicMock()
     mock_boto.return_value = mock_s3
     service = StorageService()
 
-    service.delete_file("remote.txt")
-    mock_s3.delete_object.assert_called_with(Bucket="documents", Key="remote.txt")
+    with patch("asyncio.to_thread", new=AsyncMock(return_value=None)) as mock_to_thread:
+        await service.delete_file("remote.txt")
+        # to_thread is called with a partial wrapping delete_object
+        mock_to_thread.assert_called_once()
+        # Verify the underlying method is called with correct args
+        # by executing the partial directly
+        partial_fn = mock_to_thread.call_args[0][0]
+        partial_fn()
+        mock_s3.delete_object.assert_called_once_with(Bucket="documents", Key="remote.txt")
+
+
+@pytest.mark.asyncio
+async def test_storage_upload_propagates_exceptions(mock_boto):
+    """Verify that upload exceptions propagate to the caller."""
+    mock_s3 = MagicMock()
+    mock_boto.return_value = mock_s3
+    service = StorageService()
+
+    with patch("asyncio.to_thread", new=AsyncMock(side_effect=OSError("disk full"))):
+        with pytest.raises(OSError, match="disk full"):
+            await service.upload_file("local.txt", "remote.txt")

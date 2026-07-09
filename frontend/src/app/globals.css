@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+:root {
+  --background: #070A10;
+  --foreground: #F3F4F6;
+  --card: rgba(17, 24, 39, 0.75);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --accent-cyan: #06B6D4;
+  --accent-indigo: #4F46E5;
+  --accent-violet: #7C3AED;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-border: var(--card-border);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-indigo: var(--accent-indigo);
+  --color-accent-violet: var(--accent-violet);
+  --font-sans: var(--font-geist-sans), Inter, sans-serif;
+  --font-mono: var(--font-geist-mono), JetBrains Mono, monospace;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+}
+
+/* Glassmorphism custom helper */
+.bg-glass {
+  background-color: var(--card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(7, 10, 16, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-cyan);
+}

@@ -77,5 +77,40 @@ class Settings(BaseSettings):
     CHUNK_SIZE: int = 1000
     CHUNK_OVERLAP: int = 200
 
+    # JWT Authentication (Phase 2)
+    # Generate with: python -c "import secrets; print(secrets.token_hex(32))"
+    JWT_SECRET_KEY: SecretStr | None = None
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 30
+
+    # CORS (Phase 8 — Frontend)
+    # Comma-separated list of allowed origins in production.
+    # Example: "https://app.mycompany.com,https://admin.mycompany.com"
+    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:8080"]
+
+    # Workers
+    WORKERS_COUNT: int = 4
+
+    # Rate Limiting (per-tenant, per-endpoint group — requests per minute)
+    # Ingest is expensive (chunking + embedding) so gets a tighter limit.
+    RATE_LIMIT_INGEST: int = 20
+    RATE_LIMIT_QUERY: int = 100
+    RATE_LIMIT_DEFAULT: int = 60
+
+    # File Upload Validation
+    # Maximum file size accepted by the API in bytes (default: 50 MB).
+    MAX_UPLOAD_SIZE_BYTES: int = 50 * 1024 * 1024  # 50 MB
+
+    # Security Guard
+    # Maximum allowed query length in characters.
+    MAX_QUERY_LENGTH: int = 2000
+
+    # Semantic Cache (Phase 5)
+    # Set to False to disable caching globally (e.g. during debugging).
+    SEMANTIC_CACHE_ENABLED: bool = True
+    # TTL in seconds for cached RAG responses. Default: 1 hour.
+    SEMANTIC_CACHE_TTL_SECONDS: int = 3600
+
 
 settings = Settings()  # type: ignore[call-arg]

@@ -218,3 +218,244 @@ class TaskExecution(Base):
     __table_args__ = (
         UniqueConstraint("task_name", "task_args_hash", name="uq_task_executions_name_hash"),
     )
+
+
+# =============================================================================
+# Enterprise Tables — Phase 1 Addition
+# Required by Phase 2 (Auth/JWT) and Phase 3 (Workspaces/RBAC)
+# =============================================================================
+
+
+class User(Base):
+    """
+    Represents an individual user within a tenant.
+    Roles use a String(50) column validated against these values:
+      SUPER_ADMIN, ADMIN, MANAGER, USER
+    """
+
+    __tablename__ = "users"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False
+    )
+    email: Mapped[str] = mapped_column(String(255), nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Valid values: SUPER_ADMIN, ADMIN, MANAGER, USER
+    role: Mapped[str] = mapped_column(String(50), default="USER", nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+    last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    __table_args__ = (
+        # Each email is unique per tenant (different tenants may share emails).
+        UniqueConstraint("tenant_id", "email", name="uq_users_tenant_email"),
+        Index("ix_users_tenant_id", "tenant_id"),
+        Index("ix_users_email", "email"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<User(email='{self.email}', role='{self.role}', id='{self.id}')>"
+
+
+class ApiKey(Base):
+    """
+    Programmatic API keys scoped to a specific user.
+    The raw key is shown only once at creation time and never stored.
+    Only the bcrypt hash is persisted (enforced in Phase 2).
+    """
+
+    __tablename__ = "api_keys"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    tenant_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False
+    )
+    # bcrypt hash of the raw key — never store the raw value.
+    key_hash: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
+    )
+
+    __table_args__ = (
+        Index("ix_api_keys_user_id", "user_id"),
+        Index("ix_api_keys_tenant_id", "tenant_id"),
+        Index("ix_api_keys_key_hash", "key_hash"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<ApiKey(name='{self.name}', user_id='{self.user_id}')>"
+
+
+class Workspace(Base):
+    """
+    Logical partitions within a tenant for organizing documents.
+    Valid workspace_type values: CENTRAL, TEAM, PERSONAL
+    """
+
+    __tablename__ = "workspaces"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False
+    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    # Valid values: CENTRAL, TEAM, PERSONAL
+    workspace_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    description: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    # SET NULL: workspace survives if its creator is deactivated.
+    created_by: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
+    )
+
+    __table_args__ = (
+        Index("ix_workspaces_tenant_id", "tenant_id"),
+        Index("ix_workspaces_created_by", "created_by"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<Workspace(name='{self.name}', type='{self.workspace_type}', id='{self.id}')>"
+
+
+class WorkspaceMember(Base):
+    """
+    Junction table linking users to workspaces with a membership role.
+    CASCADE on both FKs: deleting a workspace or user cleans up memberships automatically.
+    Valid member_role values: ADMIN, MEMBER, VIEWER
+    """
+
+    __tablename__ = "workspace_members"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    workspace_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    # Valid values: ADMIN, MEMBER, VIEWER
+    member_role: Mapped[str] = mapped_column(String(50), default="MEMBER", nullable=False)
+    joined_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
+    )
+
+    __table_args__ = (
+        # Each user can only appear once per workspace.
+        UniqueConstraint("workspace_id", "user_id", name="uq_workspace_members_workspace_user"),
+        Index("ix_workspace_members_workspace_id", "workspace_id"),
+        Index("ix_workspace_members_user_id", "user_id"),
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<WorkspaceMember(workspace='{self.workspace_id}', "
+            f"user='{self.user_id}', role='{self.member_role}')>"
+        )
+
+
+class DocumentAccess(Base):
+    """
+    Controls which workspaces can access which documents.
+    This is the enforcement point for Qdrant pre-filtering:
+    get_accessible_document_ids() queries this table and returns the
+    allowlist passed as a filter to every vector search call.
+    CASCADE on both FKs: deleting a document or workspace cleans up access records.
+    Valid access_level values: READ, WRITE
+    """
+
+    __tablename__ = "document_access"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    document_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
+    )
+    workspace_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False
+    )
+    # Valid values: READ, WRITE
+    access_level: Mapped[str] = mapped_column(String(20), default="READ", nullable=False)
+    granted_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
+    )
+
+    __table_args__ = (
+        # A document can only be linked to a workspace once.
+        UniqueConstraint(
+            "document_id", "workspace_id", name="uq_document_access_doc_workspace"
+        ),
+        Index("ix_document_access_document_id", "document_id"),
+        Index("ix_document_access_workspace_id", "workspace_id"),
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<DocumentAccess(doc='{self.document_id}', "
+            f"workspace='{self.workspace_id}', level='{self.access_level}')>"
+        )
+
+
+class AuditLog(Base):
+    """
+    Append-only audit trail for all security-relevant actions.
+
+    IMPORTANT: This table must never have UPDATE or DELETE operations applied to it.
+    It is a write-once ledger. The repository layer must only call INSERT.
+
+    Actions tracked: QUERY, UPLOAD, DELETE, LOGIN, LOGOUT,
+                     PERMISSION_CHANGE, USER_CREATED, USER_DEACTIVATED
+    """
+
+    __tablename__ = "audit_logs"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False
+    )
+    # Nullable: system actions may not have a user (e.g. startup events).
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    action: Mapped[str] = mapped_column(String(100), nullable=False)
+    resource_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    resource_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    # Flexible payload for action-specific context.
+    metadata_json: Mapped[dict[str, Any] | None] = mapped_column("metadata", JSONB, nullable=True)
+    ip_address: Mapped[str | None] = mapped_column(String(45), nullable=True)
+    # Immutable timestamp — never updated.
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
+    )
+
+    __table_args__ = (
+        Index("ix_audit_logs_tenant_id", "tenant_id"),
+        # Composite index supports tenant-scoped time-range queries (most common pattern).
+        Index("ix_audit_logs_tenant_created_at", "tenant_id", "created_at"),
+        Index("ix_audit_logs_user_id", "user_id"),
+        Index("ix_audit_logs_action", "action"),
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<AuditLog(action='{self.action}', "
+            f"tenant='{self.tenant_id}', user='{self.user_id}')>"
+        )

@@ -1,3 +1,3 @@
-from src.api.routers import admin, ingestion, query
+from src.api.routers import admin, auth, ingestion, query, users
 
-__all__ = ["admin", "ingestion", "query"]
+__all__ = ["admin", "auth", "ingestion", "query", "users"]

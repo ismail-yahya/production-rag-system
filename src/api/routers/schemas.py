@@ -132,3 +132,99 @@ class EvalResultsResponse(BaseModel):
     dataset_id: uuid.UUID | None = None
     results: list[EvalResult]
     evaluated_at: datetime
+
+
+class WorkspaceType(StrEnum):
+    """Supported workspace types."""
+
+    CENTRAL = "CENTRAL"
+    TEAM = "TEAM"
+    PERSONAL = "PERSONAL"
+
+
+class WorkspaceMemberRole(StrEnum):
+    """Supported roles for workspace membership."""
+
+    ADMIN = "ADMIN"
+    MEMBER = "MEMBER"
+    VIEWER = "VIEWER"
+
+
+class WorkspaceCreate(BaseModel):
+    """Request schema for workspace creation."""
+
+    name: str = Field(..., min_length=1, max_length=255)
+    workspace_type: WorkspaceType = WorkspaceType.TEAM
+    description: str | None = Field(None, max_length=1000)
+
+
+class WorkspaceResponse(BaseModel):
+    """Response schema for workspace metadata."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    tenant_id: uuid.UUID
+    name: str
+    workspace_type: str
+    description: str | None = None
+    created_by: uuid.UUID | None = None
+    is_active: bool
+    created_at: datetime
+
+
+class WorkspaceMemberAdd(BaseModel):
+    """Request schema for adding a member to a workspace."""
+
+    user_id: uuid.UUID
+    member_role: WorkspaceMemberRole = WorkspaceMemberRole.MEMBER
+
+
+class WorkspaceMemberResponse(BaseModel):
+    """Response schema for workspace membership."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    workspace_id: uuid.UUID
+    user_id: uuid.UUID
+    member_role: str
+    joined_at: datetime
+
+
+class DocumentAccessResponse(BaseModel):
+    """Response schema for document access tracking."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    document_id: uuid.UUID
+    workspace_id: uuid.UUID
+    access_level: str
+    granted_at: datetime
+
+
+class AuditLogResponse(BaseModel):
+    """Response schema for system audit logs."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    tenant_id: uuid.UUID
+    user_id: uuid.UUID | None = None
+    action: str
+    resource_type: str | None = None
+    resource_id: str | None = None
+    metadata: dict[str, Any] | None = Field(None, alias="metadata_json")
+    ip_address: str | None = None
+    created_at: datetime
+
+
+class AuditLogListResponse(BaseModel):
+    """Paginated response schema for audit log listings."""
+
+    logs: list[AuditLogResponse]
+    total: int
+    limit: int
+    offset: int
+

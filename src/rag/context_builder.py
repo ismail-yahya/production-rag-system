@@ -44,18 +44,21 @@ class ContextBuilder:
             # Sanitize content to neutralize embedded instructions
             sanitized_content = SecurityGuard.sanitize_context(doc.content)
 
-            # Build source header
+            # Build source header — format must match the citation style in RAG_SYSTEM_PROMPT
+            # so the LLM can reference it as [Source N] in its answer.
             source_id = i + 1
             file_name = doc.metadata.get("file_name", "Unknown Document")
             page_number = doc.metadata.get("page_number")
+            section_title = doc.metadata.get("section_title")
 
-            header = f"SOURCE [{source_id}] (File: {file_name}"
+            header = f"[Source {source_id}] {file_name}"
+            if section_title:
+                header += f" — {section_title}"
             if page_number:
-                header += f", Page: {page_number}"
-            header += ")"
+                header += f" (p. {page_number})"
 
             # Construct the full block for this document
-            block = f"{header}\n{sanitized_content}\n"
+            block = f"{header}:\n{sanitized_content}\n"
 
             # Token limit enforcement (heuristic: 1 token ≈ 4 characters)
             # This is a safe baseline when tiktoken/tokenizers aren't explicitly required as dependencies.
