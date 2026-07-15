@@ -17,17 +17,29 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import structlog
+
+logger = structlog.get_logger(__name__)
+
+
 from src.api.auth import (
     create_access_token,
     create_refresh_token,
     decode_refresh_token,
+    decode_access_token,
     generate_api_key,
     verify_password,
+    hash_password,
 )
 from src.api.dependencies import get_current_user
 from src.api.repositories import ApiKeyRepository, UserRepository
+from src.api.routers.schemas import TenantRegisterRequest, TenantRegisterResponse
 from src.core.database import get_session
-from src.core.models import User
+from src.core.models import User, Tenant, TenantConfig
+
+security = HTTPBearer()
+
 
 router = APIRouter(prefix="/v1/auth", tags=["authentication"])
 
@@ -351,4 +363,118 @@ async def rotate_api_key(
         raw_key=raw_key,
         created_at=new_key.created_at.isoformat(),
     )
+
+
+@router.post("/register", response_model=TenantRegisterResponse, status_code=status.HTTP_201_CREATED)
+async def register_tenant(
+    body: TenantRegisterRequest,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> TenantRegisterResponse:
+    """
+    Onboard a new organization (Tenant) along with its first SUPER_ADMIN user.
+    """
+    import secrets
+    from sqlalchemy import select
+    from src.api.services.audit_service import ACTION_USER_CREATED, AuditService
+
+    # Check if a user with this email already exists globally or within the scope
+    user_check = await session.execute(select(User).where(User.email == body.email))
+    if user_check.scalar_one_or_none() is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A user with this email address already exists",
+        )
+
+    # 1. Create Tenant
+    random_hash = secrets.token_hex(32)
+    tenant = Tenant(
+        name=body.name,
+        api_key_hash=random_hash,
+        is_active=True,
+    )
+    session.add(tenant)
+    await session.flush()  # populate tenant.id
+
+    # 2. Create SUPER_ADMIN user
+    hashed_pwd = hash_password(body.password)
+    user = User(
+        tenant_id=tenant.id,
+        email=body.email,
+        name=body.admin_name,
+        role="SUPER_ADMIN",
+        password_hash=hashed_pwd,
+        is_active=True,
+    )
+    session.add(user)
+    await session.flush()  # populate user.id
+
+    # 3. Seed default TenantConfig
+    config = TenantConfig(
+        tenant_id=tenant.id,
+        llm_provider="openai",
+        llm_model="gpt-4o",
+        temperature=0.2,
+        query_expansion=True,
+        rate_limit_ingest=20,
+        rate_limit_query=100,
+    )
+    session.add(config)
+
+    # Log audit entry
+    await AuditService.log(
+        session=session,
+        tenant_id=tenant.id,
+        user_id=user.id,
+        action=ACTION_USER_CREATED,
+        resource_type="user",
+        resource_id=str(user.id),
+        metadata={"email": user.email, "role": user.role, "onboarding": True},
+    )
+
+    await session.commit()
+
+    return TenantRegisterResponse(
+        tenant_id=tenant.id,
+        tenant_name=tenant.name,
+        user_id=user.id,
+        email=user.email,
+        role=user.role,
+        created_at=user.created_at,
+    )
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+async def logout(
+    auth_header: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> None:
+    """
+    Log out the current user, invalidating their JWT access token in Redis.
+    """
+    from datetime import UTC, datetime
+    import redis.asyncio as redis_async
+    from src.api.services.audit_service import ACTION_LOGOUT, AuditService
+    from src.core.config import settings
+
+    token = auth_header.credentials
+    try:
+        payload = decode_access_token(token)
+        exp = payload.get("exp")
+        if exp:
+            ttl = int(exp - datetime.now(UTC).timestamp())
+            if ttl > 0:
+                r = redis_async.from_url(settings.REDIS_BACKEND_URL)
+                await r.setex(f"jwt_blocklist:{token}", ttl, "revoked")
+    except Exception as e:
+        logger.warning("logout_token_revocation_failed", error=str(e))
+
+    await AuditService.log(
+        session=session,
+        tenant_id=current_user.tenant_id,
+        user_id=current_user.id,
+        action=ACTION_LOGOUT,
+    )
+    await session.commit()
+
 

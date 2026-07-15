@@ -67,6 +67,21 @@ async def get_current_user(
     try:
         payload = decode_access_token(token)
 
+        # Check token blocklist in Redis
+        try:
+            import redis.asyncio as redis_async
+            r = redis_async.from_url(settings.REDIS_BACKEND_URL)
+            is_blacklisted = await r.exists(f"jwt_blocklist:{token}")
+            if is_blacklisted:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Token has been revoked",
+                )
+        except HTTPException:
+            raise
+        except Exception as redis_err:
+            logger.warning("redis_blocklist_check_failed", error=str(redis_err))
+
         user_id = uuid.UUID(payload["sub"])
         tenant_id = uuid.UUID(payload["tid"])
 
@@ -288,14 +303,35 @@ def get_semantic_cache() -> SemanticCache | None:
     return SemanticCache(embedder)
 
 
-def get_rag_pipeline(
+async def get_rag_pipeline(
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
     cache: SemanticCache | None = Depends(get_semantic_cache),
 ) -> RAGPipeline:
     """
     Dependency that provides a stateless RAGPipeline instance.
-    The pipeline's dependencies are instantiated via their respective factories.
+    Loads tenant-specific dynamic configuration overrides from the database if they exist.
     """
-    llm = LLMFactory.create(settings.LLM_PROVIDER, settings)
+    from src.api.repositories import TenantConfigRepository
+
+    repo = TenantConfigRepository(session)
+    config = await repo.get_config(current_user.tenant_id)
+
+    llm_provider = settings.LLM_PROVIDER
+    llm_model = None
+    temperature = None
+
+    if config:
+        llm_provider = config.llm_provider
+        llm_model = config.llm_model
+        temperature = config.temperature
+
+    llm = LLMFactory.create(
+        provider=llm_provider,
+        settings=settings,
+        model_name=llm_model,
+        temperature=temperature,
+    )
     embedder = EmbedderFactory.create(settings.EMBEDDING_PROVIDER, settings)
     vector_store = VectorStoreFactory.create(settings.VECTOR_STORE_PROVIDER, settings)
 

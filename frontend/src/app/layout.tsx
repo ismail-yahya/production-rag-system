@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Providers from "./providers";
-import AppShell from "@/components/AppShell";
+import { QueryProvider } from "@/providers/query-provider";
+import { AuthProvider } from "@/providers/auth-provider";
+import { ErrorBoundary } from "@/components/layout/error-boundary";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Enterprise RAG Portal",
-  description: "Secure, production-grade retrieval-augmented generation search workspace",
+  title: "Aether RAG — Enterprise Knowledge Engine",
+  description:
+    "Secure, production-grade retrieval-augmented generation platform for enterprise knowledge management.",
 };
 
 export default function RootLayout({
@@ -31,9 +33,11 @@ export default function RootLayout({
       style={{ colorScheme: "dark" }}
     >
       <body className="min-h-full bg-background text-foreground overflow-hidden">
-        <Providers>
-          <AppShell>{children}</AppShell>
-        </Providers>
+        <ErrorBoundary>
+          <QueryProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </QueryProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

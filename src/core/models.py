@@ -459,3 +459,96 @@ class AuditLog(Base):
             f"<AuditLog(action='{self.action}', "
             f"tenant='{self.tenant_id}', user='{self.user_id}')>"
         )
+
+
+class ChatThread(Base):
+    """
+    Represents a chat conversation session.
+    Associated with a tenant, workspace, and user.
+    """
+
+    __tablename__ = "chat_threads"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    workspace_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=True
+    )
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
+    __table_args__ = (
+        Index("ix_chat_threads_tenant_id", "tenant_id"),
+        Index("ix_chat_threads_user_id", "user_id"),
+        Index("ix_chat_threads_workspace_id", "workspace_id"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<ChatThread(title='{self.title}', user='{self.user_id}', id='{self.id}')>"
+
+
+class ChatMessage(Base):
+    """
+    Represents an individual message in a chat thread.
+    """
+
+    __tablename__ = "chat_messages"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    thread_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("chat_threads.id", ondelete="CASCADE"), nullable=False
+    )
+    role: Mapped[str] = mapped_column(String(50), nullable=False)  # 'user' or 'assistant'
+    content: Mapped[str] = mapped_column(String, nullable=False)
+    sources: Mapped[dict[str, Any] | None] = mapped_column("sources", JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
+    )
+
+    __table_args__ = (Index("ix_chat_messages_thread_id", "thread_id"),)
+
+    def __repr__(self) -> str:
+        return f"<ChatMessage(role='{self.role}', thread='{self.thread_id}', id='{self.id}')>"
+
+
+class TenantConfig(Base):
+    """
+    Stores tenant-specific configurations.
+    """
+
+    __tablename__ = "tenant_configs"
+
+    tenant_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("tenants.id", ondelete="CASCADE"), primary_key=True
+    )
+    llm_provider: Mapped[str] = mapped_column(String(50), default="openai", nullable=False)
+    llm_model: Mapped[str] = mapped_column(String(100), default="gpt-4o", nullable=False)
+    temperature: Mapped[float] = mapped_column(default=0.2, nullable=False)
+    query_expansion: Mapped[bool] = mapped_column(default=True, nullable=False)
+    rate_limit_ingest: Mapped[int] = mapped_column(default=20, nullable=False)
+    rate_limit_query: Mapped[int] = mapped_column(default=100, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
+    __table_args__ = (Index("ix_tenant_configs_tenant_id", "tenant_id"),)
+
+    def __repr__(self) -> str:
+        return f"<TenantConfig(tenant='{self.tenant_id}', model='{self.llm_model}')>"
+

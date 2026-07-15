@@ -31,13 +31,21 @@ class LLMFactory:
     }
 
     @classmethod
-    def create(cls, provider: str | LLMProvider, settings: Settings) -> BaseLLM:
+    def create(
+        cls,
+        provider: str | LLMProvider,
+        settings: Settings,
+        model_name: str | None = None,
+        temperature: float | None = None,
+    ) -> BaseLLM:
         """
         Create a concrete LLM provider instance based on the provider type.
 
         Args:
             provider: The provider identifier (string or LLMProvider enum).
             settings: Application settings containing API keys and other configurations.
+            model_name: Optional custom model name to override provider defaults.
+            temperature: Optional custom temperature.
 
         Returns:
             An instance of a class that implements the BaseLLM interface.
@@ -61,7 +69,12 @@ class LLMFactory:
         # Instantiate based on the provider's specific needs
         # This keeps the individual provider constructors clean
         if provider_enum == LLMProvider.OPENAI:
-            return OpenAILLM(api_key=settings.OPENAI_API_KEY)
+            kwargs = {}
+            if model_name:
+                kwargs["default_model"] = model_name
+            if temperature is not None:
+                kwargs["default_temperature"] = temperature
+            return OpenAILLM(api_key=settings.OPENAI_API_KEY, **kwargs)
 
         if provider_enum == LLMProvider.ANTHROPIC:
             return AnthropicLLM(api_key=settings.ANTHROPIC_API_KEY)
@@ -71,10 +84,15 @@ class LLMFactory:
             return OllamaLLM()
 
         if provider_enum == LLMProvider.GEMINI:
+            kwargs = {}
+            if model_name:
+                kwargs["model_name"] = model_name
+                kwargs["streaming_model_name"] = model_name
+            if temperature is not None:
+                kwargs["default_temperature"] = temperature
             return GeminiLLM(
                 api_key=settings.GOOGLE_API_KEY,
-                model_name=settings.GEMINI_MODEL,
-                streaming_model_name=settings.GEMINI_STREAMING_MODEL,
+                **kwargs
             )
 
         raise ValueError(f"Unsupported LLM provider: {provider_enum}")  # pragma: no cover

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.core.config import settings
-from src.core.models import Tenant, User, Workspace, WorkspaceMember
+from src.core.models import Tenant, User, Workspace, WorkspaceMember, TenantConfig
 from src.api.auth import hash_password
 
 async def main():
@@ -97,6 +97,23 @@ async def main():
             await session.flush()
         else:
             print("Workspace membership already exists.")
+
+        # 5. Seed TenantConfig
+        result = await session.execute(select(TenantConfig).where(TenantConfig.tenant_id == tenant_id))
+        tenant_config = result.scalar_one_or_none()
+        if not tenant_config:
+            print("Seeding TenantConfig...")
+            tenant_config = TenantConfig(
+                tenant_id=tenant_id,
+                llm_provider="gemini",
+                llm_model="gemini-3-flash-preview",
+                temperature=0.2,
+                query_expansion=True
+            )
+            session.add(tenant_config)
+            await session.flush()
+        else:
+            print("TenantConfig already exists.")
 
         await session.commit()
         print("Database seeded successfully!")

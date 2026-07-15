@@ -3,7 +3,8 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
+
 
 
 class IngestResponse(BaseModel):
@@ -173,11 +174,47 @@ class WorkspaceResponse(BaseModel):
     created_at: datetime
 
 
+class WorkspaceUpdate(BaseModel):
+    """Request schema for updating workspace details."""
+
+    name: str | None = Field(None, min_length=1, max_length=255)
+    description: str | None = Field(None, max_length=1000)
+
+
+class WorkspaceMemberAddByEmail(BaseModel):
+    """Request schema for adding a member by email."""
+
+    email: str
+    member_role: WorkspaceMemberRole = WorkspaceMemberRole.MEMBER
+
+
 class WorkspaceMemberAdd(BaseModel):
     """Request schema for adding a member to a workspace."""
 
     user_id: uuid.UUID
     member_role: WorkspaceMemberRole = WorkspaceMemberRole.MEMBER
+
+
+class WorkspaceMemberDetailResponse(BaseModel):
+    """Response schema for workspace member details."""
+
+    user_id: uuid.UUID
+    email: str
+    name: str
+    member_role: str
+    joined_at: datetime
+
+
+class WorkspaceDocumentResponse(BaseModel):
+    """Response schema for workspace document details."""
+
+    id: uuid.UUID
+    file_name: str
+    file_type: str
+    file_size_bytes: int | None
+    status: str
+    chunk_count: int | None = None
+    created_at: datetime
 
 
 class WorkspaceMemberResponse(BaseModel):
@@ -227,4 +264,62 @@ class AuditLogListResponse(BaseModel):
     total: int
     limit: int
     offset: int
+
+
+class TenantRegisterRequest(BaseModel):
+    """Request schema for self-registration/onboarding of a new tenant and root super admin user."""
+
+    model_config = ConfigDict(frozen=True)
+
+    name: str = Field(..., min_length=1, max_length=255, description="Organization / Tenant name")
+    email: EmailStr = Field(..., description="Super Admin email address")
+    password: str = Field(..., min_length=8, description="Minimum 8 characters password")
+    admin_name: str = Field(..., min_length=1, max_length=255, description="Super Admin display name")
+
+
+class TenantRegisterResponse(BaseModel):
+    """Response schema for successful tenant registration."""
+
+    model_config = ConfigDict(frozen=True)
+
+    tenant_id: uuid.UUID
+    tenant_name: str
+    user_id: uuid.UUID
+    email: str
+    role: str
+    created_at: datetime
+
+
+class UserPasswordUpdate(BaseModel):
+    """Request schema for updating a user's password."""
+
+    model_config = ConfigDict(frozen=True)
+
+    old_password: str | None = Field(default=None, description="Current password, required for self-change. Optional for administrators.")
+    new_password: str = Field(..., min_length=8, description="Minimum 8 characters new password")
+
+
+class IngestionJobResponse(BaseModel):
+    """Response schema for retrieving ingestion job details."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    document_id: uuid.UUID
+    celery_task_id: str | None = None
+    status: str
+    error_message: str | None = None
+    retry_count: int
+    started_at: datetime
+    completed_at: datetime | None = None
+    last_heartbeat_at: datetime | None = None
+
+
+class WorkspaceMemberUpdateRole(BaseModel):
+    """Request schema for updating a workspace member's role."""
+
+    model_config = ConfigDict(frozen=True)
+
+    member_role: WorkspaceMemberRole
+
 

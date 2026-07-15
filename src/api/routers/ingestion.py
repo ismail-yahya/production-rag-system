@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.dependencies import get_current_user, get_semantic_cache
 from src.api.repositories import DocumentRepository, IngestionJobRepository
-from src.api.routers.schemas import DocumentListResponse, DocumentResponse, IngestResponse
+from src.api.routers.schemas import DocumentListResponse, DocumentResponse, IngestResponse, IngestionJobResponse
 from src.api.services.audit_service import ACTION_DELETE, ACTION_UPLOAD, AuditService
 from src.api.services.workspace_service import WorkspaceService
 from src.core.cache import SemanticCache
@@ -266,3 +266,33 @@ async def delete_document(
     )
 
     await session.commit()
+
+
+@router.get("/documents/{document_id}/ingestion-job", response_model=IngestionJobResponse, status_code=status.HTTP_200_OK)
+async def get_document_ingestion_job(
+    document_id: uuid.UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> IngestionJobResponse:
+    """
+    Retrieve the status and metadata of the latest background ingestion job for a document.
+    Only accessible if the user has access to the document.
+    """
+    workspace_service = WorkspaceService(session)
+    allowed_ids = await workspace_service.get_accessible_document_ids(current_user)
+    if document_id not in allowed_ids:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found or access denied.",
+        )
+
+    job_repo = IngestionJobRepository(session)
+    job = await job_repo.get_by_document_id(document_id)
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Ingestion job not found for the specified document.",
+        )
+
+    return IngestionJobResponse.model_validate(job)
+

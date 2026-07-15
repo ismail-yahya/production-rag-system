@@ -2,28 +2,30 @@
 
 ## 1. Architecture Overview
 
-The system follows a service-oriented architecture decomposed into four clearly bounded layers: an API Gateway layer (request validation, auth, rate limiting), a Processing layer (ingestion pipeline and RAG query pipeline), an Infrastructure layer (vector store, relational DB, cache, object storage, message queue), and an Observability layer (tracing, metrics, structured logs).
+The system follows a service-oriented architecture decomposed into four clearly bounded layers: an API Gateway layer (request validation, JWT/Bcrypt authentication, per-tenant/endpoint rate limiting), a Processing layer (async ingestion pipeline, workspace-scoped RAG query pipeline, and session history management), an Infrastructure layer (vector store, relational DB, cache, object storage, message queue, and LLM/Embedding providers), and an Observability layer (tracing, metrics, structured logs).
 
-Document ingestion is handled asynchronously: the API accepts a file, persists it to object storage, enqueues a background task, and returns immediately. A worker process picks up the task, runs the full ingestion pipeline (extract → clean → chunk → embed → index), and updates document status in the relational database. This decoupling satisfies NFR-2 (scalability) and NFR-4 (reliability with retry).
+Document ingestion is handled asynchronously: the API accepts a file, links it to the requesting workspace and tenant, persists it to object storage, enqueues a background task, and returns immediately. A worker process picks up the task, runs the ingestion pipeline (extract → clean → chunk → embed → index in Qdrant), and updates document status and chunks metadata in the relational database.
 
-Query handling is synchronous and streaming-capable: the API receives a natural language question, runs the full RAG pipeline (expand → retrieve → rerank → build context → generate), and streams the response token-by-token. Tenant scoping is enforced at the retrieval filter layer before any vector search executes.
+Query handling is synchronous and streaming-capable: the Next.js client submits a question to FastAPI, which extracts user session state (role and active workspaces), retrieves the authorized document ID allowlist, injects these constraints as a pre-filter into Qdrant, and runs the RAG pipeline (query expansion → retrieve → rerank → context assembly → LLM generation) while streaming back SSE tokens.
 
 All provider integrations (LLM, embedder, vector store) are accessed exclusively through abstract interfaces. Concrete implementations are resolved at startup via factory classes driven by environment configuration, satisfying FR-21 and NFR-7.
 
 ```mermaid
 graph TD
-    Client["Client\n(API Consumer / Demo UI)"]
+    Client["Client\n(Next.js App)"]
 
     subgraph API["API Gateway Layer (FastAPI)"]
-        Auth["Auth & Rate Limit\nMiddleware"]
-        RI["/ingest endpoint"]
-        RQ["/query endpoint"]
-        RA["/admin endpoint"]
+        Auth["JWT / Bcrypt Auth\n& Rate Limit Middleware"]
+        RI["/v1/ingest endpoints"]
+        RQ["/v1/query endpoints"]
+        RA["/v1/admin endpoints"]
+        RWS["/v1/workspaces endpoints"]
     end
 
     subgraph Processing["Processing Layer"]
         IW["Ingestion Worker\n(Celery)"]
         RP["RAG Pipeline\nService"]
+        WS["Workspace / Access Service"]
     end
 
     subgraph Infra["Infrastructure Layer"]
@@ -31,8 +33,8 @@ graph TD
         MQ["Message Queue\n(Redis / Celery)"]
         VDB["Vector Store\n(Qdrant)"]
         PG["Relational DB\n(PostgreSQL)"]
-        RC["Cache\n(Redis)"]
-        LLM["LLM Provider\n(OpenAI / Anthropic)"]
+        RC["Cache & Semantic Cache\n(Redis)"]
+        LLM["LLM Provider\n(OpenAI / Anthropic / Gemini / Ollama)"]
         EMB["Embedding Provider\n(OpenAI / local)"]
         RR["Reranker\n(Cohere)"]
     end
@@ -40,13 +42,14 @@ graph TD
     subgraph Obs["Observability Layer"]
         LS["LangSmith\n(Tracing)"]
         PM["Prometheus\n(Metrics)"]
-        LOG["Structured Logs\n(stdout / aggregator)"]
+        LOG["Structured Logs\n(structlog / stdout)"]
     end
 
     Client --> Auth
     Auth --> RI
     Auth --> RQ
     Auth --> RA
+    Auth --> RWS
 
     RI --> OS
     RI --> MQ
@@ -56,6 +59,8 @@ graph TD
     IW --> VDB
     IW --> PG
 
+    RQ --> WS
+    WS --> PG
     RQ --> RP
     RP --> RC
     RP --> EMB
@@ -74,22 +79,22 @@ graph TD
 
 | Layer | Technology | Rationale |
 |---|---|---|
+| **Frontend UI** | Next.js + React + TypeScript + Tailwind CSS | Production-ready frontend, optimized for performance, component reusability, secure session handling, and real-time SSE streaming. |
 | **Backend Framework** | FastAPI (Python 3.12) | Async-native HTTP framework with first-class OpenAPI support; required for streaming responses (FR-11) and async pipeline execution. |
 | **Task Queue** | Celery + Redis broker | Provides async document ingestion (FR-2), configurable retry with backoff (NFR-4), and durable task state without additional infrastructure. |
-| **Vector Store** | Qdrant | Supports native hybrid search combining dense and sparse vectors (FR-7), runs fully locally via Docker (NFR-6), and provides collection-level filtering for tenant isolation (NFR-3). |
-| **Relational DB** | PostgreSQL | Stores document metadata, ingestion status, and tenant records; provides durable state that the vector store does not own. |
-| **Cache** | Redis | Serves dual purpose: Celery broker and semantic query cache (FR-20); avoids a second cache infrastructure dependency. |
+| **Vector Store** | Qdrant | Supports native hybrid search combining dense and sparse vectors (FR-7), runs fully locally via Docker (NFR-6), and provides metadata-level pre-filtering for tenant & workspace isolation. |
+| **Relational DB** | PostgreSQL | Stores document metadata, user records, workspace associations, document access rights, audit logs, and thread histories. |
+| **Cache** | Redis | Serves dual purpose: Celery broker and semantic query cache (FR-20) with workspace-aware invalidation; avoids a second cache infrastructure dependency. |
 | **Object Storage** | MinIO (local) / S3 (cloud) | Decouples file storage from processing; files are stored before the ingestion task is enqueued, ensuring no data loss on worker failure. |
-| **LLM Provider** | OpenAI / Anthropic (via abstraction) | Both providers are accessed through `BaseLLM`; the active provider is selected via environment config (FR-21). |
-| **Embeddings** | OpenAI `text-embedding-3-large` / BGE-M3 (local) | `text-embedding-3-large` provides high-quality multilingual embeddings; BGE-M3 is the local fallback for Arabic and offline use (Technical Consideration: multi-language support). |
+| **LLM Provider** | OpenAI / Anthropic / Gemini / Ollama (via abstraction) | All providers are accessed through `BaseLLM` and resolved via `LLMFactory` (FR-21). |
+| **Embeddings** | OpenAI `text-embedding-3-large` / BGE-M3 (local) | `text-embedding-3-large` provides high-quality multilingual embeddings; BGE-M3 is the local fallback for Arabic and offline use. |
 | **Reranker** | Cohere Rerank API | Cross-encoder reranking significantly improves precision post-retrieval (FR-8); accessed through an abstract interface so it can be replaced or disabled. |
 | **Observability — Tracing** | LangSmith | Provides per-stage pipeline tracing (FR-15, NFR-5) with native RAG pipeline awareness; instrumented via decorator pattern. |
 | **Observability — Metrics** | Prometheus client | Exposes request latency, token usage, and retrieval counts (FR-16) via `/metrics` endpoint; standard scrape target for Grafana. |
-| **Logging** | structlog (JSON output) | Emits structured, machine-parseable logs (FR-17) compatible with any log aggregation backend without infrastructure coupling. |
+| **Logging** | structlog (JSON output) | Emits structured, machine-parseable logs (FR-17) compatible with any log aggregation backend. |
 | **Evaluation** | RAGAS library | Provides faithfulness, answer relevancy, context recall, and context precision metrics (FR-12) with LLM-as-evaluator pattern. |
 | **Containerization** | Docker + Docker Compose | Required for fully local deployment with no cloud dependencies (NFR-6); all infrastructure services run as Compose services. |
 | **CI/CD** | GitHub Actions | Hosts the evaluation quality gate (FR-13); runs RAGAS evaluation on the committed dataset and fails the pipeline on threshold regression. |
-| **Demo Interface** | Streamlit | Minimal single-file UI sufficient for end-to-end pipeline verification; no UX investment required beyond functional demonstration. |
 
 ## 3. Data Models & Schema
 
@@ -101,6 +106,58 @@ erDiagram
         string api_key_hash
         bool is_active
         timestamp created_at
+    }
+
+    USER {
+        uuid id PK
+        uuid tenant_id FK
+        string email
+        string name
+        string password_hash
+        string role
+        bool is_active
+        timestamp created_at
+        timestamp updated_at
+        timestamp last_login_at
+    }
+
+    API_KEY {
+        uuid id PK
+        uuid user_id FK
+        uuid tenant_id FK
+        string key_hash
+        string name
+        bool is_active
+        timestamp last_used_at
+        timestamp expires_at
+        timestamp created_at
+    }
+
+    WORKSPACE {
+        uuid id PK
+        uuid tenant_id FK
+        string name
+        string workspace_type
+        string description
+        uuid created_by FK
+        bool is_active
+        timestamp created_at
+    }
+
+    WORKSPACE_MEMBER {
+        uuid id PK
+        uuid workspace_id FK
+        uuid user_id FK
+        string member_role
+        timestamp joined_at
+    }
+
+    DOCUMENT_ACCESS {
+        uuid id PK
+        uuid document_id FK
+        uuid workspace_id FK
+        string access_level
+        timestamp granted_at
     }
 
     DOCUMENT {
@@ -155,6 +212,48 @@ erDiagram
         timestamp created_at
     }
 
+    AUDIT_LOG {
+        uuid id PK
+        uuid tenant_id FK
+        uuid user_id FK
+        string action
+        string resource_type
+        string resource_id
+        jsonb metadata
+        string ip_address
+        timestamp created_at
+    }
+
+    CHAT_THREAD {
+        uuid id PK
+        uuid tenant_id FK
+        uuid user_id FK
+        uuid workspace_id FK
+        string title
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    CHAT_MESSAGE {
+        uuid id PK
+        uuid thread_id FK
+        string role
+        string content
+        jsonb sources
+        timestamp created_at
+    }
+
+    TENANT_CONFIG {
+        uuid tenant_id PK
+        string llm_provider
+        string llm_model
+        float temperature
+        bool query_expansion
+        int rate_limit_ingest
+        int rate_limit_query
+        timestamp updated_at
+    }
+
     EVAL_DATASET {
         uuid id PK
         string question
@@ -164,231 +263,155 @@ erDiagram
         timestamp created_at
     }
 
+    TENANT ||--o{ USER : "has"
+    TENANT ||--o{ WORKSPACE : "contains"
     TENANT ||--o{ DOCUMENT : "owns"
-    DOCUMENT ||--o{ CHUNK : "produces"
-    DOCUMENT ||--o{ INGESTION_JOB : "tracked by"
-    DOCUMENT ||--o{ EVAL_DATASET : "sourced from"
     TENANT ||--o{ CHUNK : "scoped to"
     TENANT ||--o{ QUERY_LOG : "monitored for"
+    TENANT ||--o{ AUDIT_LOG : "audits"
+    TENANT ||--o{ CHAT_THREAD : "hosts"
+    TENANT ||--|| TENANT_CONFIG : "configured by"
+
+    USER ||--o{ API_KEY : "owns"
+    USER ||--o{ WORKSPACE_MEMBER : "belongs to"
+    USER ||--o{ AUDIT_LOG : "performs"
+    USER ||--o{ CHAT_THREAD : "starts"
+
+    WORKSPACE ||--o{ WORKSPACE_MEMBER : "includes"
+    WORKSPACE ||--o{ DOCUMENT_ACCESS : "grants access via"
+    WORKSPACE ||--o{ CHAT_THREAD : "groups"
+
+    DOCUMENT ||--o{ CHUNK : "produces"
+    DOCUMENT ||--o{ INGESTION_JOB : "tracked by"
+    DOCUMENT ||--o{ DOCUMENT_ACCESS : "shared via"
+    DOCUMENT ||--o{ EVAL_DATASET : "sourced from"
+
+    CHAT_THREAD ||--o{ CHAT_MESSAGE : "contains"
 ```
 
-**TENANT** — Represents an isolated data partition. Every retrieval operation is filtered by `tenant_id` at the vector store layer before results are returned. The `api_key_hash` field stores a hashed credential; plaintext keys are never persisted. `is_active` allows for soft-disabling a tenant without data deletion.
+**TENANT** — Represents an isolated data partition. The `api_key_hash` field stores a hashed credential; plaintext keys are never persisted. `is_active` allows for soft-disabling a tenant.
 
-**DOCUMENT** — Tracks each uploaded file from receipt through indexing. The `status` field drives the ingestion state machine: `pending → processing → indexed | failed`. `metadata` stores extracted document properties (title, author, page count) as a flexible JSONB blob. `storage_path` references the object storage key for the original file. `content_hash` (SHA-256) is used for deduplication within a tenant (scoped uniqueness), and `language` assists in selecting the appropriate embedding model.
+**USER** — Represents an individual user within a tenant. Stores credentials (`password_hash`), status (`is_active`), and their overall system authorization level via the `role` column (SUPER_ADMIN, ADMIN, MANAGER, USER).
 
-**CHUNK** — Records chunk-level metadata in PostgreSQL for audit and evaluation purposes. The actual chunk content and embedding vector live in Qdrant, keyed by the chunk's UUID. `token_count` helps manage LLM context limits, and `content_type` (e.g., table, paragraph) allows for semantic filtering.
+**API_KEY** — Stores programmatic API keys associated with a user, ensuring that developer access uses bcrypt-hashed API keys (`key_hash`) instead of raw key checks.
 
-**INGESTION_JOB** — Provides visibility into background task execution. Linked to a Celery task ID for correlation. `retry_count` is incremented by the Celery retry mechanism; `error_message` captures the last exception for debugging.
+**WORKSPACE** — Logical sub-partitions within a tenant (e.g., TEAM or PERSONAL) used to group files.
 
-**QUERY_LOG** — Captures RAG query history for performance monitoring and quality analysis. Stores `retrieved_chunk_ids` as a list to enable offline evaluation of retrieval precision/recall and `latency_ms` for performance bottleneck identification. `cache_hit` tracks semantic cache effectiveness.
+**WORKSPACE_MEMBER** — Intersection table mapping users to workspaces, defining workspace-specific roles (e.g., ADMIN, MEMBER, VIEWER).
 
-**EVAL_DATASET** — Stores versioned question/ground-truth pairs committed to the repository. `question_type` (factual, analytical, comparative) enables stratified evaluation reporting. Sourced either manually or via the dataset generator (FR-14).
+**DOCUMENT_ACCESS** — Controls document visibility by linking files to workspaces. This allowlist is evaluated by `get_accessible_document_ids()` to construct pre-filters during vector searches.
+
+**DOCUMENT** — Tracks each uploaded file from receipt through indexing. `metadata` stores extracted properties as a JSONB blob. `storage_path` references the object storage key.
+
+**CHUNK** — Records chunk-level metadata. The actual chunk text and embeddings reside in Qdrant.
+
+**INGESTION_JOB** — Tracks celery task state (`pending → processing → indexed | failed`) and counts retries.
+
+**QUERY_LOG** — Captures RAG query history, query strings, and retrieved chunk IDs for quality analysis.
+
+**AUDIT_LOG** — Immutable append-only ledger capturing all critical user activities (e.g., queries, log-ins, uploads, role modifications).
+
+**CHAT_THREAD & CHAT_MESSAGE** — Maintains persistent chat history and assistant source references per thread.
+
+**TENANT_CONFIG** — Dynamically stores system overrides (e.g., default models, temperature, rate limit thresholds) for each tenant.
+
+**EVAL_DATASET** — Stores versioned question/ground-truth pairs for automated RAGAS quality evaluation.
 
 ## 4. API Design
 
-### Document Ingestion
-
+### Authentication
 | Method | Endpoint | Description | Auth Required |
 |---|---|---|---|
-| POST | `/v1/ingest` | Upload a document for async ingestion | Yes |
-| GET | `/v1/documents` | List documents for the authenticated tenant | Yes |
-| GET | `/v1/documents/{document_id}` | Get ingestion status and metadata for a document | Yes |
-| DELETE | `/v1/documents/{document_id}` | Remove a document and its indexed chunks | Yes |
+| POST | `/v1/auth/login` | Authenticate via email/password and obtain JWT | No |
+| POST | `/v1/auth/refresh` | Obtain a new JWT using refresh token | No |
+| POST | `/v1/auth/api-keys` | Generate a new programmatic API key | Yes |
 
-**Key Request / Response Shapes**
+### User Management
+| Method | Endpoint | Description | Auth Required |
+|---|---|---|---|
+| POST | `/v1/users` | Create a new user (ADMIN only) | Yes |
+| GET | `/v1/users` | List users in the tenant (ADMIN only) | Yes |
+| PATCH | `/v1/users/{user_id}` | Modify user role or status (ADMIN only) | Yes |
 
-`POST /v1/ingest`
-```
-Request:  multipart/form-data
-  - file: binary (PDF or image, max size enforced by gateway)
-  - metadata: optional JSON string (e.g., {"tags": ["finance"], "description": "Q3 report"})
+### Document Ingestion & Workspaces
+| Method | Endpoint | Description | Auth Required |
+|---|---|---|---|
+| POST | `/v1/workspaces` | Create a new logical workspace | Yes |
+| GET | `/v1/workspaces` | List active workspaces for the user | Yes |
+| POST | `/v1/ingest` | Upload a document, optionally specifying `workspace_id` | Yes |
+| GET | `/v1/documents` | List documents inside the user's workspaces | Yes |
+| DELETE | `/v1/documents/{document_id}` | Remove a document from object storage, PostgreSQL, and Qdrant | Yes |
 
-Response 202 Accepted:
-{
-  "document_id": "uuid",
-  "status": "pending",
-  "message": "Document accepted for processing"
-}
-```
-
-`GET /v1/documents/{document_id}`
-```
-Response 200:
-{
-  "document_id": "uuid",
-  "file_name": "string",
-  "status": "pending | processing | indexed | failed",
-  "chunk_count": integer | null,
-  "indexed_at": "ISO8601 timestamp | null",
-  "metadata": { ... }
-}
-```
+### Conversational Query
+| Method | Endpoint | Description | Auth Required |
+|---|---|---|---|
+| POST | `/v1/chat/threads` | Create a new chat session thread | Yes |
+| POST | `/v1/query` | Submit a RAG question within a thread (blocking) | Yes |
+| POST | `/v1/query/stream` | Submit a query and stream SSE answer tokens | Yes |
 
 ---
-
-### Query
-
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| POST | `/v1/query` | Submit a natural language query; returns full response | Yes |
-| POST | `/v1/query/stream` | Submit a query; streams answer tokens via SSE | Yes |
-
-**Key Request / Response Shapes**
-
-`POST /v1/query`
-```
-Request:
-{
-  "question": "string",
-  "filters": {
-    "document_ids": ["uuid", ...],   // optional: scope to specific documents
-    "tags": ["string", ...]          // optional: metadata-based filter
-  },
-  "mode": "standard | strict"        // strict applies anti-hallucination prompt
-}
-
-Response 200:
-{
-  "answer": "string",
-  "sources": [
-    {
-      "source_id": integer,
-      "document_id": "uuid",
-      "file_name": "string",
-      "section_title": "string | null",
-      "page_number": integer | null,
-      "relevance_score": float,
-      "snippet": "string"
-    }
-  ],
-  "query_expansions": ["string", ...],
-  "retrieval_count": integer,
-  "model": "string",
-  "latency_ms": float
-}
-```
-
-`POST /v1/query/stream`
-```
-Response: text/event-stream (SSE)
-  - Events: { "type": "token", "content": "string" }
-  - Final event: { "type": "sources", "sources": [...] }
-  - Terminal event: { "type": "done" }
-```
-
----
-
-### Admin
-
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| GET | `/v1/admin/stats` | Retrieval and ingestion aggregate metrics | Admin role |
-| POST | `/v1/admin/eval/run` | Trigger an evaluation run against the committed dataset | Admin role |
-| GET | `/v1/admin/eval/results` | Retrieve the latest evaluation scores | Admin role |
-
----
-
-### Health & Observability
-
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| GET | `/health` | Liveness check | No |
-| GET | `/ready` | Readiness check (verifies DB and vector store connectivity) | No |
-| GET | `/metrics` | Prometheus metrics scrape endpoint | No (network-restricted) |
 
 ## 5. Frontend Architecture
 
-The demo interface is a single-page Streamlit application. Its sole purpose is end-to-end pipeline verification; no production UX investment is made here.
+The user interface is a modern, single-page application built using **Next.js**, **React**, **TypeScript**, and **Tailwind CSS**.
 
-**Page structure:**
+### Key Pages & Layouts
+- **Login / Authentication**: Collects credentials and stores the JWT securely in client cookies or memory.
+- **Workspace Dashboard**: Tabbed view allowing Workspace Admins to add/remove members and assign files.
+- **Documents Portal**: Handles multipart file uploads (PDF/Images) and polls `/v1/documents/{id}` for processing status.
+- **Chat Interface**: An interactive messenger UI consuming the SSE token stream, rendering markdown, and highlighting source citation attachments (page numbers, document names, and snippet highlights).
+- **Audit Logs View**: Tabular ledger view for compliance managers to search log events.
 
-- **Upload Panel** — File picker for PDF/image upload; calls `POST /v1/ingest` and polls `GET /v1/documents/{id}` to display status. Shows chunk count and indexed timestamp on completion.
-- **Query Panel** — Text input for natural language question; mode selector (standard/strict); optional document filter. Calls `POST /v1/query/stream` and renders streamed answer tokens progressively. Displays source attribution cards below the answer on stream completion.
-- **Documents Panel** — Table view of all indexed documents for the current tenant with status, chunk count, and delete action.
-
-**State management:** Streamlit's native session state is sufficient for the demo scope. No external state management library is required.
-
-**Data flow:** All API calls originate from the Streamlit server process to the FastAPI backend; there is no direct client-to-backend communication. The SSE stream is consumed server-side and re-rendered via Streamlit's `st.write_stream` or equivalent progressive rendering mechanism.
-
-**Routing:** Streamlit's single-page model with sidebar navigation between Upload, Query, and Documents views.
+---
 
 ## 6. Security Design
 
-**Authentication**
+### Authentication
+API endpoints are secured by JWT bearer sessions for web users, and bcrypt-hashed API keys for external program access. In both paths, the gateway middleware verifies credentials and loads a complete `User` context instead of a raw tenant string.
 
-API requests are authenticated via Bearer tokens passed in the `Authorization` header. For MVP, tokens are pre-issued API keys stored as hashed values in the `TENANT.api_key_hash` field (bcrypt). JWT-based auth is noted as a Phase 2 upgrade path but is not required for a portfolio deployment.
+### Workspace & Document-Level Authorization
+Access control checks are enforced at the query boundary, preventing information leakage:
+1. When a query is received, the API Gateway resolves the calling user's authorized workspaces.
+2. The `WorkspaceService` queries `document_access` to collect all `document_ids` mapped to those workspaces.
+3. This list of `allowed_ids` is passed directly to the `HybridRetriever`.
+4. In `QdrantVectorStore`, the search filters are compiled to apply a strict `$in` matching filter on the metadata payload:
+   ```json
+   {
+     "and": [
+       { "key": "tenant_id", "match": { "value": "<tenant-uuid>" } },
+       { "key": "document_id", "match": { "any": ["<allowed-doc-uuid>", ...] } }
+     ]
+   }
+   ```
+This ensures the LLM context is constructed *only* from fragments the user has explicit rights to see.
 
-**Authorization**
+### Audit Trails
+Every mutating API action (upload, delete, workspace addition) and query request logs an immutable, append-only entry in `audit_logs` capturing IP address, user UUID, action type, and target resource metadata.
 
-Two roles are defined: `tenant_user` (can ingest and query within their own tenant) and `admin` (can access aggregate stats and trigger eval runs). Role is encoded in the token payload and validated by FastAPI dependency injection on each request. The tenant isolation middleware (FR-19) extracts `tenant_id` from the authenticated token and injects it as a mandatory filter into every vector store search call — this is enforced in the retrieval layer, not the application layer, satisfying NFR-3.
-
-**Data Security**
-
-- All data in transit is protected by TLS (enforced at the reverse proxy layer in any non-local deployment).
-- API keys are never stored in plaintext; only bcrypt hashes are persisted.
-- Original files in object storage are addressed by opaque UUIDs, not original filenames.
-- No user PII is required or collected; the system operates on document content only.
-
-**Input Validation**
-
-- File type and size are validated at the API gateway before any processing begins; unsupported types are rejected with `415 Unsupported Media Type`.
-- Query strings are passed through `SecurityGuard.sanitize_query()` before entering the RAG pipeline; detected injection patterns raise a `400 Bad Request` (FR-18).
-- Context injected into LLM prompts is sanitized by `SecurityGuard.sanitize_context()` to neutralize instruction injection embedded in document content.
-- All request bodies are validated via Pydantic models; malformed payloads are rejected before reaching business logic.
+---
 
 ## 7. Infrastructure & Deployment
 
 **Local Development (Docker Compose)**
 
-All infrastructure services run as Compose services: FastAPI app, Celery worker, Qdrant, PostgreSQL, Redis, and MinIO. A single `docker compose up` brings the full system to a running state with no external dependencies. Environment variables are managed via `.env` file (`.env.example` committed; `.env` gitignored).
+All infrastructure services run as Compose services: FastAPI app, Next.js frontend, Celery worker, Qdrant, PostgreSQL, Redis, and MinIO. Alembic migrations and Qdrant collection setup execute automatically in a pre-start container.
 
-**Service boundaries in Compose:**
-- `api` — FastAPI application
-- `worker` — Celery ingestion worker (same image as `api`, different entrypoint)
-- `qdrant` — Vector store
-- `postgres` — Relational DB
-- `redis` — Cache and Celery broker
-- `minio` — Object storage
-
-**Environment structure:**
-- `development` — Docker Compose, debug logging, no rate limiting
-- `production` — Docker Compose production profile (resource limits, no debug), or Kubernetes (Phase 2)
-
-**CI/CD Pipeline (GitHub Actions)**
-
-Two workflows:
-
-1. **`ci.yml`** — Triggered on every pull request: runs unit and integration tests, linting, and type checking.
-2. **`eval.yml`** — Triggered on merge to `main`: spins up the full stack, runs RAGAS evaluation against the committed dataset, and fails the workflow if any metric falls below threshold (FR-13). A failed eval gate blocks deployment.
-
-**Database migrations** are managed via Alembic. Migration scripts are committed to the repository and run automatically on container startup in development; run explicitly in production before service restart.
-
-**Secrets management:** API keys for external providers (OpenAI, Cohere, Anthropic) are injected via environment variables. No secrets are committed to the repository. In production, secrets are sourced from environment-level configuration (e.g., cloud secrets manager or Kubernetes secrets).
+---
 
 ## 8. Non-Functional Requirements Coverage
 
-- **NFR-1 (Performance)**: Query latency is instrumented per pipeline stage via Prometheus histograms (FR-16). Semantic caching (FR-20) short-circuits the full pipeline for repeated semantically similar queries. Batch embedding calls are used during ingestion to minimize embedding API round-trips. Benchmark results are published in the README.
+- **NFR-1 (Performance)**: Latency histograms measure performance per stage. Semantic caching short-circuits execution for repeated queries.
+- **NFR-2 (Scalability)**: Async ingestion enqueues files to Celery, allowing worker tasks to scale independently.
+- **NFR-3 (Security)**: Data boundaries are enforced at retrieval time by resolving user permissions into document lists and pre-filtering the vector search.
+- **NFR-4 (Reliability)**: Celery handles job execution retries.
+- **NFR-5 (Observability)**: LangSmith traces RAG pipeline stages.
+- **NFR-6 (Portability)**: The entire stack runs via Docker Compose with local fallbacks.
+- **NFR-7 (Maintainability)**: Base provider classes shield business logic from supplier changes.
 
-- **NFR-2 (Scalability)**: Document ingestion is fully decoupled from the API via Celery task queue. Multiple worker instances can be run in parallel by scaling the `worker` Compose service or Kubernetes deployment. The API remains responsive under concurrent upload load regardless of worker throughput.
-
-- **NFR-3 (Security)**: Tenant isolation is enforced at the Qdrant filter layer — every vector search includes a `tenant_id` must-match filter injected by the tenant isolation middleware. This is architectural, not policy-based: a query without a valid tenant token cannot reach the retrieval layer.
-
-- **NFR-4 (Reliability)**: Celery tasks are configured with `max_retries=3` and `default_retry_delay=60s`. Failed ingestion jobs update `INGESTION_JOB.status` to `failed` with the exception captured in `error_message`, enabling manual inspection and requeue without data loss.
-
-- **NFR-5 (Observability)**: LangSmith tracing covers the full RAG pipeline end-to-end via the `@traceable` decorator. Prometheus metrics export per-stage latency, token usage by model and type, and retrieval document counts. All metrics are observable without code modification after initial instrumentation.
-
-- **NFR-6 (Portability)**: The complete system runs via `docker compose up` with no external cloud service required. All provider integrations (LLM, embedder, vector store) have local alternatives: Ollama for LLM, BGE-M3 via sentence-transformers for embeddings, and Qdrant runs locally. MinIO replaces S3 locally.
-
-- **NFR-7 (Maintainability)**: All provider integrations implement abstract base classes (`BaseLLM`, `BaseEmbedder`, `BaseVectorStore`). New providers are added by implementing the interface and registering in the factory — no existing code is modified. This is enforced by the factory pattern and validated by the existing test suite.
+---
 
 ## 9. Open Questions & Decisions
 
-- **Reranker availability as a hard dependency**: Cohere Rerank is currently the only reranker implementation. If the Cohere API is unavailable, the pipeline degrades silently to returning vector search results without reranking. Decision needed: should a local cross-encoder reranker (e.g., `cross-encoder/ms-marco-MiniLM`) be included as a fallback, or is Cohere treated as a required external dependency with documented setup requirements?
-
-- **RAGAS evaluator LLM**: RAGAS uses an LLM internally to compute faithfulness and answer relevancy. The choice of evaluator LLM materially affects score values and reproducibility. Decision needed: which LLM should be the canonical evaluator for the committed benchmark scores, and should the eval workflow pin a specific model version?
-
-- **API key auth vs. JWT for MVP**: The current design uses pre-issued hashed API keys for simplicity. If the demo interface requires user-facing login, a JWT-based auth flow adds meaningful complexity. Decision needed: is user-facing authentication a Phase 1 requirement, or is API key auth sufficient for portfolio demonstration purposes?
-
-- **Semantic cache consistency boundary**: The semantic cache returns a cached response for queries above a similarity threshold. If the underlying document corpus changes (new documents indexed, documents deleted), cached responses may become stale or incorrect. Decision needed: should cache entries be invalidated per-tenant on any ingestion event, or is TTL-based expiry sufficient given the portfolio context?
-
-- **BM25 implementation scope**: The current design runs BM25 over in-memory vector search results as a lightweight keyword signal. For production-grade keyword search, a dedicated full-text search engine (e.g., PostgreSQL FTS or Elasticsearch) would be more appropriate. Decision needed: is in-memory BM25 over retrieved candidates acceptable for MVP benchmark purposes, or should PostgreSQL FTS be integrated in Phase 1 to demonstrate a more credible hybrid search implementation?
+- **Local Reranker Fallback**: Cohere Rerank API remains the default; a local cross-encoder fallback can be integrated.
+- **RAGAS Evaluator model**: OpenAI GPT-4o is selected as the default evaluator model for regression quality gate pipelines.
+- **Semantic Cache invalidation**: Performed per-tenant on any document deletion or new ingestion index completion.

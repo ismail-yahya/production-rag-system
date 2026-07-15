@@ -10,12 +10,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.models import (
     ApiKey,
     AuditLog,
-    Chunk,
+    ChatMessage,
+    ChatThread,
     Document,
     DocumentAccess,
     IngestionJob,
     QueryLog,
     TaskExecution,
+    TenantConfig,
     User,
     Workspace,
     WorkspaceMember,
@@ -70,7 +72,9 @@ class DocumentRepository:
         result = await self.session.execute(stmt)
         return result.scalars().all()
 
-    async def list_by_ids(self, document_ids: Sequence[uuid.UUID], tenant_id: uuid.UUID) -> Sequence[Document]:
+    async def list_by_ids(
+        self, document_ids: Sequence[uuid.UUID], tenant_id: uuid.UUID
+    ) -> Sequence[Document]:
         """
         List documents by their IDs, scoped to tenant.
         """
@@ -182,7 +186,10 @@ class IngestionJobRepository:
         result = await self.session.execute(stmt)
         job = result.scalar_one_or_none()
 
-        if job and job.status in ("pending", "failed"):
+        if job and (
+            job.status in ("pending", "failed")
+            or (job.status == "processing" and job.celery_task_id == celery_task_id)
+        ):
             job.status = "processing"
             job.celery_task_id = celery_task_id
             job.started_at = datetime.now(UTC)
@@ -324,17 +331,11 @@ class UserRepository:
 
     async def list_by_tenant(self, tenant_id: uuid.UUID) -> Sequence[User]:
         """List all users for a given tenant, ordered by creation date."""
-        stmt = (
-            select(User)
-            .where(User.tenant_id == tenant_id)
-            .order_by(User.created_at.desc())
-        )
+        stmt = select(User).where(User.tenant_id == tenant_id).order_by(User.created_at.desc())
         result = await self.session.execute(stmt)
         return result.scalars().all()
 
-    async def update(
-        self, user_id: uuid.UUID, tenant_id: uuid.UUID, **kwargs: Any
-    ) -> User | None:
+    async def update(self, user_id: uuid.UUID, tenant_id: uuid.UUID, **kwargs: Any) -> User | None:
         """Update a user record. Automatically updates updated_at."""
         if not kwargs:
             return await self.session.get(User, user_id)
@@ -392,11 +393,7 @@ class ApiKeyRepository:
 
     async def list_by_user(self, user_id: uuid.UUID) -> Sequence[ApiKey]:
         """List all API keys for a user, ordered newest first."""
-        stmt = (
-            select(ApiKey)
-            .where(ApiKey.user_id == user_id)
-            .order_by(ApiKey.created_at.desc())
-        )
+        stmt = select(ApiKey).where(ApiKey.user_id == user_id).order_by(ApiKey.created_at.desc())
         result = await self.session.execute(stmt)
         return result.scalars().all()
 
@@ -504,7 +501,9 @@ class WorkspaceRepository:
         List all workspaces the user is member of or created by the user,
         plus any CENTRAL workspaces.
         """
-        member_subquery = select(WorkspaceMember.workspace_id).where(WorkspaceMember.user_id == user_id)
+        member_subquery = select(WorkspaceMember.workspace_id).where(
+            WorkspaceMember.user_id == user_id
+        )
         stmt = (
             select(Workspace)
             .where(
@@ -565,8 +564,7 @@ class WorkspaceRepository:
     async def remove_member(self, workspace_id: uuid.UUID, user_id: uuid.UUID) -> bool:
         """Remove a user from a workspace."""
         stmt = delete(WorkspaceMember).where(
-            WorkspaceMember.workspace_id == workspace_id,
-            WorkspaceMember.user_id == user_id
+            WorkspaceMember.workspace_id == workspace_id, WorkspaceMember.user_id == user_id
         )
         result = await self.session.execute(stmt)
         return result.rowcount > 0  # type: ignore[attr-defined, no-any-return]
@@ -577,14 +575,32 @@ class WorkspaceRepository:
         result = await self.session.execute(stmt)
         return result.scalars().all()
 
-    async def get_member(self, workspace_id: uuid.UUID, user_id: uuid.UUID) -> WorkspaceMember | None:
+    async def get_member(
+        self, workspace_id: uuid.UUID, user_id: uuid.UUID
+    ) -> WorkspaceMember | None:
         """Get a specific workspace member profile."""
         stmt = select(WorkspaceMember).where(
-            WorkspaceMember.workspace_id == workspace_id,
-            WorkspaceMember.user_id == user_id
+            WorkspaceMember.workspace_id == workspace_id, WorkspaceMember.user_id == user_id
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
+
+    async def update_member_role(
+        self, workspace_id: uuid.UUID, user_id: uuid.UUID, member_role: str
+    ) -> WorkspaceMember | None:
+        """Update a workspace member's role."""
+        stmt = (
+            update(WorkspaceMember)
+            .where(
+                WorkspaceMember.workspace_id == workspace_id,
+                WorkspaceMember.user_id == user_id,
+            )
+            .values(member_role=member_role)
+            .returning(WorkspaceMember)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
 
     async def get_or_create_personal_workspace(self, user: User) -> Workspace:
         """Get or create the user's personal workspace."""
@@ -634,8 +650,7 @@ class DocumentAccessRepository:
     async def revoke_access(self, document_id: uuid.UUID, workspace_id: uuid.UUID) -> bool:
         """Revoke a workspace's access to a document."""
         stmt = delete(DocumentAccess).where(
-            DocumentAccess.document_id == document_id,
-            DocumentAccess.workspace_id == workspace_id
+            DocumentAccess.document_id == document_id, DocumentAccess.workspace_id == workspace_id
         )
         result = await self.session.execute(stmt)
         return result.rowcount > 0  # type: ignore[attr-defined, no-any-return]
@@ -668,7 +683,9 @@ class DocumentAccessRepository:
 
         # For USER and MANAGER roles:
         # 1. Workspaces the user is member of
-        member_workspaces = select(WorkspaceMember.workspace_id).where(WorkspaceMember.user_id == user.id)
+        member_workspaces = select(WorkspaceMember.workspace_id).where(
+            WorkspaceMember.user_id == user.id
+        )
 
         # 2. Accessible active workspaces (member of, created by, or CENTRAL)
         accessible_workspaces = select(Workspace.id).where(
@@ -811,27 +828,20 @@ class AdminRepository:
             AdminStatsData with total_documents, total_chunks,
             total_queries, and average_latency_ms.
         """
-        import asyncio
 
-        doc_stmt = select(func.count()).select_from(Document).where(
+        doc_stmt = select(func.count()).select_from(Document).where(Document.tenant_id == tenant_id)
+        chunk_stmt = select(func.coalesce(func.sum(Document.chunk_count), 0)).where(
             Document.tenant_id == tenant_id
         )
-        chunk_stmt = select(func.count()).select_from(Chunk).where(
-            Chunk.tenant_id == tenant_id
+        query_stmt = (
+            select(func.count()).select_from(QueryLog).where(QueryLog.tenant_id == tenant_id)
         )
-        query_stmt = select(func.count()).select_from(QueryLog).where(
-            QueryLog.tenant_id == tenant_id
-        )
-        latency_stmt = select(func.avg(QueryLog.latency_ms)).where(
-            QueryLog.tenant_id == tenant_id
-        )
+        latency_stmt = select(func.avg(QueryLog.latency_ms)).where(QueryLog.tenant_id == tenant_id)
 
-        doc_res, chunk_res, query_res, latency_res = await asyncio.gather(
-            self.session.execute(doc_stmt),
-            self.session.execute(chunk_stmt),
-            self.session.execute(query_stmt),
-            self.session.execute(latency_stmt),
-        )
+        doc_res = await self.session.execute(doc_stmt)
+        chunk_res = await self.session.execute(chunk_stmt)
+        query_res = await self.session.execute(query_stmt)
+        latency_res = await self.session.execute(latency_stmt)
 
         return AdminStatsData(
             total_documents=doc_res.scalar_one() or 0,
@@ -839,3 +849,139 @@ class AdminRepository:
             total_queries=query_res.scalar_one() or 0,
             average_latency_ms=float(latency_res.scalar_one() or 0.0),
         )
+
+
+class ChatRepository:
+    """
+    Repository for ChatThread and ChatMessage database operations.
+    """
+
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
+
+    async def create_thread(
+        self,
+        tenant_id: uuid.UUID,
+        user_id: uuid.UUID,
+        title: str,
+        workspace_id: uuid.UUID | None = None,
+    ) -> ChatThread:
+        """Create a new chat thread."""
+        thread = ChatThread(
+            tenant_id=tenant_id,
+            user_id=user_id,
+            title=title,
+            workspace_id=workspace_id,
+            created_at=datetime.now(UTC),
+            updated_at=datetime.now(UTC),
+        )
+        self.session.add(thread)
+        await self.session.flush()
+        return thread
+
+    async def list_threads(
+        self, tenant_id: uuid.UUID, user_id: uuid.UUID, workspace_id: uuid.UUID | None = None
+    ) -> Sequence[ChatThread]:
+        """List chat threads scoped to tenant and user, optional workspace filtering."""
+        stmt = select(ChatThread).where(
+            ChatThread.tenant_id == tenant_id, ChatThread.user_id == user_id
+        )
+        if workspace_id:
+            stmt = stmt.where(ChatThread.workspace_id == workspace_id)
+        stmt = stmt.order_by(ChatThread.updated_at.desc())
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
+    async def get_thread_by_id(
+        self, thread_id: uuid.UUID, tenant_id: uuid.UUID, user_id: uuid.UUID
+    ) -> ChatThread | None:
+        """Get a specific chat thread."""
+        stmt = select(ChatThread).where(
+            ChatThread.id == thread_id,
+            ChatThread.tenant_id == tenant_id,
+            ChatThread.user_id == user_id,
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def delete_thread(
+        self, thread_id: uuid.UUID, tenant_id: uuid.UUID, user_id: uuid.UUID
+    ) -> bool:
+        """Delete a chat thread and all its messages."""
+        stmt = delete(ChatThread).where(
+            ChatThread.id == thread_id,
+            ChatThread.tenant_id == tenant_id,
+            ChatThread.user_id == user_id,
+        )
+        result = await self.session.execute(stmt)
+        return result.rowcount > 0  # type: ignore[attr-defined, no-any-return]
+
+    async def get_messages(self, thread_id: uuid.UUID) -> Sequence[ChatMessage]:
+        """Get all messages in a chat thread ordered by creation date."""
+        stmt = (
+            select(ChatMessage)
+            .where(ChatMessage.thread_id == thread_id)
+            .order_by(ChatMessage.created_at.asc())
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
+    async def add_message(
+        self,
+        thread_id: uuid.UUID,
+        role: str,
+        content: str,
+        sources: dict[str, Any] | None = None,
+    ) -> ChatMessage:
+        """Add a message to a thread and update thread updated_at."""
+        message = ChatMessage(
+            thread_id=thread_id,
+            role=role,
+            content=content,
+            sources=sources,
+            created_at=datetime.now(UTC),
+        )
+        self.session.add(message)
+
+        # Update thread's updated_at timestamp
+        thread_stmt = (
+            update(ChatThread)
+            .where(ChatThread.id == thread_id)
+            .values(updated_at=datetime.now(UTC))
+        )
+        await self.session.execute(thread_stmt)
+        await self.session.flush()
+        return message
+
+
+class TenantConfigRepository:
+    """
+    Repository for TenantConfig database operations.
+    """
+
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
+
+    async def get_config(self, tenant_id: uuid.UUID) -> TenantConfig | None:
+        """Retrieve the configuration for a tenant."""
+        stmt = select(TenantConfig).where(TenantConfig.tenant_id == tenant_id)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def update_config(self, tenant_id: uuid.UUID, **kwargs: Any) -> TenantConfig:
+        """Create or update a tenant's configuration settings."""
+        existing = await self.get_config(tenant_id)
+        if existing:
+            stmt = (
+                update(TenantConfig)
+                .where(TenantConfig.tenant_id == tenant_id)
+                .values(**kwargs, updated_at=datetime.now(UTC))
+                .returning(TenantConfig)
+            )
+            result = await self.session.execute(stmt)
+            return result.scalar_one()
+        else:
+            config = TenantConfig(tenant_id=tenant_id, **kwargs, updated_at=datetime.now(UTC))
+            self.session.add(config)
+            await self.session.flush()
+            return config

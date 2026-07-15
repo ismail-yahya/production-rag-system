@@ -260,7 +260,7 @@ class RAGPipeline:
             )
             for i, doc in enumerate(reranked_docs)
         ]
-        yield {"type": "sources", "sources": [s.model_dump() for s in sources]}
+        yield {"type": "sources", "sources": [s.model_dump(mode="json") for s in sources]}
 
         system_prompt = RAG_SYSTEM_PROMPT
         if mode == "strict":

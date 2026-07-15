@@ -18,41 +18,48 @@ Second, an integrated RAGAS evaluation pipeline with enforced CI/CD quality gate
 
 ## 4. Target Users
 
-The primary audience is mid-to-senior software engineers, ML engineers, and technical architects who are building, evaluating, or demonstrating RAG systems in a professional context. This includes engineers preparing technical portfolio projects, teams seeking a vetted baseline to adapt for internal tooling, and developers who want to move beyond tutorial-level implementations into production-conscious design.
+The primary audience is mid-to-senior software engineers, ML engineers, and technical architects building enterprise-grade RAG platforms. It also serves Workspace Administrators (department heads, team leads) who manage document access control and user roles, and Compliance Officers who monitor usage and audit logs to prevent data leakage.
 
 ## 5. User Personas
 
 - **Name & Role**: The Portfolio Engineer
-  - **Context**: A software or ML engineer preparing for senior roles or technical interviews, actively building projects to demonstrate applied system design competence.
+  - **Context**: A software or ML engineer preparing for senior roles or technical interviews, actively studying best practices.
   - **Key Goals**: Produce a credible, well-documented project that showcases production-level thinking; understand and implement RAG beyond the basics.
-  - **Pain Points**: Existing open projects are too shallow to learn from; no clear reference for how to structure abstractions, evaluation, or observability in a real codebase.
+  - **Pain Points**: Tutorial-level code is too shallow; needs a working reference for complex security, multi-tenancy, and evaluation.
 
-- **Name & Role**: The Team Architect
-  - **Context**: A technical lead or architect at a startup or mid-size company evaluating RAG approaches before committing to an internal implementation.
-  - **Key Goals**: Quickly assess architectural trade-offs; identify a validated pattern to adapt rather than build from scratch.
-  - **Pain Points**: Cannot find open implementations that address multi-tenancy, security, or evaluation in a coherent, production-aware way.
+- **Name & Role**: The Workspace Administrator
+  - **Context**: A team lead or department manager who organizes internal documentation and manages access controls.
+  - **Key Goals**: Set up secure folders/workspaces, add team members with appropriate roles, and ensure members only query documents they are authorized to see.
+  - **Pain Points**: Worried about users seeing restricted files or cross-department data leaks within the same organization.
+
+- **Name & Role**: The Compliance Officer
+  - **Context**: An IT security auditor responsible for monitoring access control policies and data governance.
+  - **Key Goals**: Track all system activities (logins, queries, file uploads, permissions changes) via an immutable, queryable audit trail.
+  - **Pain Points**: Lack of traceability in typical AI solutions makes auditing data access patterns difficult or impossible.
 
 - **Name & Role**: The Applied ML Engineer
-  - **Context**: An ML engineer embedded in a product team, tasked with building a document Q&A feature with reliability and quality requirements.
-  - **Key Goals**: Understand hybrid retrieval, reranking, and evaluation metrics in a concrete, working system; adapt components to their stack.
-  - **Pain Points**: Fragmented documentation across libraries; no single reference that integrates all pipeline stages with evaluation feedback.
+  - **Context**: An ML engineer embedded in a product team, building custom RAG features.
+  - **Key Goals**: Swap underlying models or vector databases easily, optimize retrieval metrics, and inspect query logs.
+  - **Pain Points**: Vendor lock-in and lack of tracing make it hard to debug or modify standard setups.
 
 ## 6. User Stories
 
 **The Portfolio Engineer**
-- As a Portfolio Engineer, I want to clone and run the full system locally so that I can study and demonstrate a working end-to-end RAG pipeline.
+- As a Portfolio Engineer, I want to clone and run the full system locally so that I can study and demonstrate a working end-to-end enterprise RAG pipeline.
 - As a Portfolio Engineer, I want to see documented architecture decisions so that I can explain and defend technical choices in an interview context.
-- As a Portfolio Engineer, I want to run the evaluation pipeline against a sample dataset so that I can report concrete quality metrics in my portfolio.
 
-**The Team Architect**
-- As a Team Architect, I want to swap the vector store or LLM provider via configuration so that I can assess how the system fits our existing infrastructure.
-- As a Team Architect, I want to review the multi-tenancy and security implementation so that I can evaluate its suitability for a production deployment.
-- As a Team Architect, I want to upload a document and query it end-to-end so that I can validate the system's behavior before recommending it to my team.
+**The Workspace Administrator**
+- As a Workspace Administrator, I want to create distinct workspaces (e.g., Marketing, HR) and add members with specific roles (Admin, Member, Viewer).
+- As a Workspace Administrator, I want to assign documents to specific workspaces so that only authorized team members can retrieve context from them.
+
+**The Compliance Officer**
+- As a Compliance Officer, I want to view a read-only audit log of all system activities so that I can trace queries back to the originating user and verify source citations.
+- As a Compliance Officer, I want to ensure that query results never leak document content from workspaces that the querying user is not a member of.
 
 **The Applied ML Engineer**
-- As an Applied ML Engineer, I want to understand how hybrid retrieval and reranking are implemented so that I can adapt the pattern to my team's stack.
-- As an Applied ML Engineer, I want to run the RAGAS evaluation against my own documents so that I can benchmark retrieval quality before integrating components.
-- As an Applied ML Engineer, I want to observe traces and metrics from the pipeline so that I can debug retrieval and generation failures.
+- As an Applied ML Engineer, I want to swap the vector store or LLM provider via configuration so that I can adapt the system to different infrastructure backends.
+- As an Applied ML Engineer, I want to run the RAGAS evaluation pipeline against a sample dataset to benchmark faithfulness and answer relevancy.
+
 
 ## 7. Functional Requirements
 
@@ -81,10 +88,14 @@ The primary audience is mid-to-senior software engineers, ML engineers, and tech
 - **FR-16: Metrics Export** — The system must expose structured metrics including request latency, token usage, and retrieval document count.
 - **FR-17: Structured Logging** — The system must emit structured, machine-parseable logs for all significant pipeline events.
 
-**Security**
+**Security, Auth & Governance**
 - **FR-18: Prompt Injection Defense** — The system must detect and reject queries containing known prompt injection patterns before processing.
-- **FR-19: Tenant Isolation** — The system must enforce per-tenant data boundaries so that users can only retrieve documents associated with their own tenant.
-- **FR-20: Semantic Cache** — The system must cache responses to semantically similar queries to reduce redundant LLM calls.
+- **FR-19: Tenant & Workspace Isolation** — The system must enforce data boundaries at both the tenant level and the workspace level, ensuring users can only query or manage documents they are authorized to access.
+- **FR-20: Semantic Cache** — The system must cache responses to semantically similar queries to reduce redundant LLM calls, with cache invalidation triggered on document updates or deletes.
+- **FR-22: JWT Authentication** — The system must support secure user logins returning JWT session tokens, with alternative bcrypt-hashed API keys for programmatic access.
+- **FR-23: Role-Based Access Control (RBAC)** — The system must define and enforce permissions for SUPER_ADMIN, ADMIN, MANAGER, and USER roles.
+- **FR-24: Document Access Groups** — The system must support mapping specific documents to distinct workspaces and user groups.
+- **FR-25: Immutable Audit Trail** — The system must record an append-only log of all queries, ingestion tasks, auth events, and access changes.
 
 **Configurability**
 - **FR-21: Provider Abstraction** — The system must allow the LLM provider, embedding model, and vector store to be changed via configuration without modifying business logic.
@@ -93,7 +104,7 @@ The primary audience is mid-to-senior software engineers, ML engineers, and tech
 
 - **NFR-1: Performance** — End-to-end query latency (retrieval through answer generation) must be demonstrably within a range suitable for interactive use under single-user load, with latency reported in benchmark documentation.
 - **NFR-2: Scalability** — Document ingestion must be handled asynchronously via a task queue, ensuring the API remains responsive under concurrent upload load.
-- **NFR-3: Security** — All retrieval operations must apply tenant-scoped filters; cross-tenant data access must be architecturally prevented, not merely policy-enforced.
+- **NFR-3: Security** — All retrieval operations must validate user access privileges and retrieve a document allowlist to pass as a pre-filter during vector search; cross-workspace and cross-tenant data access must be architecturally blocked at the vector store query layer.
 - **NFR-4: Reliability** — Background ingestion tasks must support automatic retry with configurable backoff on transient failures.
 - **NFR-5: Observability** — The full RAG pipeline must be traceable end-to-end, with per-stage latency and token usage measurable without code modification.
 - **NFR-6: Portability** — The full system must be runnable locally using container orchestration with no external cloud service dependencies required.
@@ -146,12 +157,14 @@ The primary audience is mid-to-senior software engineers, ML engineers, and tech
 - RAGAS evaluation pipeline with CI quality gate
 - LangSmith tracing and Prometheus metrics export
 - Structured logging
-- Prompt injection detection and tenant isolation middleware
-- Redis semantic cache
+- Prompt injection detection, JWT-based tenant and workspace isolation middleware
+- Role-Based Access Control (RBAC) and logical Workspaces
+- Persistent, append-only Audit Trails
+- Redis semantic cache (tenant/workspace invalidation-aware)
 - Full provider abstraction for LLM, embedder, and vector store
-- Local Docker Compose deployment
+- Local Docker Compose deployment with migrations and Qdrant setup executed at startup
 - README with architecture diagram and published benchmark results
-- Minimal demo interface (Streamlit or equivalent) for end-to-end verification
+- Production-grade React/Next.js frontend application with authentication, workspace management, document access configuration, chat sessions, and audit trail views
 
 ### Out of Scope
 
@@ -159,17 +172,16 @@ The primary audience is mid-to-senior software engineers, ML engineers, and tech
 - Image/OCR ingestion beyond basic vision-model extraction (Phase 2)
 - Web URL ingestion loader (Phase 2)
 - DOCX file loader (Phase 2)
-- Consumer-facing UI with UX investment beyond demo verification
-- Managed cloud deployment or SaaS packaging
+- Managed cloud deployment or SaaS packaging (e.g. multi-region databases)
 - Fine-tuning or training of any language or embedding model
 - Support for document types beyond PDF and image (e.g., audio, video, spreadsheets)
 - Load testing infrastructure (Phase 3)
-- Multi-region or high-availability deployment configuration
+- High-availability deployment configuration
 
 ## 13. High-Level Roadmap
 
-- **Phase 1 (MVP) — Weeks 1–6**: Core ingestion pipeline (PDF + image), recursive chunking, hybrid retrieval with reranking, source-cited streaming responses, RAGAS evaluation with CI gate, full observability stack, security layer, provider abstraction, Docker Compose local deployment, and documented README with benchmarks.
+- **Phase 1 (MVP) — Weeks 1–6**: Core ingestion pipeline (PDF + image), recursive chunking, hybrid retrieval with reranking, source-cited streaming responses, RAGAS evaluation with CI gate, full observability stack, security layer, provider abstraction, Docker Compose local deployment, and documented README with benchmarks. Includes user authentication (JWT), RBAC, logical workspaces, document access list filtering, and Next.js frontend application.
 
 - **Phase 2 — Weeks 7–8**: Semantic and structure-aware chunking strategies, expanded loader support (DOCX, web URLs), advanced OCR integration, and Kubernetes deployment configuration.
 
-- **Phase 3 — Future**: Load testing and performance benchmarking suite, multi-language evaluation dataset, enhanced demo interface, potential extraction of core components as standalone installable libraries.
+- **Phase 3 — Future**: Load testing and performance benchmarking suite, multi-language evaluation dataset, enterprise SSO (OIDC/SAML), potential extraction of core components as standalone installable libraries.

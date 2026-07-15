@@ -26,7 +26,7 @@ router = APIRouter(prefix="/v1/admin", tags=["admin"])
 
 @router.get("/stats", response_model=AdminStatsResponse)
 async def get_system_stats(
-    admin: Annotated[User, Depends(require_role("ADMIN"))],
+    admin: Annotated[User, Depends(require_role("ADMIN", "SUPER_ADMIN"))],
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> AdminStatsResponse:
     """
@@ -45,7 +45,7 @@ async def get_system_stats(
 
 @router.get("/audit-logs", response_model=AuditLogListResponse)
 async def list_audit_logs(
-    admin: Annotated[User, Depends(require_role("ADMIN"))],
+    admin: Annotated[User, Depends(require_role("ADMIN", "SUPER_ADMIN"))],
     session: Annotated[AsyncSession, Depends(get_session)],
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
@@ -85,7 +85,7 @@ async def list_audit_logs(
 
 @router.post("/eval/run", response_model=EvalRunResponse, status_code=status.HTTP_202_ACCEPTED)
 async def run_evaluation(
-    admin: Annotated[User, Depends(require_role("ADMIN"))],
+    admin: Annotated[User, Depends(require_role("ADMIN", "SUPER_ADMIN"))],
 ) -> EvalRunResponse:
     """
     Trigger an evaluation run against the committed dataset.
@@ -101,7 +101,7 @@ async def run_evaluation(
 
 @router.get("/eval/results", response_model=EvalResultsResponse)
 async def get_evaluation_results(
-    admin: Annotated[User, Depends(require_role("ADMIN"))],
+    admin: Annotated[User, Depends(require_role("ADMIN", "SUPER_ADMIN"))],
 ) -> EvalResultsResponse:
     """
     Retrieve the latest evaluation scores.

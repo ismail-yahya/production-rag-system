@@ -16,10 +16,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.auth import hash_password
+from src.api.auth import hash_password, verify_password
 from src.api.dependencies import get_current_user
 from src.api.permissions import ADMIN, SUPER_ADMIN, require_role
 from src.api.repositories import UserRepository
+from src.api.routers.schemas import UserPasswordUpdate
 from src.core.database import get_session
 from src.core.models import User
 
@@ -242,3 +243,90 @@ async def deactivate_user(
         )
 
     await session.commit()
+
+
+@router.get("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+async def get_user_by_id(
+    user_id: uuid.UUID,
+    _admin: Annotated[User, Depends(require_role(ADMIN, SUPER_ADMIN))],
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> UserResponse:
+    """
+    Retrieve profile details for a specific user in the current tenant.
+    Requires ADMIN or SUPER_ADMIN role.
+    """
+    user_repo = UserRepository(session)
+    user = await user_repo.get_by_id(user_id, current_user.tenant_id)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found in this tenant",
+        )
+    return _to_response(user)
+
+
+@router.patch("/{user_id}/password", status_code=status.HTTP_204_NO_CONTENT)
+async def update_user_password(
+    user_id: uuid.UUID,
+    body: UserPasswordUpdate,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> None:
+    """
+    Update a user's password.
+    - Regular users can update their own password (requires verify_password of old_password).
+    - ADMIN and SUPER_ADMIN users can reset other users' passwords within their tenant (no old_password required).
+    - ADMIN cannot reset a SUPER_ADMIN's password.
+    """
+    from src.api.services.audit_service import ACTION_PERMISSION_CHANGE, AuditService
+
+    user_repo = UserRepository(session)
+    target_user = await user_repo.get_by_id(user_id, current_user.tenant_id)
+    if target_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found in this tenant",
+        )
+
+    # Authorization checks
+    if user_id != current_user.id:
+        # Administrative reset path
+        if current_user.role not in (ADMIN, SUPER_ADMIN):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to reset this user's password",
+            )
+        if target_user.role == SUPER_ADMIN and current_user.role != SUPER_ADMIN:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only SUPER_ADMIN can reset a SUPER_ADMIN's password",
+            )
+    else:
+        # Self-service password change path
+        if not body.old_password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Current password is required to change your password",
+            )
+        if not current_user.password_hash or not verify_password(body.old_password, current_user.password_hash):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid current password",
+            )
+
+    new_hash = hash_password(body.new_password)
+    await user_repo.update(user_id, current_user.tenant_id, password_hash=new_hash)
+
+    await AuditService.log(
+        session=session,
+        tenant_id=current_user.tenant_id,
+        user_id=current_user.id,
+        action=ACTION_PERMISSION_CHANGE,
+        resource_type="user",
+        resource_id=str(user_id),
+        metadata={"password_update": True, "self_service": user_id == current_user.id},
+    )
+
+    await session.commit()
+

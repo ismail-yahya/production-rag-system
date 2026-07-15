@@ -1,5 +1,6 @@
 import uuid
 from collections.abc import Sequence
+from typing import Any
 
 import structlog
 from fastapi import HTTPException, status
@@ -119,7 +120,9 @@ class WorkspaceService:
 
         await self.workspace_repo.delete(workspace_id, current_user.tenant_id)
         await self.session.commit()
-        logger.info("workspace_deleted", workspace_id=str(workspace_id), user_id=str(current_user.id))
+        logger.info(
+            "workspace_deleted", workspace_id=str(workspace_id), user_id=str(current_user.id)
+        )
 
     async def add_member(
         self, workspace_id: uuid.UUID, user_id: uuid.UUID, member_role: str, current_user: User
@@ -168,7 +171,9 @@ class WorkspaceService:
         )
         return new_member
 
-    async def remove_member(self, workspace_id: uuid.UUID, user_id: uuid.UUID, current_user: User) -> None:
+    async def remove_member(
+        self, workspace_id: uuid.UUID, user_id: uuid.UUID, current_user: User
+    ) -> None:
         """
         Remove a user from a workspace.
         Only workspace admins or tenant admins can remove.
@@ -202,7 +207,63 @@ class WorkspaceService:
 
         await self.workspace_repo.remove_member(workspace_id, user_id)
         await self.session.commit()
-        logger.info("workspace_member_removed", workspace_id=str(workspace_id), user_id=str(user_id))
+        logger.info(
+            "workspace_member_removed", workspace_id=str(workspace_id), user_id=str(user_id)
+        )
+
+    async def update_member_role(
+        self, workspace_id: uuid.UUID, user_id: uuid.UUID, member_role: str, current_user: User
+    ) -> WorkspaceMember:
+        """
+        Update a workspace member's role.
+        Only workspace admins or tenant admins can update roles.
+        """
+        await self.get_workspace(workspace_id, current_user)
+
+        if current_user.role not in ("ADMIN", "SUPER_ADMIN"):
+            member = await self.workspace_repo.get_member(workspace_id, current_user.id)
+            if not member or member.member_role != "ADMIN":
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Only workspace administrators can update member roles.",
+                )
+
+        # Check if member exists
+        existing_member = await self.workspace_repo.get_member(workspace_id, user_id)
+        if not existing_member:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Member not found in workspace.",
+            )
+
+        # Prevent demoting the last admin
+        if existing_member.member_role == "ADMIN" and member_role != "ADMIN":
+            members = await self.workspace_repo.get_members(workspace_id)
+            admins = [m for m in members if m.member_role == "ADMIN"]
+            if len(admins) == 1:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Cannot demote the last workspace administrator.",
+                )
+
+        updated_member = await self.workspace_repo.update_member_role(
+            workspace_id=workspace_id, user_id=user_id, member_role=member_role
+        )
+        if not updated_member:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to update member role.",
+            )
+
+        await self.session.commit()
+        logger.info(
+            "workspace_member_role_updated",
+            workspace_id=str(workspace_id),
+            user_id=str(user_id),
+            role=member_role,
+        )
+        return updated_member
+
 
     async def get_accessible_document_ids(self, user: User) -> set[uuid.UUID]:
         """
@@ -240,3 +301,77 @@ class WorkspaceService:
         """
         return await self.workspace_repo.get_or_create_personal_workspace(user)
 
+    async def list_members(
+        self, workspace_id: uuid.UUID, current_user: User
+    ) -> list[dict[str, Any]]:
+        """List all members of a workspace with user profile details."""
+        await self.get_workspace(workspace_id, current_user)
+
+        from sqlalchemy import select
+
+        from src.core.models import User, WorkspaceMember
+
+        stmt = (
+            select(
+                WorkspaceMember.user_id,
+                WorkspaceMember.member_role,
+                WorkspaceMember.joined_at,
+                User.email,
+                User.name,
+            )
+            .join(User, WorkspaceMember.user_id == User.id)
+            .where(WorkspaceMember.workspace_id == workspace_id)
+        )
+        result = await self.session.execute(stmt)
+        members = []
+        for row in result.all():
+            members.append(
+                {
+                    "user_id": row.user_id,
+                    "email": row.email,
+                    "name": row.name,
+                    "member_role": row.member_role,
+                    "joined_at": row.joined_at,
+                }
+            )
+        return members
+
+    async def list_documents(
+        self, workspace_id: uuid.UUID, current_user: User
+    ) -> list[dict[str, Any]]:
+        """List all documents associated with a workspace."""
+        await self.get_workspace(workspace_id, current_user)
+
+        from sqlalchemy import select
+
+        from src.core.models import Document, DocumentAccess
+
+        stmt = (
+            select(
+                Document.id,
+                Document.file_name,
+                Document.file_type,
+                Document.file_size_bytes,
+                Document.status,
+                Document.chunk_count,
+                Document.created_at,
+            )
+            .join(Document, DocumentAccess.document_id == Document.id)
+            .where(DocumentAccess.workspace_id == workspace_id)
+            .order_by(Document.created_at.desc())
+        )
+        result = await self.session.execute(stmt)
+        documents = []
+        for row in result.all():
+            documents.append(
+                {
+                    "id": row.id,
+                    "file_name": row.file_name,
+                    "file_type": row.file_type,
+                    "file_size_bytes": row.file_size_bytes,
+                    "status": row.status,
+                    "chunk_count": row.chunk_count,
+                    "created_at": row.created_at,
+                }
+            )
+        return documents

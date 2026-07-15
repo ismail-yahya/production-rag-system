@@ -12,15 +12,25 @@ from src.llm.base import BaseLLM, LLMMessage, LLMResponse
 class OpenAILLM(BaseLLM):
     """OpenAI implementation of the BaseLLM interface."""
 
-    def __init__(self, api_key: SecretStr | None) -> None:
+    def __init__(
+        self,
+        api_key: SecretStr | None,
+        default_model: str = "gpt-4o",
+        default_temperature: float = 0.2,
+    ) -> None:
         """
         Initialize the OpenAI LLM provider.
 
         Args:
             api_key: The OpenAI API key as a SecretStr.
+            default_model: Default model to use if not overridden.
+            default_temperature: Default temperature to use if not overridden.
         """
         if api_key is None:
             raise LLMError("OpenAI API key is required but was not provided.")
+
+        self.default_model = default_model
+        self.default_temperature = default_temperature
 
         try:
             self._client = AsyncOpenAI(api_key=api_key.get_secret_value())
@@ -32,11 +42,13 @@ class OpenAILLM(BaseLLM):
         try:
             formatted_messages = [{"role": msg.role, "content": msg.content} for msg in messages]
 
-            # Default model if not specified
-            model = kwargs.pop("model", "gpt-4o")
+            # Default model and temperature if not specified
+            model = kwargs.pop("model", self.default_model)
+            temperature = kwargs.pop("temperature", self.default_temperature)
 
             response = await self._client.chat.completions.create(
                 model=model,
+                temperature=temperature,
                 messages=formatted_messages,  # type: ignore[arg-type]
                 **kwargs,
             )
@@ -61,10 +73,12 @@ class OpenAILLM(BaseLLM):
         try:
             formatted_messages = [{"role": msg.role, "content": msg.content} for msg in messages]
 
-            model = kwargs.pop("model", "gpt-4o")
+            model = kwargs.pop("model", self.default_model)
+            temperature = kwargs.pop("temperature", self.default_temperature)
 
             stream_response = await self._client.chat.completions.create(
                 model=model,
+                temperature=temperature,
                 messages=formatted_messages,  # type: ignore[arg-type]
                 stream=True,
                 **kwargs,

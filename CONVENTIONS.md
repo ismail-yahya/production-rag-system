@@ -102,8 +102,7 @@ rag-system/
 │   ├── docker-compose.prod.yml
 │   └── migrations/
 │       └── versions/
-├── demo/
-│   └── app.py
+├── frontend/
 ├── .env.example
 ├── .github/
 │   └── workflows/
@@ -129,7 +128,7 @@ rag-system/
 - `src/workers/` — Celery application definition and task implementations. Imports `ingestion.pipeline`; no other `src/` module imports from `workers/`.
 - `tests/` — Mirrors `src/` structure. Unit tests are co-located by module; integration tests cover API routes and worker tasks; e2e tests cover full upload-to-query flows.
 - `infrastructure/` — Docker Compose files and Alembic migration scripts. No Python application code.
-- `demo/` — Single-file Streamlit application for end-to-end pipeline demonstration only.
+- `frontend/` — Next.js client web application built with React, TypeScript, and Tailwind CSS.
 - `scripts/` — Standalone CLI scripts for data seeding and evaluation runs. Not imported by application code.
 
 ---
@@ -167,13 +166,12 @@ rag-system/
 
 ## 3. Coding Standards
 
-### 3.1 Streamlit (Demo Interface)
+### 3.1 Next.js Frontend (React Application)
 
-- The demo lives entirely in `demo/app.py` as a single file. Do not split it across multiple files.
-- Use `st.session_state` for all state that persists across reruns. Never use module-level mutable variables as state.
-- All API calls from the demo must use `httpx` with explicit timeout values. Never use `requests`.
-- SSE streaming from `/v1/query/stream` must be consumed and rendered progressively using `st.write_stream` or an equivalent generator pattern. Do not buffer the full response before rendering.
-- The demo must not import from `src/` directly. It communicates with the system exclusively via the HTTP API.
+- The frontend application lives under `frontend/` and follows a standard Next.js directory layout.
+- Use TypeScript for type safety across all React components, hooks, and service clients.
+- All backend API interactions must go through asynchronous clients and handle loading/error UI states explicitly.
+- Consuming the query stream must use EventSource or readable streams to render SSE tokens progressively without full response buffering.
 
 ### 3.2 FastAPI (Backend)
 
@@ -309,10 +307,9 @@ class SecurityError(RAGSystemError): ...
 
 ### State Ownership Rules
 
-**Demo (Streamlit):**
-- UI state (selected mode, active document filter, upload status) lives in `st.session_state`.
-- Server state (list of indexed documents, query results) is fetched from the API and stored in `st.session_state` with an explicit TTL or invalidation trigger. It is never computed client-side.
-- There is no global mutable state outside `st.session_state`.
+**Frontend (Next.js):**
+- UI state (active workspace, chat threads, selected models) lives in React context or component state.
+- Data fetching utilizes asynchronous clients; errors are caught and surfaced via user-friendly UI overlays/toasts.
 
 **Backend (FastAPI / Workers):**
 - Request-scoped state (authenticated tenant, parsed request body) is passed explicitly as function parameters. Never stored as instance variables on shared service objects.
@@ -411,7 +408,7 @@ Follows [Conventional Commits](https://www.conventionalcommits.org/):
 
 **Types:** `feat` | `fix` | `docs` | `refactor` | `test` | `chore` | `eval`
 
-**Scopes** map to `src/` module names: `api`, `ingestion`, `retrieval`, `rag`, `llm`, `embeddings`, `vectorstore`, `workers`, `evaluation`, `observability`, `core`, `infra`, `demo`
+**Scopes** map to project modules and layers: `api`, `ingestion`, `retrieval`, `rag`, `llm`, `embeddings`, `vectorstore`, `workers`, `evaluation`, `observability`, `core`, `infra`, `frontend`
 
 **Rules:**
 - Short description is imperative, lowercase, no period: `add cohere reranker` not `Added Cohere Reranker.`

@@ -5,7 +5,7 @@
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
 [![Milestone 6](https://img.shields.io/badge/Milestone-6%20Completed-green.svg)](TASKS.md)
 
-This is a production-grade Retrieval-Augmented Generation (RAG) system built with a focus on scalability, security, and developer productivity. It implements a multi-tenant architecture with hybrid retrieval, automated ingestion, and robust evaluation.
+This is a production-grade, enterprise-ready Retrieval-Augmented Generation (RAG) system built with a focus on scalability, multi-user workspace isolation, secure JWT/Bcrypt authentication, and robust quality governance. It implements a layered, vendor-neutral provider abstraction architecture with hybrid retrieval, automated async ingestion, and a unified Next.js web application.
 
 ---
 
@@ -15,18 +15,20 @@ The system follows a service-oriented architecture with four clearly bounded lay
 
 ```mermaid
 graph TD
-    Client["Client\n(API Consumer / Demo UI)"]
+    Client["Client\n(Next.js App)"]
 
     subgraph API["API Gateway Layer (FastAPI)"]
-        Auth["Auth & Rate Limit\nMiddleware"]
-        RI["/ingest endpoint"]
-        RQ["/query endpoint"]
-        RA["/admin endpoint"]
+        Auth["JWT / Bcrypt Auth\n& Rate Limit Middleware"]
+        RI["/v1/ingest endpoints"]
+        RQ["/v1/query endpoints"]
+        RA["/v1/admin endpoints"]
+        RWS["/v1/workspaces endpoints"]
     end
 
     subgraph Processing["Processing Layer"]
         IW["Ingestion Worker\n(Celery)"]
         RP["RAG Pipeline\nService"]
+        WS["Workspace / Access Service"]
     end
 
     subgraph Infra["Infrastructure Layer"]
@@ -34,8 +36,8 @@ graph TD
         MQ["Message Queue\n(Redis / Celery)"]
         VDB["Vector Store\n(Qdrant)"]
         PG["Relational DB\n(PostgreSQL)"]
-        RC["Cache\n(Redis)"]
-        LLM["LLM Provider\n(OpenAI / Anthropic)"]
+        RC["Cache & Semantic Cache\n(Redis)"]
+        LLM["LLM Provider\n(OpenAI / Anthropic / Gemini / Ollama)"]
         EMB["Embedding Provider\n(OpenAI / local)"]
         RR["Reranker\n(Cohere)"]
     end
@@ -43,13 +45,14 @@ graph TD
     subgraph Obs["Observability Layer"]
         LS["LangSmith\n(Tracing)"]
         PM["Prometheus\n(Metrics)"]
-        LOG["Structured Logs\n(stdout / aggregator)"]
+        LOG["Structured Logs\n(structlog / stdout)"]
     end
 
     Client --> Auth
     Auth --> RI
     Auth --> RQ
     Auth --> RA
+    Auth --> RWS
 
     RI --> OS
     RI --> MQ
@@ -59,6 +62,8 @@ graph TD
     IW --> VDB
     IW --> PG
 
+    RQ --> WS
+    WS --> PG
     RQ --> RP
     RP --> RC
     RP --> EMB
@@ -75,11 +80,12 @@ graph TD
 
 ### Modular Layers:
 
-- **Ingestion Layer**: Asynchronous document parsing (PDF, Images), cleaning, and chunking. Uses Celery for background processing and MinIO for object storage.
-- **Retrieval Layer**: Implements Hybrid Search (Vector + BM25) with Reciprocal Rank Fusion (RRF) and Cohere Reranking for maximum precision.
-- **RAG Pipeline**: Orchestrates query expansion, context construction with token management, and secure LLM response generation with prompt injection protection.
-- **API Layer**: FastAPI-based RESTful API with tenant isolation, rate limiting, and global exception handling.
-- **Observability**: End-to-end tracing with LangSmith, real-time metrics with Prometheus, and structured JSON logging with `structlog`.
+- **Frontend Interface**: Next.js client built with React, TypeScript, and Tailwind CSS. Supports user authentication, department workspace management, file uploads, persistent chat threads with sources, and compliance audit logs.
+- **API Gateway Layer**: FastAPI-based RESTful API supporting JWT sessions, programmatic Bcrypt-hashed API keys, per-tenant rate limiters, and global exception mappings.
+- **Workspaces & Access Control**: Filters retrieved documents dynamically by matching active user privileges and allowed document IDs before querying the vector store.
+- **Ingestion Layer**: Asynchronous document parsing (PDF, Images), cleaning, and chunking enqueued via Celery background workers.
+- **Retrieval Layer**: Combines dense vector search and BM25 keywords using Reciprocal Rank Fusion (RRF) and Cohere Reranking.
+- **Observability**: End-to-end tracing with LangSmith, Prometheus metrics, and structured JSON logs (`structlog`).
 
 ---
 
@@ -87,7 +93,8 @@ graph TD
 
 | Component | Technology |
 |---|---|
-| **Framework** | FastAPI (Python 3.12) |
+| **Frontend UI** | Next.js, React, Tailwind CSS, TypeScript |
+| **Backend Framework** | FastAPI (Python 3.12) |
 | **Vector Database** | Qdrant |
 | **Relational DB** | PostgreSQL & SQLAlchemy |
 | **Cache & Task Broker** | Redis |
@@ -102,7 +109,7 @@ graph TD
 
 ### 1️⃣ Environment Setup
 ```bash
-# Install dependencies
+# Install backend dependencies
 uv sync
 # Copy env template
 cp .env.example .env
@@ -116,7 +123,7 @@ docker compose up -d
 uv run alembic upgrade head
 ```
 
-### 3️⃣ Running the System
+### 3️⃣ Running the Backend
 ```bash
 # Start API
 uv run uvicorn src.api.main:app --reload
@@ -124,10 +131,13 @@ uv run uvicorn src.api.main:app --reload
 uv run celery -A src.workers.celery_app worker --loglevel=info
 ```
 
-### 4️⃣ Launching the Demo
+### 4️⃣ Launching the Next.js Frontend
 ```bash
-# Start Streamlit interface
-uv run streamlit run demo/app.py
+cd frontend
+# Install packages
+npm install
+# Start local dev server
+npm run dev
 ```
 
 ---
@@ -163,7 +173,7 @@ This configuration includes resource limits, internal network isolation, and opt
 
 - **Retrieval Latency**: < 200ms (P95) for collections up to 100k chunks.
 - **Generation Quality**: Evaluated via RAGAS (Faithfulness, Answer Relevancy, Context Recall).
-- **Security**: Regex-based prompt injection detection and tenant-scoped retrieval filters.
+- **Security**: Regex-based prompt injection defense, JWT session verification, and user workspace dynamic document pre-filtering.
 
 ---
 
@@ -177,7 +187,7 @@ This configuration includes resource limits, internal network isolation, and opt
 | 4. Retrieval & RAG | ✅ | Hybrid search, Reranking, SSE Streaming |
 | 4a. Observability | ✅ | LangSmith, Prometheus, Semantic Cache |
 | 5. Evaluation | ✅ | RAGAS quality gate in CI |
-| 6. Final Polish | ✅ | 100% coverage, Demo app, Prod Docker |
+| 6. Final Polish | ✅ | 100% coverage, Next.js web application, Prod Docker |
 
 ---
 Developed and maintained by Ismail Yahya

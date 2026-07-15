@@ -17,6 +17,7 @@ class GeminiLLM(BaseLLM):
         # The programmer chose this model; do not change it unless explicitly requested.
         model_name: str = "gemini-3-flash-preview",
         streaming_model_name: str = "gemini-3-flash-preview",
+        default_temperature: float = 0.2,
     ) -> None:
         """
         Initialize the Gemini LLM provider.
@@ -25,6 +26,7 @@ class GeminiLLM(BaseLLM):
             api_key: The Google API key as a SecretStr.
             model_name: Default model for standard generation.
             streaming_model_name: Default model for streaming generation.
+            default_temperature: Default temperature.
         """
         if api_key is None:
             raise LLMError("Google API key is required but was not provided.")
@@ -33,6 +35,7 @@ class GeminiLLM(BaseLLM):
             genai.configure(api_key=api_key.get_secret_value())  # type: ignore[attr-defined]
             self._model_name = model_name
             self._streaming_model_name = streaming_model_name
+            self._default_temperature = default_temperature
         except Exception as e:
             raise LLMError(f"Failed to initialize Gemini client: {e}") from e
 
@@ -48,8 +51,7 @@ class GeminiLLM(BaseLLM):
     def _get_generation_config(self, kwargs: dict[str, Any]) -> dict[str, Any]:
         """Extract and format generation configuration."""
         config = {}
-        if "temperature" in kwargs:
-            config["temperature"] = kwargs.pop("temperature")
+        config["temperature"] = kwargs.pop("temperature", self._default_temperature)
         if "top_p" in kwargs:
             config["top_p"] = kwargs.pop("top_p")
         if "top_k" in kwargs:

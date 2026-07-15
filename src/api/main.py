@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.dependencies import get_session
 from src.api.middleware import RateLimitMiddleware, TenantContextMiddleware
-from src.api.routers import admin, auth, ingestion, query, users, workspaces
+from src.api.routers import admin, auth, ingestion, query, users, workspaces, chat, settings as settings_router
 from src.core.config import settings
 from src.core.exceptions import (
     IngestionError,
@@ -69,6 +69,8 @@ app.include_router(users.router)     # /v1/users/* — user management
 app.include_router(workspaces.router) # /v1/workspaces/* — workspace management
 app.include_router(ingestion.router) # /v1/ingest, /v1/documents
 app.include_router(query.router)     # /v1/query, /v1/query/stream
+app.include_router(chat.router)      # /v1/chat/*
+app.include_router(settings_router.router)  # /v1/settings/*
 app.include_router(admin.router)     # /v1/admin/*
 
 # Register Prometheus metrics endpoint
