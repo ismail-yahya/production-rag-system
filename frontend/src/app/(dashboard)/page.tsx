@@ -187,12 +187,12 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* 1. Welcome Banner */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-[#0B1224] to-[#060A12] border border-card-border/80 relative overflow-hidden shadow-xl">
-        <div className="absolute w-96 h-96 rounded-full bg-accent-cyan/5 blur-[80px] -right-20 -top-20 pointer-events-none" />
+      <div className="p-6 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none relative overflow-hidden">
+        <div className="absolute w-96 h-96 rounded-full bg-primary/5 blur-[80px] -right-20 -top-20 pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <h1 className="text-xl md:text-2xl font-bold text-slate-100 tracking-tight">
+              <h1 className="text-xl md:text-2xl font-bold text-[#3E4E63] tracking-tight">
                 Welcome back, {user?.name || "User"}
               </h1>
               {user?.role && (
@@ -204,13 +204,13 @@ export default function DashboardPage() {
                 </span>
               )}
             </div>
-            <p className="text-slate-400 text-sm">
-              Logical organization scope partition loaded: <span className="font-mono text-accent-cyan text-xs">{user?.tenant_id}</span>
+            <p className="text-[#5A6E85] text-sm">
+              Logical organization scope partition loaded: <span className="font-mono text-primary text-xs">{user?.tenant_id}</span>
             </p>
           </div>
           
           {currentDate && (
-            <div className="text-xs text-slate-500 font-mono self-start md:self-center" suppressHydrationWarning>
+            <div className="text-xs text-[#7A8C9E] font-mono self-start md:self-center" suppressHydrationWarning>
               {currentDate}
             </div>
           )}
@@ -221,56 +221,56 @@ export default function DashboardPage() {
       {isAdmin && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Total Documents */}
-          <div className="p-4 rounded-xl bg-slate-900/40 border border-card-border shadow-md flex items-center gap-4 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-accent-cyan/0 group-hover:bg-accent-cyan/[0.02] transition-colors" />
-            <div className="p-2.5 rounded-lg bg-accent-cyan/10 border border-accent-cyan/20 text-accent-cyan">
+          <div className="p-4 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none flex items-center gap-4 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/[0.01] transition-colors" />
+            <div className="p-2.5 rounded-xl bg-[#E6EEF8] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] border-none text-primary">
               <Database className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Documents</span>
-              <span className="text-xl font-bold text-slate-200">
+              <span className="text-[10px] font-bold text-[#7A8C9E] uppercase tracking-wider block">Total Documents</span>
+              <span className="text-xl font-bold text-[#3E4E63]">
                 {statsQuery.isPending ? "..." : statsQuery.data?.total_documents}
               </span>
             </div>
           </div>
 
           {/* Card 2: Total Chunks */}
-          <div className="p-4 rounded-xl bg-slate-900/40 border border-card-border shadow-md flex items-center gap-4 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-accent-indigo/0 group-hover:bg-accent-indigo/[0.02] transition-colors" />
-            <div className="p-2.5 rounded-lg bg-accent-indigo/10 border border-accent-indigo/20 text-accent-indigo">
+          <div className="p-4 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none flex items-center gap-4 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/[0.01] transition-colors" />
+            <div className="p-2.5 rounded-xl bg-[#E6EEF8] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] border-none text-primary">
               <Cpu className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Vector Chunks</span>
-              <span className="text-xl font-bold text-slate-200">
+              <span className="text-[10px] font-bold text-[#7A8C9E] uppercase tracking-wider block">Vector Chunks</span>
+              <span className="text-xl font-bold text-[#3E4E63]">
                 {statsQuery.isPending ? "..." : statsQuery.data?.total_chunks}
               </span>
             </div>
           </div>
 
           {/* Card 3: Total Queries */}
-          <div className="p-4 rounded-xl bg-slate-900/40 border border-card-border shadow-md flex items-center gap-4 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-accent-violet/0 group-hover:bg-accent-violet/[0.02] transition-colors" />
-            <div className="p-2.5 rounded-lg bg-accent-violet/10 border border-accent-violet/20 text-accent-violet">
+          <div className="p-4 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none flex items-center gap-4 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/[0.01] transition-colors" />
+            <div className="p-2.5 rounded-xl bg-[#E6EEF8] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] border-none text-primary">
               <MessageSquare className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Queries Run</span>
-              <span className="text-xl font-bold text-slate-200">
+              <span className="text-[10px] font-bold text-[#7A8C9E] uppercase tracking-wider block">Queries Run</span>
+              <span className="text-xl font-bold text-[#3E4E63]">
                 {statsQuery.isPending ? "..." : statsQuery.data?.total_queries}
               </span>
             </div>
           </div>
 
           {/* Card 4: Average Latency */}
-          <div className="p-4 rounded-xl bg-slate-900/40 border border-card-border shadow-md flex items-center gap-4 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/[0.02] transition-colors" />
-            <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+          <div className="p-4 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none flex items-center gap-4 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/[0.01] transition-colors" />
+            <div className="p-2.5 rounded-xl bg-[#E6EEF8] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] border-none text-primary">
               <Clock className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Avg Latency</span>
-              <span className="text-xl font-bold text-slate-200">
+              <span className="text-[10px] font-bold text-[#7A8C9E] uppercase tracking-wider block">Avg Latency</span>
+              <span className="text-xl font-bold text-[#3E4E63]">
                 {statsQuery.isPending ? "..." : formatLatency(statsQuery.data?.average_latency_ms || 0)}
               </span>
             </div>
@@ -279,38 +279,38 @@ export default function DashboardPage() {
       )}
 
       {/* 3. Quick Query Bar */}
-      <div className="p-6 rounded-2xl bg-[#090F1E]/50 border border-card-border/80 relative shadow-lg">
+      <div className="p-6 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none relative">
         <div className="max-w-2xl mx-auto space-y-4">
           <div className="text-center space-y-1">
-            <h2 className="text-sm font-semibold tracking-wide text-slate-300 font-mono uppercase">
+            <h2 className="text-sm font-semibold tracking-wide text-[#3E4E63] font-mono uppercase">
               AI Command Console
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#5A6E85]">
               Submit a natural language grounded request to search files immediately.
             </p>
           </div>
 
           <form onSubmit={handleSearchSubmit} className="flex gap-2 relative">
             <div className="relative flex-1">
-              <Terminal className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Terminal className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
               <Input
                 type="text"
                 placeholder="Ask Aether RAG to search your workspaces..."
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                className="pl-11 pr-24 py-3 rounded-xl bg-slate-950 border-card-border text-slate-200 placeholder-slate-600 focus:border-accent-cyan/50 focus:ring-0 text-sm font-sans"
+                className="pl-11 pr-24 py-3 rounded-full bg-[#E6EEF8] text-[#3E4E63] placeholder-slate-400 shadow-[inset_3px_3px_6px_#c2d0e6,inset_-3px_-3px_6px_#ffffff] focus:outline-none focus:ring-1 focus:ring-primary/40 border-none text-sm font-sans"
               />
               
               {/* Mode switch button inside input */}
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-slate-900 border border-card-border/80 px-2 py-1 rounded-md">
-                <Settings2 className="w-3 h-3 text-slate-400" />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 bg-[#E6EEF8] shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] px-2.5 py-1.5 rounded-full">
+                <Settings2 className="w-3 h-3 text-[#7A8C9E]" />
                 <select
                   value={queryMode}
                   onChange={(e) => setQueryMode(e.target.value as "standard" | "strict")}
-                  className="bg-transparent border-none text-[10px] text-slate-400 font-bold focus:outline-none tracking-wider uppercase cursor-pointer"
+                  className="bg-[#E6EEF8] border-none text-[10px] text-[#5A6E85] font-bold focus:outline-none tracking-wider uppercase cursor-pointer"
                 >
-                  <option value="standard" className="bg-slate-950 text-slate-400">RAG</option>
-                  <option value="strict" className="bg-slate-950 text-slate-400">Strict</option>
+                  <option value="standard" className="bg-[#E6EEF8] text-[#3E4E63]">RAG</option>
+                  <option value="strict" className="bg-[#E6EEF8] text-[#3E4E63]">Strict</option>
                 </select>
               </div>
             </div>
@@ -318,7 +318,7 @@ export default function DashboardPage() {
             <Button
               type="submit"
               disabled={!searchValue.trim()}
-              className="px-5 rounded-xl bg-gradient-to-r from-accent-indigo to-accent-violet hover:brightness-110 shadow-md text-sm font-semibold text-white border-none shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] text-sm font-bold text-white hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.15),inset_-2px_-2px_4px_rgba(255,255,255,0.15)] border-none shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Search
             </Button>
@@ -331,18 +331,18 @@ export default function DashboardPage() {
         
         {/* Left Column: Workspaces widget (takes 2/3 cols on lg desktop) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="p-5 rounded-2xl bg-slate-900/30 border border-card-border shadow-lg space-y-4">
+          <div className="p-5 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none space-y-4">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <FolderGit2 className="w-4 h-4 text-accent-indigo" />
-                <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider">
+                <FolderGit2 className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-bold text-[#3E4E63] uppercase tracking-wider">
                   Active Workspaces
                 </h3>
               </div>
               {hasMinRole(user?.role || "USER", "MANAGER") && (
                 <Link
                   href="/workspaces"
-                  className={cn(buttonVariants({ variant: "outline" }), "h-8 px-2.5 text-xs border-card-border hover:bg-slate-800 text-slate-400 hover:text-slate-200 cursor-pointer")}
+                  className={cn(buttonVariants({ variant: "outline" }), "h-8 px-2.5 text-xs border-none shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] text-[#5A6E85] hover:text-primary cursor-pointer")}
                 >
                   <Plus className="w-3.5 h-3.5 mr-1" />
                   <span>Create</span>
@@ -352,16 +352,16 @@ export default function DashboardPage() {
 
             {workspacesQuery.isPending ? (
               <div className="flex justify-center py-12">
-                <Loader2 className="w-6 h-6 animate-spin text-accent-cyan" />
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
               </div>
             ) : recentWorkspaces.length === 0 ? (
-              <div className="text-center py-12 border border-dashed border-card-border/50 rounded-xl space-y-2">
-                <FolderGit2 className="w-8 h-8 text-slate-600 mx-auto" />
-                <p className="text-xs text-slate-500">No workspaces allocated to your account.</p>
+              <div className="text-center py-12 bg-[#E6EEF8] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] rounded-2xl space-y-2">
+                <FolderGit2 className="w-8 h-8 text-[#7A8C9E] mx-auto" />
+                <p className="text-xs text-[#7A8C9E]">No workspaces allocated to your account.</p>
                 {hasMinRole(user?.role || "USER", "MANAGER") && (
                   <Link
                     href="/workspaces"
-                    className={cn(buttonVariants({ variant: "link" }), "text-accent-cyan text-xs")}
+                    className={cn(buttonVariants({ variant: "link" }), "text-primary text-xs font-semibold")}
                   >
                     Create your first workspace
                   </Link>
@@ -373,10 +373,10 @@ export default function DashboardPage() {
                   <Link
                     key={ws.id}
                     href={`/workspaces/${ws.id}`}
-                    className="p-4 rounded-xl bg-slate-950/40 border border-card-border/80 hover:border-accent-cyan/30 transition-all hover:bg-slate-950/70 group"
+                    className="p-4 rounded-2xl bg-[#E6EEF8] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] hover:shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] transition-all group"
                   >
                     <div className="flex justify-between items-start">
-                      <h4 className="text-sm font-semibold text-slate-200 group-hover:text-accent-cyan transition-colors">
+                      <h4 className="text-sm font-semibold text-[#3E4E63] group-hover:text-primary transition-colors">
                         {ws.name}
                       </h4>
                       <span className={cn(
@@ -386,12 +386,12 @@ export default function DashboardPage() {
                         {WORKSPACE_TYPE_CONFIG[ws.workspace_type as keyof typeof WORKSPACE_TYPE_CONFIG]?.label}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 line-clamp-2 mt-2 leading-relaxed h-8">
+                    <p className="text-xs text-[#5A6E85] line-clamp-2 mt-2 leading-relaxed h-8">
                       {ws.description || "No description provided."}
                     </p>
-                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-card-border/40 text-[10px] text-slate-500 font-mono">
+                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-200/50 text-[10px] text-[#7A8C9E] font-mono">
                       <span>Created {formatDate(ws.created_at)}</span>
-                      <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:text-accent-cyan transition-all" />
+                      <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:text-primary transition-all" />
                     </div>
                   </Link>
                 ))}
@@ -403,17 +403,17 @@ export default function DashboardPage() {
         {/* Right Column: Ingest & Activity widgets */}
         <div className="space-y-6">
           {/* Recent Chats Widget */}
-          <div className="p-5 rounded-2xl bg-slate-900/30 border border-card-border shadow-lg space-y-4">
+          <div className="p-5 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none space-y-4">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-accent-violet" />
-                <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider">
+                <MessageSquare className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-bold text-[#3E4E63] uppercase tracking-wider">
                   Recent Threads
                 </h3>
               </div>
               <Link
                 href="/chat"
-                className={cn(buttonVariants({ variant: "link" }), "h-auto p-0 text-xs text-accent-cyan hover:underline cursor-pointer")}
+                className={cn(buttonVariants({ variant: "link" }), "h-auto p-0 text-xs text-primary hover:underline cursor-pointer font-bold")}
               >
                 View All
               </Link>
@@ -421,14 +421,14 @@ export default function DashboardPage() {
 
             {threadsQuery.isPending ? (
               <div className="flex justify-center py-6">
-                <Loader2 className="w-5 h-5 animate-spin text-accent-cyan" />
+                <Loader2 className="w-5 h-5 animate-spin text-primary" />
               </div>
             ) : recentThreads.length === 0 ? (
-              <div className="text-center py-6 border border-dashed border-card-border/50 rounded-xl space-y-1.5">
-                <p className="text-xs text-slate-500">No active threads found.</p>
+              <div className="text-center py-6 bg-[#E6EEF8] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] rounded-2xl space-y-1.5">
+                <p className="text-xs text-[#7A8C9E]">No active threads found.</p>
                 <Link
                   href="/chat"
-                  className={cn(buttonVariants({ variant: "outline", size: "xs" }), "text-xs border-card-border hover:bg-slate-800 text-slate-400")}
+                  className={cn(buttonVariants({ variant: "outline", size: "xs" }), "text-xs border-none hover:bg-[#E6EEF8] hover:shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] text-slate-500")}
                 >
                   Open Chat
                 </Link>
@@ -439,12 +439,12 @@ export default function DashboardPage() {
                   <Link
                     key={thread.id}
                     href={`/chat?threadId=${thread.id}`}
-                    className="flex justify-between items-center p-2.5 rounded-lg bg-slate-950/20 border border-card-border/40 hover:bg-slate-900/30 hover:border-card-border/80 transition-all text-xs"
+                    className="flex justify-between items-center p-2.5 rounded-xl bg-[#E6EEF8] shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] hover:shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] transition-all text-xs"
                   >
-                    <span className="text-slate-300 font-medium truncate max-w-[150px]">
+                    <span className="text-[#3E4E63] font-medium truncate max-w-[150px]">
                       {thread.title}
                     </span>
-                    <span className="text-[10px] text-slate-500 font-mono shrink-0">
+                    <span className="text-[10px] text-[#7A8C9E] font-mono shrink-0">
                       {formatDate(thread.updated_at)}
                     </span>
                   </Link>
@@ -454,31 +454,31 @@ export default function DashboardPage() {
           </div>
 
           {/* Ingest summary & upload widget */}
-          <div className="p-5 rounded-2xl bg-slate-900/30 border border-card-border shadow-lg space-y-4">
+          <div className="p-5 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none space-y-4">
             <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-accent-cyan" />
-              <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider">
+              <FileText className="w-4 h-4 text-primary" />
+              <h3 className="text-sm font-bold text-[#3E4E63] uppercase tracking-wider">
                 My Documents
               </h3>
             </div>
 
             {/* Ingestion stats indicators */}
             <div className="grid grid-cols-4 gap-1.5 text-center text-[10px] font-mono font-bold">
-              <div className="p-2 rounded bg-amber-950/10 border border-amber-500/10">
-                <span className="text-amber-400 block">{docStatusCounts.pending}</span>
-                <span className="text-slate-500 text-[8px] uppercase tracking-wider block mt-0.5">Pend</span>
+              <div className="p-2 rounded bg-amber-50 text-amber-600 shadow-[inset_1px_1px_2px_#c2d0e6,inset_-1px_-1px_2px_#ffffff]">
+                <span className="text-amber-600 block">{docStatusCounts.pending}</span>
+                <span className="text-[#7A8C9E] text-[8px] uppercase tracking-wider block mt-0.5">Pend</span>
               </div>
-              <div className="p-2 rounded bg-blue-950/10 border border-blue-500/10">
-                <span className="text-blue-400 block">{docStatusCounts.processing}</span>
-                <span className="text-slate-500 text-[8px] uppercase tracking-wider block mt-0.5">Proc</span>
+              <div className="p-2 rounded bg-blue-50 text-blue-600 shadow-[inset_1px_1px_2px_#c2d0e6,inset_-1px_-1px_2px_#ffffff]">
+                <span className="text-blue-600 block">{docStatusCounts.processing}</span>
+                <span className="text-[#7A8C9E] text-[8px] uppercase tracking-wider block mt-0.5">Proc</span>
               </div>
-              <div className="p-2 rounded bg-emerald-950/10 border border-emerald-500/10">
-                <span className="text-emerald-400 block">{docStatusCounts.indexed}</span>
-                <span className="text-slate-500 text-[8px] uppercase tracking-wider block mt-0.5">Idx</span>
+              <div className="p-2 rounded bg-emerald-50 text-emerald-600 shadow-[inset_1px_1px_2px_#c2d0e6,inset_-1px_-1px_2px_#ffffff]">
+                <span className="text-emerald-600 block">{docStatusCounts.indexed}</span>
+                <span className="text-[#7A8C9E] text-[8px] uppercase tracking-wider block mt-0.5">Idx</span>
               </div>
-              <div className="p-2 rounded bg-rose-950/10 border border-rose-500/10">
-                <span className="text-rose-400 block">{docStatusCounts.failed}</span>
-                <span className="text-slate-500 text-[8px] uppercase tracking-wider block mt-0.5">Fail</span>
+              <div className="p-2 rounded bg-rose-50 text-rose-600 shadow-[inset_1px_1px_2px_#c2d0e6,inset_-1px_-1px_2px_#ffffff]">
+                <span className="text-rose-600 block">{docStatusCounts.failed}</span>
+                <span className="text-[#7A8C9E] text-[8px] uppercase tracking-wider block mt-0.5">Fail</span>
               </div>
             </div>
 
@@ -488,10 +488,10 @@ export default function DashboardPage() {
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               className={cn(
-                "p-4 rounded-xl border border-dashed text-center transition-all cursor-pointer select-none",
+                "p-4 rounded-2xl border-2 border-dashed text-center transition-all cursor-pointer select-none",
                 isDragging
-                  ? "border-accent-cyan bg-accent-cyan/5 text-accent-cyan"
-                  : "border-card-border hover:border-card-border/80 text-slate-400"
+                  ? "border-primary bg-blue-50 text-primary shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff]"
+                  : "border-[#c2d0e6] bg-[#E6EEF8] hover:border-primary/40 text-[#7A8C9E]"
               )}
             >
               <input
@@ -502,11 +502,11 @@ export default function DashboardPage() {
                 onChange={handleFileSelect}
               />
               <label htmlFor="dashboard-file-upload" className="cursor-pointer block space-y-2">
-                <UploadCloud className="w-6 h-6 mx-auto text-slate-500" />
+                <UploadCloud className="w-6 h-6 mx-auto text-[#7A8C9E]" />
                 <div className="text-xs">
-                  <span className="text-accent-cyan font-medium">Click to upload</span> or drag and drop
+                  <span className="text-primary font-bold">Click to upload</span> or drag and drop
                 </div>
-                <p className="text-[9px] text-slate-500 uppercase tracking-wider">
+                <p className="text-[9px] text-[#7A8C9E] uppercase tracking-wider">
                   PDF, TXT, MD, Images (Max 10MB)
                 </p>
               </label>
@@ -516,9 +516,9 @@ export default function DashboardPage() {
             {uploadStatus.status !== "idle" && (
               <div className={cn(
                 "p-3 rounded-lg border text-xs flex items-center gap-2",
-                uploadStatus.status === "uploading" && "bg-blue-950/20 border-blue-500/20 text-blue-400",
-                uploadStatus.status === "success" && "bg-emerald-950/20 border-emerald-500/20 text-emerald-400",
-                uploadStatus.status === "error" && "bg-rose-950/20 border-rose-500/20 text-rose-400"
+                uploadStatus.status === "uploading" && "bg-blue-50 border-blue-200 text-blue-600 shadow-[inset_1px_1px_2px_#c2d0e6,inset_-1px_-1px_2px_#ffffff]",
+                uploadStatus.status === "success" && "bg-emerald-50 border-emerald-200 text-emerald-600 shadow-[inset_1px_1px_2px_#c2d0e6,inset_-1px_-1px_2px_#ffffff]",
+                uploadStatus.status === "error" && "bg-rose-50 border-rose-200 text-rose-600 shadow-[inset_1px_1px_2px_#c2d0e6,inset_-1px_-1px_2px_#ffffff]"
               )}>
                 {uploadStatus.status === "uploading" ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -536,18 +536,18 @@ export default function DashboardPage() {
             {/* Recent Uploads List */}
             {recentDocs.length > 0 && (
               <div className="space-y-2">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">
+                <span className="text-[10px] font-bold text-[#7A8C9E] uppercase tracking-widest block">
                   Recent Uploads
                 </span>
                 <div className="space-y-1.5">
                   {recentDocs.map((doc) => (
                     <div
                       key={doc.id}
-                      className="flex items-center justify-between p-2 rounded bg-slate-950/20 border border-card-border/30 text-[11px]"
+                      className="flex items-center justify-between p-2 rounded-xl bg-[#E6EEF8] shadow-[inset_1px_1px_2px_#c2d0e6,inset_-1px_-1px_2px_#ffffff] text-[11px]"
                     >
                       <div className="flex items-center gap-1.5 truncate max-w-[130px]">
-                        <FileText className="w-3 h-3 text-slate-500 shrink-0" />
-                        <span className="text-slate-300 truncate font-medium" title={doc.file_name}>
+                        <FileText className="w-3 h-3 text-[#7A8C9E] shrink-0" />
+                        <span className="text-[#3E4E63] truncate font-medium" title={doc.file_name}>
                           {doc.file_name}
                         </span>
                       </div>

@@ -81,23 +81,23 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex h-screen w-screen bg-[#070A10] text-slate-100 overflow-hidden font-sans">
+    <div className="flex h-screen w-screen bg-[#E6EEF8] text-[#3E4E63] overflow-hidden font-sans">
       {/* Left Column: Visual Showcase (60% width on desktop) */}
-      <div className="hidden lg:flex lg:w-3/5 bg-gradient-to-br from-[#0B0F19] to-[#05070B] border-r border-card-border p-12 flex-col justify-between relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-3/5 bg-[#E6EEF8] border-r border-slate-200/50 p-12 flex-col justify-between relative overflow-hidden">
         {/* Decorative Grid Glows */}
-        <div className="absolute w-[500px] h-[500px] rounded-full bg-accent-indigo/10 blur-[80px] -top-40 -left-40" />
-        <div className="absolute w-[500px] h-[500px] rounded-full bg-accent-cyan/5 blur-[80px] -bottom-40 right-0" />
-
+        <div className="absolute w-[500px] h-[500px] rounded-full bg-primary/2 blur-[80px] -top-40 -left-40" />
+        <div className="absolute w-[500px] h-[500px] rounded-full bg-primary/1 blur-[80px] -bottom-40 right-0" />
+ 
         {/* Top Header */}
         <div className="flex items-center gap-3 relative z-10">
-          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-accent-indigo to-accent-violet shadow-[0_0_20px_rgba(79,70,229,0.4)]">
-            <Database className="w-5 h-5 text-white" />
+          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#E6EEF8] text-primary shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff]">
+            <Database className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="font-bold text-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+            <h2 className="font-bold text-lg tracking-wider font-mono text-[#3E4E63]">
               AETHER RAG SYSTEM
             </h2>
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+            <span className="text-[10px] text-[#7A8C9E] font-bold uppercase tracking-widest">
               Enterprise Knowledge Engine
             </span>
           </div>
@@ -106,33 +106,33 @@ export default function LoginPage() {
         {/* Central visual infographic */}
         <div className="my-auto space-y-8 max-w-lg relative z-10">
           <div>
-            <h3 className="text-3xl font-extrabold tracking-tight text-white leading-tight">
+            <h3 className="text-3xl font-extrabold tracking-tight text-[#3E4E63] leading-tight">
               Enterprise-Grade AI Search grounded in your own security rules.
             </h3>
-            <p className="text-slate-400 text-sm mt-3 leading-relaxed">
+            <p className="text-[#5A6E85] text-sm mt-3 leading-relaxed">
               Connect vectors, databases, and LLMs in a single high-security pipeline. Maintain absolute tenant isolation and workspace access controls.
             </p>
           </div>
-
+ 
           {/* Core Pipeline Visual Flow */}
           <div className="space-y-4 pt-4">
-            <div className="flex gap-4 p-4 rounded-xl bg-slate-900/30 border border-card-border/50 hover:border-accent-cyan/20 transition-all duration-300">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent-cyan/10 border border-accent-cyan/20 text-accent-cyan shrink-0">
+            <div className="flex gap-4 p-4 rounded-xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none transition-all duration-300">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#E6EEF8] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] text-primary shrink-0">
                 <Terminal className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-slate-200">Tenant & Workspace Separation</h4>
-                <p className="text-xs text-slate-400 mt-0.5">Logical access filtering ensures users query only documents assigned to their active workspace.</p>
+                <h4 className="text-sm font-bold text-[#3E4E63]">Tenant & Workspace Separation</h4>
+                <p className="text-xs text-[#5A6E85] mt-0.5">Logical access filtering ensures users query only documents assigned to their active workspace.</p>
               </div>
             </div>
-
-            <div className="flex gap-4 p-4 rounded-xl bg-slate-900/30 border border-card-border/50 hover:border-accent-indigo/20 transition-all duration-300">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent-indigo/10 border border-accent-indigo/20 text-accent-indigo shrink-0">
+ 
+            <div className="flex gap-4 p-4 rounded-xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none transition-all duration-300">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#E6EEF8] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] text-primary shrink-0">
                 <Shield className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-slate-200">Grounded Prompts & Security Guard</h4>
-                <p className="text-xs text-slate-400 mt-0.5">Real-time prompt injection filtering rejects malicious structures before processing starts.</p>
+                <h4 className="text-sm font-bold text-[#3E4E63]">Grounded Prompts & Security Guard</h4>
+                <p className="text-xs text-[#5A6E85] mt-0.5">Real-time prompt injection filtering rejects malicious structures before processing starts.</p>
               </div>
             </div>
           </div>
@@ -146,21 +146,21 @@ export default function LoginPage() {
       </div>
 
       {/* Right Column: Authentication Card */}
-      <div className="w-full lg:w-2/5 flex items-center justify-center p-8 bg-[#070A10] relative">
+      <div className="w-full lg:w-2/5 flex items-center justify-center p-8 bg-[#E6EEF8] relative">
         {/* Glow behind the login card */}
-        <div className="absolute w-80 h-80 rounded-full bg-accent-violet/5 blur-[60px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 lg:hidden" />
-
+        <div className="absolute w-80 h-80 rounded-full bg-primary/1 blur-[60px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 lg:hidden" />
+ 
         <div className="w-full max-w-md space-y-8 relative z-10">
           <div className="text-center lg:text-left">
-            <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Sign In to Aether RAG</h1>
-            <p className="text-slate-400 text-sm mt-2">
-              Enter your corporate credentials to access your workspaces.
+            <h1 className="text-2xl font-bold text-[#3E4E63] tracking-tight">Sign In to Aether RAG</h1>
+            <p className="text-[#5A6E85] text-sm mt-2">
+              Enter your credentials to access your corporate tenant space.
             </p>
           </div>
 
           {/* Alert banner for mutation errors */}
           {loginMutation.isError && (
-            <Alert variant="destructive" className="bg-rose-950/40 border-rose-500/20 text-rose-400">
+            <Alert variant="destructive" className="bg-[#E6EEF8] border-none shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] text-rose-500">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Authentication Failed</AlertTitle>
               <AlertDescription className="text-xs">
@@ -174,86 +174,86 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Tenant ID Field */}
             <div className="space-y-1.5">
-              <Label htmlFor="tenantId" className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+              <Label htmlFor="tenantId" className="text-xs font-bold text-[#5A6E85] uppercase tracking-wider block">
                 Organization Tenant ID
               </Label>
               <div className="relative">
-                <Database className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Database className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
                 <Input
                   id="tenantId"
                   type="text"
                   placeholder="00000000-0000-0000-0000-000000000000"
                   className={cn(
-                    "pl-10 pr-4 py-2.5 rounded-lg bg-slate-900 border border-card-border focus:border-accent-cyan/50 focus:outline-none text-sm text-slate-300 placeholder-slate-600 transition-colors font-mono",
-                    errors.tenantId && "border-rose-500/50 focus:border-rose-500"
+                    "pl-11 pr-4 py-2.5 bg-[#E6EEF8] rounded-full border-none focus:outline-none text-sm text-[#3E4E63] placeholder-slate-400 shadow-[inset_3px_3px_6px_#c2d0e6,inset_-3px_-3px_6px_#ffffff] transition-all font-mono",
+                    errors.tenantId && "border border-rose-500/50"
                   )}
                   {...register("tenantId")}
                 />
               </div>
               {errors.tenantId && (
-                <p className="text-xs text-rose-400 mt-1">{errors.tenantId.message}</p>
+                <p className="text-xs text-rose-500 font-mono mt-1">{errors.tenantId.message}</p>
               )}
             </div>
-
+ 
             {/* Email Field */}
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+              <Label htmlFor="email" className="text-xs font-bold text-[#5A6E85] uppercase tracking-wider block">
                 Email Address
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
                 <Input
                   id="email"
                   type="email"
                   placeholder="name@company.com"
                   className={cn(
-                    "pl-10 pr-4 py-2.5 rounded-lg bg-slate-900 border border-card-border focus:border-accent-cyan/50 focus:outline-none text-sm text-slate-300 placeholder-slate-600 transition-colors",
-                    errors.email && "border-rose-500/50 focus:border-rose-500"
+                    "pl-11 pr-4 py-2.5 bg-[#E6EEF8] rounded-full border-none focus:outline-none text-sm text-[#3E4E63] placeholder-slate-400 shadow-[inset_3px_3px_6px_#c2d0e6,inset_-3px_-3px_6px_#ffffff] transition-all",
+                    errors.email && "border border-rose-500/50"
                   )}
                   {...register("email")}
                 />
               </div>
               {errors.email && (
-                <p className="text-xs text-rose-400 mt-1">{errors.email.message}</p>
+                <p className="text-xs text-rose-500 font-mono mt-1">{errors.email.message}</p>
               )}
             </div>
-
+ 
             {/* Password Field */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                <Label htmlFor="password" className="text-xs font-bold text-[#5A6E85] uppercase tracking-wider block">
                   Password
                 </Label>
                 <button
                   type="button"
-                  className="text-xs text-accent-cyan hover:underline transition-all cursor-pointer"
+                  className="text-xs text-primary hover:underline transition-all cursor-pointer font-bold"
                   onClick={() => alert("Contact your system administrator to reset password.")}
                 >
                   Forgot Password?
                 </button>
               </div>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   className={cn(
-                    "pl-10 pr-10 py-2.5 rounded-lg bg-slate-900 border border-card-border focus:border-accent-cyan/50 focus:outline-none text-sm text-slate-300 placeholder-slate-600 transition-colors",
-                    errors.password && "border-rose-500/50 focus:border-rose-500"
+                    "pl-11 pr-11 py-2.5 bg-[#E6EEF8] rounded-full border-none focus:outline-none text-sm text-[#3E4E63] placeholder-slate-400 shadow-[inset_3px_3px_6px_#c2d0e6,inset_-3px_-3px_6px_#ffffff] transition-all",
+                    errors.password && "border border-rose-500/50"
                   )}
                   {...register("password")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer z-10"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-xs text-rose-400 mt-1">{errors.password.message}</p>
+                <p className="text-xs text-rose-500 font-mono mt-1">{errors.password.message}</p>
               )}
             </div>
 
@@ -261,7 +261,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={loginMutation.isPending}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-gradient-to-r from-accent-indigo to-accent-violet hover:brightness-110 shadow-[0_0_20px_rgba(79,70,229,0.3)] text-sm font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border-none"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] text-sm font-bold text-white transition-all hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.15),inset_-2px_-2px_4px_rgba(255,255,255,0.15)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer border-none"
             >
               {loginMutation.isPending ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -273,11 +273,11 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
-
+ 
           {/* Registration Redirect */}
-          <div className="text-center text-xs text-slate-400 pt-2 border-t border-card-border/50">
+          <div className="text-center text-xs text-[#5A6E85] pt-2 border-t border-slate-200/50">
             Don't have an organization account?{" "}
-            <Link href="/register" className="text-accent-cyan font-semibold hover:underline">
+            <Link href="/register" className="text-primary font-bold hover:underline">
               Register Tenant
             </Link>
           </div>

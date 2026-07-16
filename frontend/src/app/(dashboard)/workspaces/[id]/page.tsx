@@ -339,11 +339,11 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
     return (
       <div className="flex h-[calc(100vh-8rem)] w-full flex-col items-center justify-center space-y-4">
         <AlertCircle className="w-12 h-12 text-rose-500 animate-bounce" />
-        <h3 className="text-sm font-semibold text-slate-300">Workspace Resolution Failed</h3>
-        <p className="text-xs text-slate-500">The requested workspace parameters do not exist or access is restricted.</p>
+        <h3 className="text-sm font-semibold text-[#5A6E85]">Workspace Resolution Failed</h3>
+        <p className="text-xs text-slate-400">The requested workspace parameters do not exist or access is restricted.</p>
         <Link
           href="/workspaces"
-          className={cn(buttonVariants({ variant: "outline" }), "h-8 border-card-border text-slate-400")}
+          className={cn(buttonVariants({ variant: "outline" }), "h-8 border-none bg-[#E6EEF8] shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-slate-500 hover:text-[#3E4E63] rounded-full font-bold")}
         >
           Back to Workspaces
         </Link>
@@ -363,27 +363,27 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
     <div className="space-y-6">
       
       {/* 1. Header Section */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-[#0B1224] to-[#060A12] border border-card-border/80 shadow-xl relative overflow-hidden">
-        <div className="absolute w-96 h-96 rounded-full bg-accent-cyan/5 blur-[80px] -right-25 -top-25 pointer-events-none" />
+      <div className="p-6 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none relative overflow-hidden">
+        <div className="absolute w-96 h-96 rounded-full bg-primary/5 blur-[80px] -right-25 -top-25 pointer-events-none" />
         
         {isEditing ? (
-          <div className="space-y-4 relative z-10">
+          <div className="space-y-4 relative z-10 text-xs">
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Workspace Name</Label>
+              <Label className="text-[10px] font-bold text-[#7A8C9E] uppercase tracking-widest">Workspace Name</Label>
               <Input
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
-                className="bg-slate-950 border-card-border text-sm text-slate-100 max-w-md h-9"
+                className="bg-[#E6EEF8] border-none text-sm text-[#3E4E63] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] focus-visible:ring-primary/20 max-w-md h-9 rounded-full"
               />
             </div>
             
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Description</Label>
+              <Label className="text-[10px] font-bold text-[#7A8C9E] uppercase tracking-widest">Description</Label>
               <textarea
                 value={editDesc}
                 onChange={(e) => setEditDesc(e.target.value)}
                 rows={2}
-                className="w-full max-w-xl p-2.5 rounded-lg bg-slate-950 border border-card-border text-xs text-slate-300 placeholder-slate-600 focus:outline-none resize-none"
+                className="w-full max-w-xl p-2.5 rounded-2xl bg-[#E6EEF8] border-none text-xs text-[#3E4E63] placeholder-slate-400 shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] focus:ring-1 focus:ring-primary/20 resize-none"
               />
             </div>
 
@@ -391,14 +391,13 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
               <Button
                 onClick={() => updateWorkspaceMutation.mutate()}
                 disabled={updateWorkspaceMutation.isPending}
-                className="flex items-center gap-1.5 h-8 py-0 px-3.5 rounded-lg bg-gradient-to-r from-accent-indigo to-accent-violet hover:brightness-110 shadow-md text-xs font-semibold text-white border-none cursor-pointer"
+                className="flex items-center gap-1.5 h-8 py-0 px-3.5 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 hover:brightness-110 shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] text-xs font-bold text-white border-none cursor-pointer"
               >
                 {updateWorkspaceMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Save Changes"}
               </Button>
               <Button
                 onClick={() => setIsEditing(false)}
-                variant="outline"
-                className="h-8 py-0 px-3.5 border-card-border hover:bg-slate-900 text-slate-400 hover:text-slate-200 text-xs cursor-pointer"
+                className="h-8 py-0 px-3.5 border-none bg-[#E6EEF8] shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-slate-500 hover:text-[#3E4E63] text-xs cursor-pointer rounded-full font-bold"
               >
                 Cancel
               </Button>
@@ -408,8 +407,8 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 relative z-10">
             <div className="space-y-2 max-w-xl">
               <div className="flex items-center gap-2 flex-wrap">
-                <FolderGit2 className="w-5 h-5 text-accent-cyan" />
-                <h1 className="text-xl md:text-2xl font-bold text-slate-100 tracking-tight">
+                <FolderGit2 className="w-5 h-5 text-primary" />
+                <h1 className="text-xl md:text-2xl font-bold text-[#3E4E63] tracking-tight">
                   {workspace.name}
                 </h1>
                 <span className={cn(
@@ -419,11 +418,11 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
                   {WORKSPACE_TYPE_CONFIG[workspace.workspace_type as keyof typeof WORKSPACE_TYPE_CONFIG]?.label}
                 </span>
               </div>
-              <p className="text-slate-400 text-xs leading-relaxed">
+              <p className="text-[#5A6E85] text-xs leading-relaxed">
                 {workspace.description || "No description provided for this partition."}
               </p>
-              <div className="text-[10px] text-slate-500 font-mono pt-1">
-                Context ID: <span className="text-slate-400 select-all">{workspace.id}</span> • Created {formatDate(workspace.created_at)}
+              <div className="text-[10px] text-[#7A8C9E] font-mono pt-1">
+                Context ID: <span className="text-[#3E4E63] select-all">{workspace.id}</span> • Created {formatDate(workspace.created_at)}
               </div>
             </div>
 
@@ -432,27 +431,25 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
               <div className="flex items-center gap-2 shrink-0 self-start md:self-auto">
                 <Button
                   onClick={() => setIsEditing(true)}
-                  variant="outline"
-                  className="h-8 px-2.5 text-xs border-card-border hover:bg-slate-900 text-slate-400 hover:text-slate-200 cursor-pointer"
+                  className="h-8 px-2.5 text-xs border-none bg-[#E6EEF8] shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-slate-500 hover:text-[#3E4E63] cursor-pointer rounded-full font-bold"
                 >
                   <Edit2 className="w-3.5 h-3.5 mr-1" />
                   <span>Edit</span>
                 </Button>
 
                 {isConfirmDeleteOpen ? (
-                  <div className="flex items-center gap-1.5 bg-rose-950/20 border border-rose-500/25 p-1 rounded-lg">
-                    <span className="text-[9px] text-rose-300 font-mono px-1">Purge WS?</span>
+                  <div className="flex items-center gap-1.5 bg-rose-50 border-none p-1 rounded-full shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff]">
+                    <span className="text-[9px] text-rose-600 font-mono px-2 font-bold">Purge WS?</span>
                     <Button
                       onClick={() => deleteWorkspaceMutation.mutate()}
                       disabled={deleteWorkspaceMutation.isPending}
-                      className="bg-rose-500 hover:bg-rose-600 text-white font-semibold h-6 py-0 px-2.5 cursor-pointer text-[10px] border-none"
+                      className="bg-rose-500 hover:bg-rose-600 text-white font-semibold h-6 py-0 px-2.5 cursor-pointer text-[10px] border-none rounded-full"
                     >
                       {deleteWorkspaceMutation.isPending ? "Purging..." : "Confirm"}
                     </Button>
                     <Button
                       onClick={() => setIsConfirmDeleteOpen(false)}
-                      variant="outline"
-                      className="h-6 py-0 px-2 border-card-border hover:bg-slate-950 text-slate-400 text-[10px]"
+                      className="h-6 py-0 px-2.5 border-none bg-[#E6EEF8] shadow-[1.5px_1.5px_3px_#c2d0e6,-1.5px_-1.5px_3px_#ffffff] hover:shadow-[inset_1px_1px_2px_#c2d0e6,inset_-1px_-1px_2px_#ffffff] text-slate-400 text-[10px] rounded-full"
                     >
                       Cancel
                     </Button>
@@ -460,8 +457,7 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
                 ) : (
                   <Button
                     onClick={() => setIsConfirmDeleteOpen(true)}
-                    variant="outline"
-                    className="h-8 px-2.5 text-xs border-rose-500/30 hover:bg-rose-500/10 text-rose-400 hover:text-rose-300 cursor-pointer"
+                    className="h-8 px-2.5 text-xs border-none bg-rose-100 shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-rose-600 font-bold cursor-pointer rounded-full"
                   >
                     <Trash2 className="w-3.5 h-3.5 mr-1" />
                     <span>Delete</span>
@@ -474,14 +470,14 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
       </div>
 
       {/* 2. Tab Navigation Toggle */}
-      <div className="flex border-b border-card-border/60">
+      <div className="flex border-b border-slate-200/50">
         <button
           onClick={() => setActiveTab("documents")}
           className={cn(
             "flex items-center gap-2 px-5 py-3 text-xs font-mono font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer",
             activeTab === "documents"
-              ? "border-accent-cyan text-accent-cyan bg-accent-cyan/[0.02]"
-              : "border-transparent text-slate-400 hover:text-slate-200"
+              ? "border-primary text-primary bg-blue-50/20"
+              : "border-transparent text-[#7A8C9E] hover:text-[#3E4E63]"
           )}
         >
           <FileText className="w-4 h-4" />
@@ -492,8 +488,8 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
           className={cn(
             "flex items-center gap-2 px-5 py-3 text-xs font-mono font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer",
             activeTab === "members"
-              ? "border-accent-cyan text-accent-cyan bg-accent-cyan/[0.02]"
-              : "border-transparent text-slate-400 hover:text-slate-200"
+              ? "border-primary text-primary bg-blue-50/20"
+              : "border-transparent text-[#7A8C9E] hover:text-[#3E4E63]"
           )}
         >
           <Users className="w-4 h-4" />
@@ -509,19 +505,19 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
               {/* Link existing Document Widget */}
-              <div className="p-4 rounded-xl bg-slate-900/30 border border-card-border/60 flex flex-col justify-between h-36">
+              <div className="p-4 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none flex flex-col justify-between h-36">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-1.5 text-slate-200 font-semibold text-xs">
-                    <Link2 className="w-4 h-4 text-accent-indigo" />
+                  <div className="flex items-center gap-1.5 text-[#3E4E63] font-bold text-xs">
+                    <Link2 className="w-4 h-4 text-primary" />
                     <span>Link Existing Document</span>
                   </div>
-                  <p className="text-[11px] text-slate-500 leading-normal">
-                    Map an existing file from the corporate corpus list into this workspace search partition.
+                  <p className="text-[11px] text-[#7A8C9E] leading-normal font-sans">
+                    Map an existing file from the corporate index into this workspace search partition.
                   </p>
                 </div>
                 <Button
                   onClick={() => setIsLinkDocModalOpen(true)}
-                  className="w-full flex items-center justify-center gap-1.5 h-8 bg-slate-900 border border-card-border hover:bg-slate-800 text-slate-300 hover:text-white font-semibold text-xs cursor-pointer rounded-lg"
+                  className="w-full flex items-center justify-center gap-1.5 h-8 border-none bg-[#E6EEF8] shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-slate-500 hover:text-[#3E4E63] font-bold text-xs cursor-pointer rounded-full transition-all"
                 >
                   <span>Link Document Context</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -534,10 +530,10 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
                 className={cn(
-                  "md:col-span-2 p-4 rounded-xl border border-dashed flex flex-col items-center justify-center text-center select-none cursor-pointer h-36 relative overflow-hidden",
+                  "md:col-span-2 p-4 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center text-center select-none cursor-pointer h-36 relative overflow-hidden transition-all",
                   isDragging
-                    ? "border-accent-cyan bg-accent-cyan/5 text-accent-cyan"
-                    : "border-card-border/60 hover:border-card-border bg-slate-900/10 text-slate-400"
+                    ? "border-primary bg-blue-50 text-primary shadow-[inset_3px_3px_6px_#c2d0e6,inset_-3px_-3px_6px_#ffffff]"
+                    : "border-[#c2d0e6] bg-[#E6EEF8] hover:border-primary/40 text-[#7A8C9E]"
                 )}
               >
                 <input
@@ -548,11 +544,11 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
                   onChange={handleFileSelect}
                 />
                 <label htmlFor="ws-direct-file-upload" className="cursor-pointer block space-y-1">
-                  <UploadCloud className="w-6 h-6 mx-auto text-slate-500" />
+                  <UploadCloud className="w-6 h-6 mx-auto text-[#7A8C9E]" />
                   <div className="text-xs font-semibold">
-                    <span className="text-accent-cyan hover:underline">Upload and link new document</span>
+                    <span className="text-primary hover:underline font-bold">Upload and link new document</span>
                   </div>
-                  <p className="text-[9px] text-slate-500 uppercase tracking-widest">
+                  <p className="text-[9px] text-[#5A6E85] uppercase tracking-widest">
                     PDF, TXT, MD, Images (Max 10MB)
                   </p>
                 </label>
@@ -560,19 +556,19 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
                 {/* Upload Status toast overlay */}
                 {uploadStatus.status !== "idle" && (
                   <div className={cn(
-                    "absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded border text-[10px] flex items-center gap-1.5 shadow-2xl",
-                    uploadStatus.status === "uploading" && "bg-blue-950 border-blue-500/25 text-blue-400",
-                    uploadStatus.status === "success" && "bg-emerald-950 border-emerald-500/25 text-emerald-400",
-                    uploadStatus.status === "error" && "bg-rose-950 border-rose-500/25 text-rose-400"
+                    "absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-xl border-none text-[10px] flex items-center gap-1.5 shadow-2xl",
+                    uploadStatus.status === "uploading" && "bg-blue-50 border-blue-200 text-blue-600 shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff]",
+                    uploadStatus.status === "success" && "bg-emerald-50 border-emerald-200 text-emerald-600 shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff]",
+                    uploadStatus.status === "error" && "bg-rose-50 border-rose-200 text-rose-600 shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff]"
                   )}>
                     {uploadStatus.status === "uploading" ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     ) : uploadStatus.status === "success" ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <Check className="w-3.5 h-3.5 shrink-0" />
                     ) : (
-                      <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                     )}
-                    <span>{uploadStatus.message || "Uploading..."}</span>
+                    <span className="font-semibold">{uploadStatus.message || "Uploading..."}</span>
                   </div>
                 )}
               </div>
@@ -581,22 +577,22 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
           )}
 
           {/* Linked Documents Table */}
-          <div className="rounded-xl border border-card-border/80 bg-slate-950/20 overflow-hidden">
+          <div className="rounded-2xl border-none bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] overflow-hidden">
             {workspaceDocsQuery.isPending ? (
               <div className="flex justify-center py-16">
-                <Loader2 className="w-6 h-6 animate-spin text-accent-cyan" />
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
               </div>
             ) : !workspaceDocsQuery.data || workspaceDocsQuery.data.length === 0 ? (
               <div className="text-center py-16 space-y-2">
-                <FileText className="w-10 h-10 text-slate-700 mx-auto" />
-                <h4 className="text-xs font-semibold text-slate-400">No documents mapped</h4>
-                <p className="text-[10px] text-slate-600">Link or upload documents to query workspace partitions.</p>
+                <FileText className="w-10 h-10 text-[#7A8C9E] mx-auto animate-pulse" />
+                <h4 className="text-xs font-semibold text-[#5A6E85]">No documents mapped</h4>
+                <p className="text-[10px] text-slate-400">Link or upload documents to query workspace partitions.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-card-border bg-slate-950/50 text-slate-500 uppercase tracking-wider font-mono text-[9px]">
+                    <tr className="border-b border-slate-200/50 bg-[#D0DBEA]/30 text-[#7A8C9E] uppercase tracking-wider font-mono text-[9px]">
                       <th className="p-3.5 font-semibold">File Name</th>
                       <th className="p-3.5 font-semibold">Type</th>
                       <th className="p-3.5 font-semibold">Size</th>
@@ -605,15 +601,15 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
                       {hasWriteAccess && <th className="p-3.5 font-semibold text-right">Action</th>}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-card-border/40 text-slate-300">
+                  <tbody className="divide-y divide-slate-200 text-[#3E4E63]">
                     {workspaceDocsQuery.data.map((doc) => (
-                      <tr key={doc.id} className="hover:bg-slate-900/10 transition-colors">
-                        <td className="p-3.5 font-medium text-slate-200 truncate max-w-xs">{doc.file_name}</td>
-                        <td className="p-3.5 text-slate-400 font-mono text-[10px] uppercase">
+                      <tr key={doc.id} className="hover:bg-[#E6EEF8] hover:shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] transition-all cursor-pointer">
+                        <td className="p-3.5 font-medium truncate max-w-xs">{doc.file_name}</td>
+                        <td className="p-3.5 text-[#5A6E85] font-mono text-[10px] uppercase">
                           {doc.file_type.split("/").pop()}
                         </td>
-                        <td className="p-3.5 text-slate-400">{formatFileSize(doc.file_size_bytes)}</td>
-                        <td className="p-3.5 text-slate-400 font-mono">{doc.chunk_count}</td>
+                        <td className="p-3.5 text-[#5A6E85]">{formatFileSize(doc.file_size_bytes)}</td>
+                        <td className="p-3.5 text-[#5A6E85] font-mono">{doc.chunk_count}</td>
                         <td className="p-3.5">
                           <span className={cn(
                             "text-[8px] px-2 py-0.2 rounded-full border font-bold uppercase tracking-wider font-mono",
@@ -627,8 +623,7 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
                             <Button
                               onClick={() => unlinkDocMutation.mutate(doc.id)}
                               disabled={unlinkDocMutation.isPending}
-                              variant="outline"
-                              className="h-7 px-2 border-rose-500/20 hover:bg-rose-500/10 text-rose-400 hover:text-rose-300 cursor-pointer text-[10px]"
+                              className="h-7 px-2 border-none bg-rose-100 text-rose-600 hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] cursor-pointer text-[10px] rounded-full font-bold"
                             >
                               <X className="w-3.5 h-3.5 mr-1" />
                               <span>Unlink</span>
@@ -649,7 +644,7 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
         <div className="space-y-6">
           {/* Members Table Operations Bar */}
           <div className="flex justify-between items-center">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest font-mono">
+            <h3 className="text-xs font-bold text-[#5A6E85] uppercase tracking-widest font-mono">
               Access Group Directory
             </h3>
             
@@ -657,7 +652,7 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
             {hasAdminAccess && (
               <Button
                 onClick={() => setIsAddMemberModalOpen(true)}
-                className="flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-900 border border-card-border hover:bg-slate-800 text-slate-300 hover:text-white font-semibold text-xs cursor-pointer"
+                className="flex items-center gap-1.5 h-8 px-3.5 border-none bg-[#E6EEF8] shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-slate-500 hover:text-[#3E4E63] font-bold text-xs cursor-pointer rounded-full"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Invite Member</span>
@@ -666,21 +661,21 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
           </div>
 
           {/* Members list Table */}
-          <div className="rounded-xl border border-card-border/80 bg-slate-950/20 overflow-hidden">
+          <div className="rounded-2xl border-none bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] overflow-hidden">
             {membersQuery.isPending ? (
               <div className="flex justify-center py-16">
-                <Loader2 className="w-6 h-6 animate-spin text-accent-cyan" />
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
               </div>
             ) : !membersQuery.data || membersQuery.data.length === 0 ? (
               <div className="text-center py-16 space-y-2">
-                <Users className="w-10 h-10 text-slate-700 mx-auto" />
-                <p className="text-xs text-slate-500">No members configured in the access table.</p>
+                <Users className="w-10 h-10 text-[#7A8C9E] mx-auto animate-pulse" />
+                <p className="text-xs text-slate-400">No members configured in the access table.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="border-b border-card-border bg-slate-950/50 text-slate-500 uppercase tracking-wider font-mono text-[9px]">
+                    <tr className="border-b border-slate-200/50 bg-[#D0DBEA]/30 text-[#7A8C9E] uppercase tracking-wider font-mono text-[9px]">
                       <th className="p-3.5 font-semibold">User Display Name</th>
                       <th className="p-3.5 font-semibold">Corporate Email</th>
                       <th className="p-3.5 font-semibold">Joined At</th>
@@ -688,17 +683,17 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
                       {hasAdminAccess && <th className="p-3.5 font-semibold text-right">Actions</th>}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-card-border/40 text-slate-300">
+                  <tbody className="divide-y divide-slate-200 text-[#3E4E63]">
                     {membersQuery.data.map((mem) => {
                       const isSelf = mem.user_id === user?.user_id;
                       
                       return (
-                        <tr key={mem.user_id} className="hover:bg-slate-900/10 transition-colors">
-                          <td className="p-3.5 font-medium text-slate-200">
-                            {mem.name} {isSelf && <span className="text-[9px] text-slate-500 font-mono">(You)</span>}
+                        <tr key={mem.user_id} className="hover:bg-[#E6EEF8] hover:shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] transition-all cursor-pointer">
+                          <td className="p-3.5 font-medium">
+                            {mem.name} {isSelf && <span className="text-[9px] text-[#7A8C9E] font-mono">(You)</span>}
                           </td>
-                          <td className="p-3.5 text-slate-400 font-mono">{mem.email}</td>
-                          <td className="p-3.5 text-slate-500 font-mono">{formatDate(mem.joined_at)}</td>
+                          <td className="p-3.5 text-[#5A6E85] font-mono">{mem.email}</td>
+                          <td className="p-3.5 text-[#7A8C9E] font-mono">{formatDate(mem.joined_at)}</td>
                           
                           {/* Workspace role editing dropdown */}
                           <td className="p-3.5">
@@ -709,18 +704,18 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
                                   userId: mem.user_id,
                                   role: e.target.value as WorkspaceMemberRole
                                 })}
-                                className="bg-slate-950 border border-card-border rounded text-[10.5px] text-slate-300 px-2 py-1 font-mono focus:outline-none cursor-pointer focus:border-accent-cyan/40"
+                                className="bg-[#E6EEF8] border-none rounded-full text-[10.5px] text-[#3E4E63] px-2.5 py-1 font-mono focus:outline-none cursor-pointer shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] focus:ring-1 focus:ring-primary/20"
                               >
-                                <option value="ADMIN">ADMIN</option>
-                                <option value="MEMBER">MEMBER</option>
-                                <option value="VIEWER">VIEWER</option>
+                                <option value="ADMIN" className="bg-[#E6EEF8] text-[#3E4E63]">ADMIN</option>
+                                <option value="MEMBER" className="bg-[#E6EEF8] text-[#3E4E63]">MEMBER</option>
+                                <option value="VIEWER" className="bg-[#E6EEF8] text-[#3E4E63]">VIEWER</option>
                               </select>
                             ) : (
                               <span className={cn(
                                 "text-[9px] px-2 py-0.5 rounded border font-bold font-mono tracking-wider",
-                                mem.member_role === "ADMIN" && "bg-violet-950/30 border-violet-500/20 text-violet-400",
-                                mem.member_role === "MEMBER" && "bg-blue-950/30 border-blue-500/20 text-blue-400",
-                                mem.member_role === "VIEWER" && "bg-slate-800/60 border-slate-600/30 text-slate-400"
+                                mem.member_role === "ADMIN" && "bg-violet-50 border-violet-200 text-violet-600",
+                                mem.member_role === "MEMBER" && "bg-blue-50 border-blue-200 text-blue-600",
+                                mem.member_role === "VIEWER" && "bg-slate-100 border-slate-200 text-slate-500"
                               )}>
                                 {mem.member_role}
                               </span>
@@ -734,8 +729,7 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
                                 <Button
                                   onClick={() => removeMemberMutation.mutate(mem.user_id)}
                                   disabled={removeMemberMutation.isPending}
-                                  variant="outline"
-                                  className="h-7 px-2 border-rose-500/20 hover:bg-rose-500/10 text-rose-400 hover:text-rose-300 cursor-pointer text-[10px]"
+                                  className="h-7 px-2 border-none bg-[#E6EEF8] shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-slate-500 hover:text-[#3E4E63] cursor-pointer text-[10px] rounded-full font-bold"
                                 >
                                   <X className="w-3.5 h-3.5 mr-1" />
                                   <span>Remove</span>
@@ -757,19 +751,19 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
       {/* LINK DOCUMENT MODAL */}
       {isLinkDocModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[#020408]/60 backdrop-blur-sm" onClick={() => setIsLinkDocModalOpen(false)} />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsLinkDocModalOpen(false)} />
           
-          <div className="relative w-full max-w-lg bg-[#080F1E] border border-card-border rounded-2xl shadow-2xl p-6 space-y-6 z-10">
-            <div className="flex items-center justify-between border-b border-card-border/50 pb-3">
+          <div className="relative w-full max-w-lg bg-[#E6EEF8] border-none rounded-2xl shadow-[8px_8px_16px_#c2d0e6,-8px_-8px_16px_#ffffff] p-6 space-y-6 z-10">
+            <div className="flex items-center justify-between border-b border-slate-200/50 pb-3">
               <div className="flex items-center gap-2">
-                <Link2 className="w-4 h-4 text-accent-cyan" />
-                <h3 className="font-bold text-slate-200 text-sm font-mono tracking-wide uppercase">
+                <Link2 className="w-4 h-4 text-primary" />
+                <h3 className="font-bold text-[#3E4E63] text-sm font-mono tracking-wide uppercase">
                   Link Corpus Document
                 </h3>
               </div>
               <button
                 onClick={() => setIsLinkDocModalOpen(false)}
-                className="p-1 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-900 cursor-pointer"
+                className="p-1.5 rounded-full hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] hover:bg-[#E6EEF8] text-[#7A8C9E] hover:text-[#3E4E63] transition-all cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -777,40 +771,39 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
 
             {/* Search inputs */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
               <Input
                 type="text"
                 placeholder="Search files in corporate tenant list..."
                 value={docSearchTerm}
                 onChange={(e) => setDocSearchTerm(e.target.value)}
-                className="pl-9 bg-slate-950 border-card-border text-xs text-slate-300 placeholder-slate-600"
+                className="pl-9 bg-[#E6EEF8] border-none text-xs text-[#3E4E63] placeholder-slate-400 shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] rounded-full focus-visible:ring-primary/20"
               />
             </div>
 
             {/* List */}
-            <div className="max-h-60 overflow-y-auto border border-card-border/50 rounded-xl divide-y divide-card-border/30 bg-slate-950/20 text-xs">
+            <div className="max-h-60 overflow-y-auto border-none rounded-xl divide-y divide-slate-200 bg-[#E6EEF8] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] text-xs">
               {allDocsQuery.isPending ? (
                 <div className="flex justify-center py-10">
-                  <Loader2 className="w-5 h-5 animate-spin text-accent-cyan" />
+                  <Loader2 className="w-5 h-5 animate-spin text-primary" />
                 </div>
               ) : unlinkedDocs.length === 0 ? (
-                <div className="text-center py-10 text-slate-600 italic">
+                <div className="text-center py-10 text-[#7A8C9E] italic font-mono">
                   No unlinked files available.
                 </div>
               ) : (
                 unlinkedDocs.map((doc) => (
-                  <div key={doc.id} className="flex justify-between items-center p-3 hover:bg-slate-900/10">
+                  <div key={doc.id} className="flex justify-between items-center p-3 hover:bg-[#E6EEF8]/60">
                     <div className="truncate max-w-[280px]">
-                      <p className="font-semibold text-slate-300 truncate" title={doc.file_name}>{doc.file_name}</p>
-                      <span className="text-[10px] text-slate-500 font-mono">
+                      <p className="font-bold text-[#3E4E63] truncate" title={doc.file_name}>{doc.file_name}</p>
+                      <span className="text-[10px] text-[#7A8C9E] font-mono">
                         {formatFileSize(doc.file_size_bytes)} • {doc.file_type.split("/").pop()?.toUpperCase()}
                       </span>
                     </div>
                     <Button
                       onClick={() => linkDocMutation.mutate(doc.id)}
                       disabled={linkDocMutation.isPending}
-                      variant="outline"
-                      className="h-7 px-3 border-card-border hover:bg-slate-800 text-accent-cyan hover:text-slate-200 text-[10px] shrink-0 font-semibold cursor-pointer"
+                      className="h-7 px-3 border-none bg-[#E6EEF8] shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-primary hover:text-primary/80 text-[10px] shrink-0 font-bold cursor-pointer rounded-full transition-all"
                     >
                       {linkDocMutation.isPending ? "Linking..." : "Link"}
                     </Button>
@@ -819,11 +812,10 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
               )}
             </div>
 
-            <div className="flex justify-end pt-2 border-t border-card-border/50">
+            <div className="flex justify-end pt-2 border-t border-slate-200/50">
               <Button
                 onClick={() => setIsLinkDocModalOpen(false)}
-                variant="outline"
-                className="h-8 py-0 px-4 border-card-border hover:bg-slate-900 text-slate-400 cursor-pointer text-xs"
+                className="h-8 py-0 px-4 border-none bg-[#E6EEF8] shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-slate-500 hover:text-[#3E4E63] cursor-pointer text-xs rounded-full font-bold"
               >
                 Close
               </Button>
@@ -835,19 +827,19 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
       {/* ADD MEMBER MODAL */}
       {isAddMemberModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[#020408]/60 backdrop-blur-sm" onClick={() => setIsAddMemberModalOpen(false)} />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsAddMemberModalOpen(false)} />
 
-          <div className="relative w-full max-w-md bg-[#080F1E] border border-card-border rounded-2xl shadow-2xl p-6 space-y-5 z-10">
-            <div className="flex items-center justify-between border-b border-card-border/50 pb-3">
+          <div className="relative w-full max-w-md bg-[#E6EEF8] border-none rounded-2xl shadow-[8px_8px_16px_#c2d0e6,-8px_-8px_16px_#ffffff] p-6 space-y-5 z-10">
+            <div className="flex items-center justify-between border-b border-slate-200/50 pb-3">
               <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-accent-cyan" />
-                <h3 className="font-bold text-slate-200 text-sm font-mono tracking-wide uppercase">
+                <Users className="w-4 h-4 text-primary" />
+                <h3 className="font-bold text-[#3E4E63] text-sm font-mono tracking-wide uppercase">
                   Invite Member to WS
                 </h3>
               </div>
               <button
                 onClick={() => setIsAddMemberModalOpen(false)}
-                className="p-1 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-900 cursor-pointer"
+                className="p-1.5 rounded-full hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] hover:bg-[#E6EEF8] text-[#7A8C9E] hover:text-[#3E4E63] transition-all cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -855,7 +847,7 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
 
             {/* Error alerts */}
             {addMemberMutation.isError && (
-              <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-500/20 text-rose-400 text-[10.5px] flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-rose-50 border-none text-rose-600 text-[10.5px] flex items-center gap-2 shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] font-bold">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>
                   {addMemberMutation.error instanceof Error
@@ -866,21 +858,23 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
             )}
 
             {/* Tab selection within modal */}
-            <div className="flex border-b border-card-border/40 text-xs">
+            <div className="flex border-b border-slate-200/50 text-xs">
               <button
+                type="button"
                 onClick={() => setAddMode("email")}
                 className={cn(
                   "flex-1 py-2 font-semibold text-center border-b-2 cursor-pointer transition-all",
-                  addMode === "email" ? "border-accent-cyan text-accent-cyan" : "border-transparent text-slate-500 hover:text-slate-300"
+                  addMode === "email" ? "border-primary text-primary" : "border-transparent text-[#7A8C9E] hover:text-[#3E4E63]"
                 )}
               >
                 Invite by Email
               </button>
               <button
+                type="button"
                 onClick={() => setAddMode("id")}
                 className={cn(
                   "flex-1 py-2 font-semibold text-center border-b-2 cursor-pointer transition-all",
-                  addMode === "id" ? "border-accent-cyan text-accent-cyan" : "border-transparent text-slate-500 hover:text-slate-300"
+                  addMode === "id" ? "border-primary text-primary" : "border-transparent text-[#7A8C9E] hover:text-[#3E4E63]"
                 )}
               >
                 Invite by User ID
@@ -892,83 +886,82 @@ export default function WorkspaceDetailPage({ params }: PageProps) {
               
               {addMode === "email" ? (
                 <div className="space-y-1.5">
-                  <Label htmlFor="mem-email" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">
+                  <Label htmlFor="mem-email" className="text-[10px] font-bold text-[#7A8C9E] uppercase tracking-widest block">
                     Corporate Email
                   </Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
                       id="mem-email"
                       type="email"
                       placeholder="colleague@company.com"
                       className={cn(
-                        "pl-10 pr-4 py-2 rounded-lg bg-slate-900 border border-card-border focus:border-accent-cyan/50 text-xs text-slate-300 placeholder-slate-600",
-                        addMemberForm.formState.errors.email && "border-rose-500/50"
+                        "pl-10 pr-4 py-2 rounded-full bg-[#E6EEF8] border-none text-[#3E4E63] placeholder-slate-400 text-xs shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] focus-visible:ring-primary/20",
+                        addMemberForm.formState.errors.email && "shadow-[inset_2px_2px_4px_#ef4444,inset_-2px_-2px_4px_#ffffff]"
                       )}
                       {...addMemberForm.register("email")}
                     />
                   </div>
                   {addMemberForm.formState.errors.email && (
-                    <p className="text-xs text-rose-400 mt-1">{addMemberForm.formState.errors.email.message}</p>
+                    <p className="text-xs text-rose-600 mt-1">{addMemberForm.formState.errors.email.message}</p>
                   )}
                 </div>
               ) : (
                 <div className="space-y-1.5">
-                  <Label htmlFor="mem-userid" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">
+                  <Label htmlFor="mem-userid" className="text-[10px] font-bold text-[#7A8C9E] uppercase tracking-widest block">
                     User UUID
                   </Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
                       id="mem-userid"
                       type="text"
                       placeholder="00000000-0000-0000-0000-000000000000"
                       className={cn(
-                        "pl-10 pr-4 py-2 rounded-lg bg-slate-900 border border-card-border focus:border-accent-cyan/50 text-xs text-slate-300 placeholder-slate-600 font-mono",
-                        addMemberForm.formState.errors.user_id && "border-rose-500/50"
+                        "pl-10 pr-4 py-2 rounded-full bg-[#E6EEF8] border-none text-[#3E4E63] placeholder-slate-400 text-xs shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] focus-visible:ring-primary/20 font-mono",
+                        addMemberForm.formState.errors.user_id && "shadow-[inset_2px_2px_4px_#ef4444,inset_-2px_-2px_4px_#ffffff]"
                       )}
                       {...addMemberForm.register("user_id")}
                     />
                   </div>
                   {addMemberForm.formState.errors.user_id && (
-                    <p className="text-xs text-rose-400 mt-1">{addMemberForm.formState.errors.user_id.message}</p>
+                    <p className="text-xs text-rose-600 mt-1">{addMemberForm.formState.errors.user_id.message}</p>
                   )}
                 </div>
               )}
 
               {/* Role Select */}
               <div className="space-y-1.5">
-                <Label htmlFor="mem-role" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">
+                <Label htmlFor="mem-role" className="text-[10px] font-bold text-[#7A8C9E] uppercase tracking-widest block">
                   Workspace Access Role
                 </Label>
                 <select
                   id="mem-role"
-                  className="w-full h-9 rounded-lg bg-slate-900 border border-card-border text-slate-300 px-3 focus:outline-none focus:border-accent-cyan/50 cursor-pointer font-mono"
+                  className="w-full h-9 rounded-full bg-[#E6EEF8] border-none text-[#3E4E63] px-3 focus:outline-none cursor-pointer font-mono shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] focus:ring-1 focus:ring-primary/20"
                   {...addMemberForm.register("member_role")}
                 >
-                  <option value="MEMBER">MEMBER (Read & write document mappings)</option>
-                  <option value="VIEWER">VIEWER (Read-only query access)</option>
-                  <option value="ADMIN">ADMIN (Full management and role editing)</option>
+                  <option value="MEMBER" className="bg-[#E6EEF8] text-[#3E4E63]">MEMBER (Read & write document mappings)</option>
+                  <option value="VIEWER" className="bg-[#E6EEF8] text-[#3E4E63]">VIEWER (Read-only query access)</option>
+                  <option value="ADMIN" className="bg-[#E6EEF8] text-[#3E4E63]">ADMIN (Full management and role editing)</option>
                 </select>
               </div>
 
               {/* Buttons */}
-              <div className="flex justify-end gap-2 pt-2 border-t border-card-border/50">
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-200/50">
                 <Button
                   type="button"
                   onClick={() => setIsAddMemberModalOpen(false)}
-                  variant="outline"
-                  className="h-8 py-0 px-4 border-card-border hover:bg-slate-900 text-slate-400 cursor-pointer"
+                  className="h-8 py-0 px-4 border-none bg-[#E6EEF8] shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-slate-500 hover:text-[#3E4E63] cursor-pointer rounded-full font-bold"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={addMemberMutation.isPending}
-                  className="flex items-center gap-1.5 py-0 h-8 px-4 rounded-lg bg-gradient-to-r from-accent-indigo to-accent-violet hover:brightness-110 shadow-md font-semibold text-white border-none cursor-pointer"
+                  className="flex items-center gap-1.5 py-0 h-8 px-4 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 hover:brightness-110 shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] font-bold text-white border-none cursor-pointer"
                 >
                   {addMemberMutation.isPending ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
                   ) : (
                     <>
                       <span>Invite</span>

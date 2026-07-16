@@ -62,28 +62,28 @@ export function EvalPanel() {
 
   // Helper to color code scores
   const getScoreColorClass = (score: number) => {
-    if (score >= 0.8) return "text-emerald-400 bg-emerald-950/20 border-emerald-500/20";
-    if (score >= 0.5) return "text-amber-400 bg-amber-950/20 border-amber-500/20";
-    return "text-rose-400 bg-rose-950/20 border-rose-500/20";
+    if (score >= 0.8) return "text-emerald-600 bg-emerald-50 border-emerald-200";
+    if (score >= 0.5) return "text-amber-600 bg-amber-50 border-amber-200";
+    return "text-rose-600 bg-rose-50 border-rose-200";
   };
 
   const getProgressBarColor = (score: number) => {
-    if (score >= 0.8) return "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]";
-    if (score >= 0.5) return "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]";
-    return "bg-rose-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]";
+    if (score >= 0.8) return "bg-emerald-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.15)]";
+    if (score >= 0.5) return "bg-amber-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.15)]";
+    return "bg-rose-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.15)]";
   };
 
   return (
     <div className="space-y-6">
       
       {/* Run Trigger card */}
-      <div className="p-6 rounded-xl bg-slate-900/40 border border-card-border flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-6 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1 max-w-xl text-xs">
-          <h3 className="font-bold text-slate-200 uppercase font-mono tracking-wider flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-accent-cyan" />
+          <h3 className="font-bold text-[#3E4E63] uppercase font-mono tracking-wider flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-primary" />
             RAGAS Evaluation Orchestrator
           </h3>
-          <p className="text-slate-400 font-sans leading-relaxed">
+          <p className="text-[#5A6E85] font-sans leading-relaxed">
             Trigger a full pipeline test suite over your golden datasets. The evaluation runs asynchronously in the background using Celery workers to calculate Faithfulness, Answer Relevance, and Context Recall metrics.
           </p>
         </div>
@@ -91,10 +91,10 @@ export function EvalPanel() {
         <Button
           onClick={handleRunEval}
           disabled={triggerEvalMutation.isPending}
-          className="h-10 px-5 bg-gradient-to-tr from-accent-indigo to-accent-violet hover:shadow-[0_0_12px_rgba(79,70,229,0.3)] text-white text-xs font-mono font-bold uppercase tracking-wider cursor-pointer shrink-0"
+          className="h-10 px-5 bg-gradient-to-r from-blue-400 to-blue-600 text-white text-xs font-mono font-bold uppercase tracking-wider cursor-pointer shrink-0 border-none shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] hover:brightness-110 rounded-full"
         >
           {triggerEvalMutation.isPending ? (
-            <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
+            <Loader2 className="w-4 h-4 animate-spin mr-1.5 text-white" />
           ) : (
             <Play className="w-4 h-4 mr-1.5" />
           )}
@@ -105,10 +105,10 @@ export function EvalPanel() {
       {/* Trigger Feedback Banner */}
       {evalJobMessage && (
         <div className={cn(
-          "p-4 rounded-xl text-xs flex items-start gap-3 border animate-fade-in",
+          "p-4 rounded-xl text-xs flex items-start gap-3 border animate-fade-in font-bold shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff]",
           triggerEvalMutation.isError
-            ? "bg-rose-950/20 border-rose-500/20 text-rose-400"
-            : "bg-emerald-950/20 border-emerald-500/20 text-emerald-400"
+            ? "bg-rose-50 border-rose-200 text-rose-600"
+            : "bg-emerald-50 border-emerald-200 text-emerald-600"
         )}>
           {triggerEvalMutation.isError ? (
             <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
@@ -119,24 +119,24 @@ export function EvalPanel() {
             <span className="font-bold font-mono uppercase">
               {triggerEvalMutation.isError ? "Trigger Failure" : "Job Dispatched"}
             </span>
-            <p className="font-sans leading-relaxed">{evalJobMessage}</p>
+            <p className="font-sans leading-relaxed font-normal">{evalJobMessage}</p>
           </div>
         </div>
       )}
 
       {/* Dataset & Time Details */}
       {evaluatedAt && (
-        <div className="flex flex-wrap gap-4 text-[10px] font-mono text-slate-500 bg-slate-950/30 p-3 rounded-lg border border-card-border/40 w-fit">
+        <div className="flex flex-wrap gap-4 text-[10px] font-mono text-[#5A6E85] bg-[#E6EEF8] shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] p-3 rounded-full w-fit">
           {datasetId && (
-            <div className="flex items-center gap-1.5">
-              <Database className="w-3.5 h-3.5 text-slate-600" />
-              <span>DATASET: <span className="text-slate-400">{datasetId}</span></span>
+            <div className="flex items-center gap-1.5 px-1">
+              <Database className="w-3.5 h-3.5 text-slate-400" />
+              <span>DATASET: <span className="text-[#3E4E63] font-bold">{datasetId}</span></span>
             </div>
           )}
           {evaluatedAt && (
-            <div className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-slate-600" />
-              <span>TEST RUN: <span className="text-slate-400">{formatDate(evaluatedAt)}</span></span>
+            <div className="flex items-center gap-1.5 px-1">
+              <Calendar className="w-3.5 h-3.5 text-slate-400" />
+              <span>TEST RUN: <span className="text-[#3E4E63] font-bold">{formatDate(evaluatedAt)}</span></span>
             </div>
           )}
         </div>
@@ -144,20 +144,20 @@ export function EvalPanel() {
 
       {/* Metric Score Cards */}
       <div className="space-y-4">
-        <span className="text-xs font-bold text-slate-400 font-mono uppercase tracking-widest block">
+        <span className="text-xs font-bold text-[#5A6E85] font-mono uppercase tracking-widest block">
           Calculated Metric Benchmarks
         </span>
 
         {evalQuery.isLoading ? (
-          <div className="text-center py-12 text-slate-500">
-            <Loader2 className="w-6 h-6 animate-spin text-accent-cyan mx-auto mb-2" />
+          <div className="text-center py-12 text-[#7A8C9E]">
+            <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto mb-2" />
             <span className="text-[10px] font-mono uppercase">Retrieving benchmarks...</span>
           </div>
         ) : results.length === 0 ? (
-          <div className="p-8 border border-card-border border-dashed rounded-xl text-center text-slate-500 space-y-2">
-            <Sparkles className="w-6 h-6 text-accent-indigo mx-auto" />
-            <span className="text-xs font-mono uppercase block">No Benchmarks Recorded</span>
-            <p className="text-[11px] text-slate-600 font-sans max-w-sm mx-auto">
+          <div className="p-8 border-2 border-dashed border-[#c2d0e6] rounded-2xl text-center text-slate-400 space-y-2 bg-[#E6EEF8] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff]">
+            <Sparkles className="w-6 h-6 text-primary mx-auto animate-pulse" />
+            <span className="text-xs font-mono uppercase block font-bold text-[#5A6E85]">No Benchmarks Recorded</span>
+            <p className="text-[11px] text-[#7A8C9E] font-sans max-w-sm mx-auto">
               Execute a test run above to calculate the initial performance metrics of your active retrieval models.
             </p>
           </div>
@@ -166,14 +166,14 @@ export function EvalPanel() {
             {results.map((metric, i) => (
               <div
                 key={i}
-                className="p-5 rounded-xl bg-slate-900/40 border border-card-border space-y-4 hover:border-card-border/80 transition-colors"
+                className="p-5 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none space-y-4 hover:shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] transition-all duration-300"
               >
                 <div className="flex justify-between items-start gap-4">
                   <div className="space-y-1">
-                    <h4 className="text-xs font-bold text-slate-200 uppercase font-mono tracking-wider">
+                    <h4 className="text-xs font-bold text-[#3E4E63] uppercase font-mono tracking-wider">
                       {metric.metric_name.replace(/_/g, " ")}
                     </h4>
-                    <p className="text-[11px] text-slate-500 font-sans leading-relaxed">
+                    <p className="text-[11px] text-[#7A8C9E] font-sans leading-relaxed">
                       {metric.description || "Synthesized precision scoring for active search operations."}
                     </p>
                   </div>
@@ -188,13 +188,13 @@ export function EvalPanel() {
 
                 {/* Score Progress Bar */}
                 <div className="space-y-1">
-                  <div className="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden border border-card-border/40">
+                  <div className="w-full h-2 bg-[#E6EEF8] rounded-full overflow-hidden shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff]">
                     <div
                       className={cn("h-full rounded-full transition-all duration-500", getProgressBarColor(metric.score))}
                       style={{ width: `${metric.score * 100}%` }}
                     />
                   </div>
-                  <div className="flex justify-between text-[9px] font-mono text-slate-600">
+                  <div className="flex justify-between text-[9px] font-mono text-[#7A8C9E] font-bold">
                     <span>0% (FAIL)</span>
                     <span>100% (Grounded)</span>
                   </div>

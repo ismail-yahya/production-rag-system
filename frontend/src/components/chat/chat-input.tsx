@@ -50,21 +50,21 @@ export function ChatInput({ onSend, isStreaming }: ChatInputProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-4 bg-slate-950/60 border-t border-card-border/80"
+      className="p-4 bg-[#E6EEF8] border-t border-slate-200/50"
     >
       <div className="max-w-4xl mx-auto space-y-3">
         {/* Toggle Mode & Info */}
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
           {/* Strict Toggle Button Group */}
-          <div className="flex p-0.5 rounded-lg bg-slate-900 border border-card-border/60">
+          <div className="flex p-0.5 rounded-xl bg-[#E6EEF8] shadow-[inset_1px_1px_3px_#c2d0e6,inset_-1px_-1px_3px_#ffffff]">
             <button
               type="button"
               onClick={() => setMode("standard")}
               className={cn(
-                "px-3 py-1 rounded-md font-mono text-[10px] font-bold tracking-wider transition-all cursor-pointer",
+                "px-3 py-1 rounded-lg font-mono text-[10px] font-bold tracking-wider transition-all cursor-pointer",
                 mode === "standard"
-                  ? "bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/20 shadow-[0_0_10px_rgba(6,182,212,0.1)]"
-                  : "text-slate-500 hover:text-slate-300"
+                  ? "bg-[#E6EEF8] text-primary shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff]"
+                  : "text-[#7A8C9E] hover:text-[#3E4E63]"
               )}
             >
               STANDARD RAG
@@ -73,10 +73,10 @@ export function ChatInput({ onSend, isStreaming }: ChatInputProps) {
               type="button"
               onClick={() => setMode("strict")}
               className={cn(
-                "px-3 py-1 rounded-md font-mono text-[10px] font-bold tracking-wider transition-all cursor-pointer",
+                "px-3 py-1 rounded-lg font-mono text-[10px] font-bold tracking-wider transition-all cursor-pointer",
                 mode === "strict"
-                  ? "bg-rose-950/45 text-rose-400 border border-rose-500/20 shadow-[0_0_10px_rgba(244,63,94,0.1)]"
-                  : "text-slate-500 hover:text-slate-300"
+                  ? "bg-rose-100 text-rose-600 shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff]"
+                  : "text-[#7A8C9E] hover:text-[#3E4E63]"
               )}
             >
               STRICT COMPLIANCE
@@ -84,7 +84,7 @@ export function ChatInput({ onSend, isStreaming }: ChatInputProps) {
           </div>
 
           {/* Mode description text */}
-          <div className="flex items-center gap-1.5 text-slate-500">
+          <div className="flex items-center gap-1.5 text-[#7A8C9E]">
             <Info className="w-3.5 h-3.5 shrink-0" />
             <span className="font-mono text-[10px] leading-none uppercase">
               {mode === "strict"
@@ -95,7 +95,7 @@ export function ChatInput({ onSend, isStreaming }: ChatInputProps) {
         </div>
 
         {/* Input Bar */}
-        <div className="relative flex items-end gap-2 p-1.5 rounded-xl bg-slate-900/60 border border-card-border focus-within:border-accent-cyan/50 focus-within:shadow-[0_0_15px_rgba(6,182,212,0.05)] transition-all">
+        <div className="relative flex items-end gap-2 p-1.5 rounded-2xl bg-[#E6EEF8] shadow-[inset_3px_3px_6px_#c2d0e6,inset_-3px_-3px_6px_#ffffff] focus-within:shadow-[inset_3px_3px_6px_#c2d0e6,inset_-3px_-3px_6px_#ffffff,0_0_0_2px_rgba(66,165,245,0.5)] transition-all">
           <textarea
             ref={textareaRef}
             rows={1}
@@ -104,21 +104,21 @@ export function ChatInput({ onSend, isStreaming }: ChatInputProps) {
             onKeyDown={handleKeyDown}
             disabled={isStreaming}
             placeholder="Type your message, ask a question about your documents..."
-            className="flex-1 max-h-[180px] bg-transparent text-sm text-slate-200 placeholder-slate-500 resize-none outline-none border-none py-2 px-3 focus:ring-0 leading-relaxed font-sans scrollbar-none"
+            className="flex-1 max-h-[180px] bg-transparent text-sm text-[#3E4E63] placeholder-slate-400 resize-none outline-none border-none py-2 px-3 focus:ring-0 leading-relaxed font-sans scrollbar-none"
           />
 
           <button
             type="submit"
             disabled={!question.trim() || isStreaming}
             className={cn(
-              "p-2.5 rounded-lg flex items-center justify-center shrink-0 transition-all cursor-pointer",
+              "p-2.5 rounded-full flex items-center justify-center shrink-0 transition-all cursor-pointer",
               question.trim() && !isStreaming
-                ? "bg-gradient-to-tr from-accent-indigo to-accent-violet hover:shadow-[0_0_12px_rgba(79,70,229,0.4)] text-white"
-                : "bg-slate-800 text-slate-500 cursor-not-allowed"
+                ? "bg-gradient-to-r from-blue-400 to-blue-600 shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] text-white hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.15),inset_-2px_-2px_4px_rgba(255,255,255,0.15)]"
+                : "bg-[#E6EEF8] shadow-[inset_1px_1px_2px_#c2d0e6,inset_-1px_-1px_2px_#ffffff] text-slate-400 cursor-not-allowed"
             )}
           >
             {isStreaming ? (
-              <Loader2 className="w-4 h-4 animate-spin text-accent-cyan" />
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
             ) : (
               <Send className="w-4 h-4" />
             )}

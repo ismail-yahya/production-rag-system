@@ -118,18 +118,18 @@ export function QuickQueryDrawer({
     <div className="fixed inset-0 z-50 flex justify-end">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-[#020408]/60 backdrop-blur-sm transition-opacity duration-300"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
         onClick={onClose}
       />
 
       {/* Drawer Panel */}
-      <div className="relative w-full max-w-2xl h-full bg-[#080F1E]/95 backdrop-blur-xl border-l border-card-border shadow-2xl flex flex-col z-10 transition-transform duration-300">
+      <div className="relative w-full max-w-2xl h-full bg-[#E6EEF8] border-l border-slate-200/50 shadow-2xl flex flex-col z-10 transition-transform duration-300">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-card-border">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200/50">
           <div className="flex items-center gap-2">
-            <Terminal className="w-4 h-4 text-accent-cyan" />
-            <h2 className="font-semibold text-slate-200 text-sm font-mono tracking-wide uppercase">
+            <Terminal className="w-4 h-4 text-primary" />
+            <h2 className="font-semibold text-[#3E4E63] text-sm font-mono tracking-wide uppercase">
               RAG Execution Output
             </h2>
           </div>

@@ -175,48 +175,47 @@ export default function DocumentsPage() {
 
   return (
     <div className="space-y-6">
-      
-      {/* 1. Ingestion Stats Headers */}
+           {/* 1. Ingestion Stats Headers */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-slate-900/40 border border-card-border flex items-center gap-3">
-          <div className="p-2 rounded bg-slate-800 text-slate-400">
+        <div className="p-4 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-[#E6EEF8] shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-[#7A8C9E]">
             <Database className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">Total Corpus</span>
-            <span className="text-lg font-bold text-slate-200">{totalCount} files</span>
+            <span className="text-[10px] text-[#7A8C9E] uppercase tracking-wider block font-semibold">Total Corpus</span>
+            <span className="text-lg font-bold text-[#3E4E63]">{totalCount} files</span>
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-900/40 border border-card-border flex items-center gap-3">
-          <div className="p-2 rounded bg-emerald-950/20 text-emerald-400">
+        <div className="p-4 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-[#E6EEF8] shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-emerald-600">
             <Check className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">Indexed Vectors</span>
-            <span className="text-lg font-bold text-emerald-400">{statusCounts.indexed} files</span>
+            <span className="text-[10px] text-[#7A8C9E] uppercase tracking-wider block font-semibold">Indexed Vectors</span>
+            <span className="text-lg font-bold text-emerald-600">{statusCounts.indexed} files</span>
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-900/40 border border-card-border flex items-center gap-3">
-          <div className="p-2 rounded bg-blue-950/20 text-blue-400">
+        <div className="p-4 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-[#E6EEF8] shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-blue-600">
             <Loader2 className="w-4 h-4 animate-spin" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">Active Ingestions</span>
-            <span className="text-lg font-bold text-blue-400">
+            <span className="text-[10px] text-[#7A8C9E] uppercase tracking-wider block font-semibold">Active Ingestions</span>
+            <span className="text-lg font-bold text-blue-600">
               {statusCounts.processing + statusCounts.pending} files
             </span>
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-slate-900/40 border border-card-border flex items-center gap-3">
-          <div className="p-2 rounded bg-rose-950/20 text-rose-400">
+        <div className="p-4 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] border-none flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-[#E6EEF8] shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-rose-600">
             <AlertCircle className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">Failed Jobs</span>
-            <span className="text-lg font-bold text-rose-400">{statusCounts.failed} files</span>
+            <span className="text-[10px] text-[#7A8C9E] uppercase tracking-wider block font-semibold">Failed Jobs</span>
+            <span className="text-lg font-bold text-rose-600">{statusCounts.failed} files</span>
           </div>
         </div>
       </div>
@@ -227,10 +226,10 @@ export default function DocumentsPage() {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          "p-8 rounded-2xl border border-dashed transition-all relative overflow-hidden flex flex-col items-center justify-center min-h-[180px] text-center select-none shadow-md",
+          "p-8 rounded-2xl border-2 border-dashed transition-all relative overflow-hidden flex flex-col items-center justify-center min-h-[180px] text-center select-none shadow-md",
           isDragging
-            ? "border-accent-cyan bg-accent-cyan/5 text-accent-cyan"
-            : "border-card-border/80 hover:border-card-border bg-slate-900/10 text-slate-400"
+            ? "border-primary bg-blue-50 text-primary shadow-[inset_3px_3px_6px_#c2d0e6,inset_-3px_-3px_6px_#ffffff]"
+            : "border-[#c2d0e6] bg-[#E6EEF8] hover:border-primary/40 text-[#7A8C9E]"
         )}
       >
         <input
@@ -241,11 +240,11 @@ export default function DocumentsPage() {
           onChange={handleFileSelect}
         />
         <label htmlFor="file-upload" className="cursor-pointer block space-y-3">
-          <UploadCloud className="w-10 h-10 mx-auto text-slate-500 animate-pulse" />
+          <UploadCloud className="w-10 h-10 mx-auto text-[#7A8C9E]" />
           <div className="text-sm font-medium">
-            <span className="text-accent-cyan hover:underline">Click to browse</span> or drag & drop files here
+            <span className="text-primary hover:underline font-bold">Click to browse</span> or drag & drop files here
           </div>
-          <p className="text-xs text-slate-500 max-w-sm leading-relaxed">
+          <p className="text-xs text-[#5A6E85] max-w-sm leading-relaxed">
             Provision vectors by dropping PDF, TXT, MD, or OCR-compatible images. Files are isolated to your organization's tenant context.
           </p>
         </label>
@@ -253,46 +252,43 @@ export default function DocumentsPage() {
         {/* Upload Status Overlay Alert */}
         {uploadStatus.status !== "idle" && (
           <div className={cn(
-            "absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-lg border text-xs flex items-center gap-2 shadow-2xl",
-            uploadStatus.status === "uploading" && "bg-blue-950 border-blue-500/20 text-blue-400",
-            uploadStatus.status === "success" && "bg-emerald-950 border-emerald-500/20 text-emerald-400",
-            uploadStatus.status === "error" && "bg-rose-950 border-rose-500/20 text-rose-400"
+            "absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-xl border-none text-xs flex items-center gap-2 shadow-2xl",
+            uploadStatus.status === "uploading" && "bg-blue-50 border-blue-200 text-blue-600 shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff]",
+            uploadStatus.status === "success" && "bg-emerald-50 border-emerald-200 text-emerald-600 shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff]",
+            uploadStatus.status === "error" && "bg-rose-50 border-rose-200 text-rose-600 shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff]"
           )}>
             {uploadStatus.status === "uploading" ? (
-              <Loader2 className="w-4 h-4 animate-spin text-accent-cyan" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : uploadStatus.status === "success" ? (
-              <Check className="w-4 h-4 text-emerald-400" />
+              <Check className="w-3.5 h-3.5 shrink-0" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-rose-400" />
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
             )}
-            <span>
-              {uploadStatus.status === "uploading" ? "Uploading & registering celery task..." : uploadStatus.message}
+            <span className="font-semibold">
+              {uploadStatus.status === "uploading" ? "Uploading file..." : uploadStatus.message}
             </span>
           </div>
         )}
       </div>
 
-      {/* 3. Table Filters Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between p-4 rounded-xl bg-slate-900/20 border border-card-border/60">
-        {/* Search */}
+      {/* 3. Search & Filter Bar */}
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="relative w-full sm:max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5 z-10" />
           <Input
-            type="text"
-            placeholder="Search by file name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 bg-slate-950 border-card-border text-slate-300 placeholder-slate-600 text-xs"
+            placeholder="Search filenames..."
+            className="pl-9 bg-[#E6EEF8] border-none text-[#3E4E63] placeholder-slate-400 text-xs shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] focus-visible:ring-primary/20 rounded-full"
           />
         </div>
 
-        {/* Filter Dropdown */}
-        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-end">
-          <Filter className="w-3.5 h-3.5 text-slate-500" />
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Filter className="w-3.5 h-3.5 text-slate-400 shrink-0" />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-8 rounded-lg bg-slate-950 border border-card-border text-slate-400 px-3 text-xs font-mono focus:outline-none focus:border-accent-cyan/40 cursor-pointer"
+            className="w-full sm:w-40 bg-[#E6EEF8] border-none rounded-full py-1.5 px-3 text-[#5A6E85] hover:text-[#3E4E63] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] transition-all text-xs font-mono outline-none cursor-pointer"
           >
             <option value="all">All Statuses</option>
             <option value="pending">Pending</option>
@@ -304,12 +300,12 @@ export default function DocumentsPage() {
       </div>
 
       {/* 4. Documents Table */}
-      <div className="rounded-xl border border-card-border/80 bg-slate-950/20 overflow-hidden shadow-lg">
+      <div className="rounded-2xl border-none bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] overflow-hidden">
         {documentsQuery.isPending ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-card-border bg-slate-950/60 text-slate-400 uppercase tracking-wider font-mono text-[9px]">
+                <tr className="border-b border-slate-200/50 bg-[#D0DBEA]/30 text-[#7A8C9E] uppercase tracking-wider font-mono text-[9px]">
                   <th className="p-4 font-semibold">File Name</th>
                   <th className="p-4 font-semibold">Type</th>
                   <th className="p-4 font-semibold">Size</th>
@@ -319,7 +315,7 @@ export default function DocumentsPage() {
                   <th className="p-4 font-semibold text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-card-border/40">
+              <tbody className="divide-y divide-slate-200">
                 {[1, 2, 3, 4, 5].map((n) => (
                   <tr key={n} className="bg-transparent">
                     <td className="p-4"><Skeleton className="h-4 w-40" /></td>
@@ -336,15 +332,15 @@ export default function DocumentsPage() {
           </div>
         ) : filteredDocs.length === 0 ? (
           <div className="text-center py-20 space-y-3">
-            <FileText className="w-12 h-12 text-slate-700 mx-auto animate-pulse" />
-            <h4 className="text-sm font-semibold text-slate-400">No documents found</h4>
-            <p className="text-xs text-slate-600">Drag files into the dropzone to start index processing.</p>
+            <FileText className="w-12 h-12 text-[#7A8C9E] mx-auto animate-pulse" />
+            <h4 className="text-sm font-semibold text-[#5A6E85]">No documents found</h4>
+            <p className="text-xs text-slate-400">Drag files into the dropzone to start index processing.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-card-border bg-slate-950/60 text-slate-400 uppercase tracking-wider font-mono text-[9px]">
+                <tr className="border-b border-slate-200/50 bg-[#D0DBEA]/30 text-[#7A8C9E] uppercase tracking-wider font-mono text-[9px]">
                   <th className="p-4 font-semibold">File Name</th>
                   <th className="p-4 font-semibold">Type</th>
                   <th className="p-4 font-semibold">Size</th>
@@ -354,26 +350,26 @@ export default function DocumentsPage() {
                   <th className="p-4 font-semibold text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-card-border/40">
+              <tbody className="divide-y divide-slate-200">
                 {filteredDocs.map((doc) => (
                   <tr
                     key={doc.id}
                     onClick={() => setSelectedDocId(doc.id)}
-                    className="hover:bg-slate-900/35 transition-colors cursor-pointer group"
+                    className="hover:bg-[#E6EEF8] hover:shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] transition-all cursor-pointer group"
                   >
-                    <td className="p-4 font-medium text-slate-200 group-hover:text-accent-cyan transition-colors truncate max-w-xs">
+                    <td className="p-4 font-medium text-[#3E4E63] group-hover:text-primary transition-colors truncate max-w-xs">
                       {doc.file_name}
                     </td>
-                    <td className="p-4 text-slate-400 font-mono uppercase text-[10px]">
+                    <td className="p-4 text-[#5A6E85] font-mono uppercase text-[10px]">
                       {doc.file_type.split("/").pop()}
                     </td>
-                    <td className="p-4 text-slate-400">
+                    <td className="p-4 text-[#5A6E85]">
                       {formatFileSize(doc.file_size_bytes)}
                     </td>
-                    <td className="p-4 text-slate-400 font-mono">
+                    <td className="p-4 text-[#5A6E85] font-mono">
                       {doc.chunk_count || 0}
                     </td>
-                    <td className="p-4 text-slate-500 font-mono">
+                    <td className="p-4 text-[#7A8C9E] font-mono">
                       {formatDate(doc.created_at)}
                     </td>
                     <td className="p-4">
@@ -388,7 +384,7 @@ export default function DocumentsPage() {
                       <Button
                         variant="outline"
                         onClick={() => setSelectedDocId(doc.id)}
-                        className="h-7 px-2.5 text-[10px] border-card-border hover:bg-slate-800 text-slate-400 hover:text-slate-200 cursor-pointer"
+                        className="h-7 px-2.5 text-[10px] border-none bg-[#E6EEF8] shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-slate-500 hover:text-[#3E4E63] cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5 mr-1" />
                         <span>Inspect</span>
@@ -407,24 +403,24 @@ export default function DocumentsPage() {
         <div className="fixed inset-0 z-50 flex justify-end">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-[#020408]/60 backdrop-blur-sm transition-opacity duration-300"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
             onClick={() => setSelectedDocId(null)}
           />
 
           {/* Panel */}
-          <div className="relative w-full max-w-md h-full bg-[#080F1E]/95 backdrop-blur-xl border-l border-card-border shadow-2xl flex flex-col z-10 transition-transform duration-300">
+          <div className="relative w-full max-w-md h-full bg-[#E6EEF8] border-l border-slate-200/50 shadow-2xl flex flex-col z-10 transition-transform duration-300">
             
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-card-border">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200/50">
               <div className="flex items-center gap-2">
-                <Terminal className="w-4 h-4 text-accent-cyan" />
-                <span className="font-mono text-xs font-bold text-slate-300 uppercase tracking-widest">
+                <Terminal className="w-4 h-4 text-primary" />
+                <span className="font-mono text-xs font-bold text-[#3E4E63] uppercase tracking-widest">
                   Metadata Inspector
                 </span>
               </div>
               <button
                 onClick={() => setSelectedDocId(null)}
-                className="p-1 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-900 cursor-pointer"
+                className="p-1.5 rounded-full hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] hover:bg-[#E6EEF8] text-[#7A8C9E] hover:text-[#3E4E63] transition-all cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -435,24 +431,24 @@ export default function DocumentsPage() {
               
               {/* Document Overview */}
               <div className="space-y-3">
-                <h4 className="text-slate-500 uppercase tracking-wider font-bold text-[9px] font-mono border-b border-card-border/40 pb-1">
+                <h4 className="text-[#7A8C9E] uppercase tracking-wider font-bold text-[9px] font-mono border-b border-slate-200/50 pb-1">
                   File properties
                 </h4>
-                <div className="grid grid-cols-3 gap-y-2.5 text-slate-400">
-                  <span className="text-slate-500">File Name</span>
-                  <span className="col-span-2 text-slate-200 font-medium break-all">{selectedDoc.file_name}</span>
+                <div className="grid grid-cols-3 gap-y-2.5 text-[#5A6E85]">
+                  <span className="text-[#7A8C9E]">File Name</span>
+                  <span className="col-span-2 text-[#3E4E63] font-medium break-all">{selectedDoc.file_name}</span>
 
-                  <span className="text-slate-500">Document ID</span>
-                  <span className="col-span-2 font-mono text-slate-300 select-all break-all">{selectedDoc.id}</span>
+                  <span className="text-[#7A8C9E]">Document ID</span>
+                  <span className="col-span-2 font-mono text-[#3E4E63] select-all break-all">{selectedDoc.id}</span>
 
-                  <span className="text-slate-500">File Size</span>
-                  <span className="col-span-2 text-slate-300">{formatFileSize(selectedDoc.file_size_bytes)}</span>
+                  <span className="text-[#7A8C9E]">File Size</span>
+                  <span className="col-span-2 text-[#3E4E63]">{formatFileSize(selectedDoc.file_size_bytes)}</span>
 
-                  <span className="text-slate-500">File Type</span>
-                  <span className="col-span-2 font-mono text-slate-300">{selectedDoc.file_type}</span>
+                  <span className="text-[#7A8C9E]">File Type</span>
+                  <span className="col-span-2 font-mono text-[#3E4E63]">{selectedDoc.file_type}</span>
 
-                  <span className="text-slate-500">Registered</span>
-                  <span className="col-span-2 text-slate-300">{formatDateTime(selectedDoc.created_at)}</span>
+                  <span className="text-[#7A8C9E]">Registered</span>
+                  <span className="col-span-2 text-[#3E4E63]">{formatDateTime(selectedDoc.created_at)}</span>
 
                   {selectedDoc.indexed_at && (
                     <>

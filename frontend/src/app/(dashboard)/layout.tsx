@@ -21,7 +21,7 @@ export default function DashboardLayout({
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-background">
         <div className="text-center space-y-4">
-          <div className="w-8 h-8 border-2 border-accent-cyan border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-sm text-muted-foreground font-medium tracking-wider">
             Initializing secure session…
           </p>
@@ -35,7 +35,7 @@ export default function DashboardLayout({
       <Sidebar />
       <div className="flex flex-col flex-1 h-screen overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-b from-[#070A10] to-[#0A0F1E] relative">
+        <main className="flex-1 overflow-y-auto p-6 bg-background relative">
           {children}
         </main>
       </div>

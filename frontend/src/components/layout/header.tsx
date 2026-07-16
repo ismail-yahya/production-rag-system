@@ -64,7 +64,7 @@ export function Header() {
   const { toggleMobileSidebar } = useUIStore();
 
   return (
-    <header className="flex items-center justify-between h-14 px-6 border-b border-card-border bg-[#070A10]/80 backdrop-blur-md sticky top-0 z-20">
+    <header className="flex items-center justify-between h-14 px-6 border-b border-slate-200/50 bg-[#E6EEF8] sticky top-0 z-20">
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2.5 text-sm">
         <button
@@ -78,13 +78,13 @@ export function Header() {
           const isLast = index === breadcrumbs.length - 1;
           return (
             <div key={bc.href} className="flex items-center gap-2">
-              {index > 0 && <span className="text-slate-600">/</span>}
+              {index > 0 && <span className="text-slate-400">/</span>}
               <span
                 className={cn(
                   "font-medium",
                   isLast
-                    ? "text-slate-200"
-                    : "text-slate-400 hover:text-slate-200 transition-colors"
+                    ? "text-[#3E4E63] font-bold"
+                    : "text-[#7A8C9E] hover:text-[#3E4E63] transition-colors"
                 )}
               >
                 {bc.name}
@@ -95,12 +95,12 @@ export function Header() {
       </div>
 
       {/* Health Indicators */}
-      <div className="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-slate-950/50 border border-card-border">
-        <HealthDot label="PostgreSQL" healthy={dbHealthy} icon={Database} iconColor="text-accent-indigo" />
-        <div className="w-px h-3 bg-card-border" />
-        <HealthDot label="Qdrant" healthy={qdrantHealthy} icon={Cpu} iconColor="text-accent-cyan" />
-        <div className="w-px h-3 bg-card-border" />
-        <HealthDot label="Redis" healthy={redisHealthy} icon={Server} iconColor="text-accent-violet" />
+      <div className="flex items-center gap-3 px-3 py-1.5 rounded-xl bg-[#E6EEF8] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff]">
+        <HealthDot label="PostgreSQL" healthy={dbHealthy} icon={Database} iconColor="text-[#7A8C9E]" />
+        <div className="w-px h-3 bg-slate-200/50" />
+        <HealthDot label="Qdrant" healthy={qdrantHealthy} icon={Cpu} iconColor="text-[#7A8C9E]" />
+        <div className="w-px h-3 bg-slate-200/50" />
+        <HealthDot label="Redis" healthy={redisHealthy} icon={Server} iconColor="text-[#7A8C9E]" />
       </div>
     </header>
   );

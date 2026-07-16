@@ -68,31 +68,31 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          "flex flex-col h-screen border-r border-card-border bg-[#0B0F19] transition-all duration-300 relative",
+          "flex flex-col h-screen border-r border-card-border bg-sidebar transition-all duration-300 relative",
           // Desktop styles
           "hidden md:flex md:relative md:z-30 md:inset-y-auto md:left-auto md:shadow-none",
           sidebarCollapsed ? "md:w-16" : "md:w-64",
           // Mobile drawer styles
-          "fixed inset-y-0 left-0 w-64 z-40 bg-[#0B0F19] shadow-2xl transition-transform duration-300 md:translate-x-0",
+          "fixed inset-y-0 left-0 w-64 z-40 bg-sidebar shadow-2xl transition-transform duration-300 md:translate-x-0",
           mobileSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
       {/* Brand */}
-      <div className="flex items-center justify-between h-16 px-4 border-b border-card-border">
+      <div className="flex items-center justify-between h-16 px-4 border-b border-slate-200/50">
         {!sidebarCollapsed && (
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-tr from-accent-indigo to-accent-violet shadow-[0_0_15px_rgba(79,70,229,0.5)]">
-              <Database className="w-4 h-4 text-white" />
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#E6EEF8] text-primary shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff]">
+              <Database className="w-4 h-4" />
             </div>
-            <span className="font-bold text-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
+            <span className="font-bold text-lg tracking-wider font-mono text-[#3E4E63]">
               AETHER RAG
             </span>
           </div>
         )}
         {sidebarCollapsed && (
           <div className="flex items-center justify-center w-full">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-tr from-accent-indigo to-accent-violet">
-              <Database className="w-4 h-4 text-white" />
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#E6EEF8] text-primary shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff]">
+              <Database className="w-4 h-4" />
             </div>
           </div>
         )}
@@ -118,25 +118,25 @@ export function Sidebar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group relative",
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 group relative",
                   isActive
-                    ? "bg-glass text-accent-cyan font-medium border-l-2 border-l-accent-cyan shadow-[0_0_15px_rgba(6,182,212,0.15)]"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
+                    ? "bg-[#E6EEF8] text-primary font-bold shadow-[inset_3px_3px_6px_#c2d0e6,inset_-3px_-3px_6px_#ffffff]"
+                    : "text-[#7A8C9E] hover:text-[#3E4E63] hover:bg-[#E6EEF8] hover:shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff]"
                 )}
               >
                 <Icon
                   className={cn(
                     "w-5 h-5 shrink-0 transition-colors duration-200",
                     isActive
-                      ? "text-accent-cyan"
-                      : "text-slate-400 group-hover:text-accent-cyan"
+                      ? "text-primary"
+                      : "text-[#7A8C9E] group-hover:text-primary"
                   )}
                 />
                 {!sidebarCollapsed && (
                   <span className="truncate">{item.name}</span>
                 )}
                 {sidebarCollapsed && (
-                  <div className="absolute left-14 scale-0 group-hover:scale-100 bg-slate-950 border border-card-border text-slate-200 text-xs rounded-md px-2 py-1.5 whitespace-nowrap shadow-2xl transition-all duration-150 z-50">
+                  <div className="absolute left-14 scale-0 group-hover:scale-100 bg-[#E6EEF8] text-[#3E4E63] text-xs rounded-lg px-2.5 py-1.5 whitespace-nowrap shadow-[4px_4px_8px_#c2d0e6,-4px_-4px_8px_#ffffff] transition-all duration-150 z-50">
                     {item.name}
                   </div>
                 )}
@@ -146,7 +146,7 @@ export function Sidebar() {
       </nav>
 
       {/* User profile footer */}
-      <div className="p-3 border-t border-card-border bg-slate-950/40">
+      <div className="p-3 border-t border-slate-200/50 bg-[#E6EEF8]">
         <div
           className={cn(
             "flex items-center gap-3",
@@ -154,15 +154,15 @@ export function Sidebar() {
           )}
         >
           <div className="flex items-center gap-2 truncate">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent-cyan to-accent-indigo flex items-center justify-center text-xs font-semibold text-white">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-xs font-semibold text-white shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff]">
               {user ? getInitials(user.name) : ".."}
             </div>
             {!sidebarCollapsed && user && (
               <div className="truncate">
-                <p className="text-xs font-medium text-slate-200 truncate">
+                <p className="text-xs font-bold text-[#3E4E63] truncate">
                   {user.name}
                 </p>
-                <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-accent-indigo/20 text-accent-cyan border border-accent-cyan/20">
+                <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-slate-100/80 text-slate-600 border border-slate-200/50 shadow-[1px_1px_3px_#c2d0e6,-1px_-1px_3px_#ffffff]">
                   {user.role}
                 </span>
               </div>
@@ -171,7 +171,7 @@ export function Sidebar() {
           {!sidebarCollapsed && (
             <button
               onClick={logout}
-              className="p-1.5 text-slate-400 hover:text-accent-violet hover:bg-slate-900 rounded-lg transition-colors cursor-pointer"
+              className="p-1.5 text-[#7A8C9E] hover:text-primary hover:bg-[#E6EEF8] hover:shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] rounded-lg transition-all cursor-pointer"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
@@ -183,7 +183,7 @@ export function Sidebar() {
       {/* Toggle Button */}
       <button
         onClick={toggleSidebar}
-        className="absolute -right-3 top-20 hidden md:flex items-center justify-center w-6 h-6 rounded-full border border-card-border bg-[#0B0F19] text-slate-400 hover:text-accent-cyan shadow-xl cursor-pointer hover:border-accent-cyan/30 transition-all duration-200 z-50"
+        className="absolute -right-3 top-20 hidden md:flex items-center justify-center w-6 h-6 rounded-full border-none bg-[#E6EEF8] text-[#7A8C9E] hover:text-primary shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] hover:shadow-[inset_1px_1px_3px_#c2d0e6,inset_-1px_-1px_3px_#ffffff] cursor-pointer transition-all duration-200 z-50"
       >
         {sidebarCollapsed ? (
           <ChevronRight className="w-3.5 h-3.5" />

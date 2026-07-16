@@ -38,9 +38,9 @@ export default function AdminPage() {
   if (isLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
-        <div className="text-center space-y-3 text-slate-500">
-          <div className="w-6 h-6 border-2 border-accent-cyan border-t-transparent rounded-full animate-spin mx-auto" />
-          <span className="text-[10px] font-mono uppercase">Hydrating administrative credentials...</span>
+        <div className="text-center space-y-3 text-[#5A6E85]">
+          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+          <span className="text-[10px] font-mono uppercase font-bold">Hydrating administrative credentials...</span>
         </div>
       </div>
     );
@@ -50,11 +50,11 @@ export default function AdminPage() {
   if (!user || !hasMinRole(user.role, "ADMIN")) {
     return (
       <div className="h-[60vh] flex flex-col items-center justify-center p-6 text-center max-w-md mx-auto space-y-4">
-        <div className="w-12 h-12 rounded-xl bg-rose-950/20 border border-rose-500/20 flex items-center justify-center text-rose-400">
+        <div className="w-12 h-12 rounded-2xl bg-rose-50 border-none flex items-center justify-center text-rose-600 shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff]">
           <ShieldAlert className="w-6 h-6" />
         </div>
         <div className="space-y-1">
-          <h2 className="text-sm font-bold text-slate-200 uppercase font-mono tracking-wider">
+          <h2 className="text-sm font-bold text-rose-600 uppercase font-mono tracking-wider">
             Unauthorized Operator Access
           </h2>
           <p className="text-xs text-slate-500 leading-relaxed font-sans">
@@ -72,23 +72,23 @@ export default function AdminPage() {
       
       {/* Console Header */}
       <div>
-        <h1 className="text-xl font-bold text-slate-200 uppercase font-mono tracking-wider">
+        <h1 className="text-xl font-bold text-[#3E4E63] uppercase font-mono tracking-wider">
           Administration Console
         </h1>
-        <p className="text-xs text-slate-500 font-sans mt-1">
+        <p className="text-xs text-[#7A8C9E] font-sans mt-1">
           Manage system directories, review audit transcripts, check telemetry, and configuration settings.
         </p>
       </div>
 
       {/* Tabs list */}
-      <div className="flex flex-wrap border-b border-card-border/60">
+      <div className="flex flex-wrap border-b border-slate-200/50">
         <button
           onClick={() => setActiveTab("users")}
           className={cn(
             "px-5 py-3 text-xs font-semibold font-mono uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-2",
             activeTab === "users"
-              ? "border-accent-cyan text-accent-cyan bg-accent-cyan/5"
-              : "border-transparent text-slate-500 hover:text-slate-300"
+              ? "border-primary text-primary bg-blue-50/20"
+              : "border-transparent text-[#7A8C9E] hover:text-[#3E4E63]"
           )}
         >
           <Users className="w-4 h-4" />
@@ -100,8 +100,8 @@ export default function AdminPage() {
           className={cn(
             "px-5 py-3 text-xs font-semibold font-mono uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-2",
             activeTab === "logs"
-              ? "border-accent-cyan text-accent-cyan bg-accent-cyan/5"
-              : "border-transparent text-slate-500 hover:text-slate-300"
+              ? "border-primary text-primary bg-blue-50/20"
+              : "border-transparent text-[#7A8C9E] hover:text-[#3E4E63]"
           )}
         >
           <Terminal className="w-4 h-4" />
@@ -113,8 +113,8 @@ export default function AdminPage() {
           className={cn(
             "px-5 py-3 text-xs font-semibold font-mono uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-2",
             activeTab === "stats"
-              ? "border-accent-cyan text-accent-cyan bg-accent-cyan/5"
-              : "border-transparent text-slate-500 hover:text-slate-300"
+              ? "border-primary text-primary bg-blue-50/20"
+              : "border-transparent text-[#7A8C9E] hover:text-[#3E4E63]"
           )}
         >
           <Activity className="w-4 h-4" />
@@ -126,8 +126,8 @@ export default function AdminPage() {
           className={cn(
             "px-5 py-3 text-xs font-semibold font-mono uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-2",
             activeTab === "eval"
-              ? "border-accent-cyan text-accent-cyan bg-accent-cyan/5"
-              : "border-transparent text-slate-500 hover:text-slate-300"
+              ? "border-primary text-primary bg-blue-50/20"
+              : "border-transparent text-[#7A8C9E] hover:text-[#3E4E63]"
           )}
         >
           <Award className="w-4 h-4" />
@@ -140,8 +140,8 @@ export default function AdminPage() {
             className={cn(
               "px-5 py-3 text-xs font-semibold font-mono uppercase tracking-wider border-b-2 transition-all cursor-pointer flex items-center gap-2",
               activeTab === "config"
-                ? "border-accent-cyan text-accent-cyan bg-accent-cyan/5"
-                : "border-transparent text-slate-500 hover:text-slate-300"
+                ? "border-primary text-primary bg-blue-50/20"
+                : "border-transparent text-[#7A8C9E] hover:text-[#3E4E63]"
             )}
           >
             <Sliders className="w-4 h-4" />

@@ -121,14 +121,13 @@ export default function WorkspacesPage() {
 
   return (
     <div className="space-y-6">
-      
-      {/* Page Header */}
+           {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-xl md:text-2xl font-bold text-slate-100 tracking-tight">
+          <h1 className="text-xl md:text-2xl font-bold text-[#3E4E63] tracking-tight">
             Workspaces
           </h1>
-          <p className="text-slate-400 text-sm">
+          <p className="text-[#7A8C9E] text-sm">
             Logical partitions segmenting indexes, members, and prompt-grounded search scopes.
           </p>
         </div>
@@ -137,7 +136,7 @@ export default function WorkspacesPage() {
         {canCreate && (
           <Button
             onClick={handleOpenCreateModal}
-            className="flex items-center gap-1.5 py-2.5 px-4 rounded-xl bg-gradient-to-r from-accent-indigo to-accent-violet hover:brightness-110 shadow-md text-sm font-semibold text-white border-none cursor-pointer shrink-0"
+            className="flex items-center gap-1.5 py-2.5 px-4 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 hover:brightness-110 shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] text-sm font-bold text-white border-none cursor-pointer shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span>Create Workspace</span>
@@ -146,26 +145,26 @@ export default function WorkspacesPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between p-4 rounded-xl bg-slate-900/20 border border-card-border/60">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
         {/* Search */}
         <div className="relative w-full sm:max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5 z-10" />
           <Input
             type="text"
             placeholder="Search workspaces by name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 bg-slate-950 border-card-border text-slate-300 placeholder-slate-600 text-xs"
+            className="pl-9 bg-[#E6EEF8] border-none text-[#3E4E63] placeholder-slate-400 text-xs shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] focus-visible:ring-primary/20 rounded-full"
           />
         </div>
 
         {/* Filter Dropdown */}
         <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-end">
-          <Filter className="w-3.5 h-3.5 text-slate-500" />
+          <Filter className="w-3.5 h-3.5 text-slate-400 shrink-0" />
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="h-8 rounded-lg bg-slate-950 border border-card-border text-slate-400 px-3 text-xs font-mono focus:outline-none focus:border-accent-cyan/40 cursor-pointer"
+            className="w-full sm:w-40 bg-[#E6EEF8] border-none rounded-full py-1.5 px-3 text-[#5A6E85] hover:text-[#3E4E63] shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] transition-all text-xs font-mono outline-none cursor-pointer"
           >
             <option value="all">All Types</option>
             <option value="CENTRAL">Central</option>
@@ -179,7 +178,7 @@ export default function WorkspacesPage() {
       {workspacesQuery.isPending ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((n) => (
-            <div key={n} className="p-5 rounded-2xl bg-slate-900/30 border border-card-border/80 min-h-[160px] flex flex-col justify-between">
+            <div key={n} className="p-5 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] min-h-[160px] flex flex-col justify-between">
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Skeleton className="w-4 h-4 shrink-0" />
@@ -198,19 +197,18 @@ export default function WorkspacesPage() {
           ))}
         </div>
       ) : filteredWorkspaces.length === 0 ? (
-        <div className="text-center py-24 border border-dashed border-card-border/50 rounded-2xl space-y-4">
-          <FolderGit2 className="w-14 h-14 text-slate-700 mx-auto" />
+        <div className="text-center py-24 border-2 border-dashed border-[#c2d0e6] bg-[#E6EEF8] rounded-2xl space-y-4 shadow-sm">
+          <FolderGit2 className="w-14 h-14 text-[#7A8C9E] mx-auto animate-pulse" />
           <div className="space-y-1.5 max-w-sm mx-auto">
-            <h4 className="text-sm font-semibold text-slate-300">No workspaces matching filters</h4>
-            <p className="text-xs text-slate-500 leading-relaxed">
+            <h4 className="text-sm font-semibold text-[#5A6E85]">No workspaces matching filters</h4>
+            <p className="text-xs text-slate-400 leading-relaxed">
               Active indexes and document memberships are scoped inside a workspace. Create or request access to start searching files.
             </p>
           </div>
           {canCreate && (
             <Button
               onClick={handleOpenCreateModal}
-              variant="outline"
-              className="border-card-border hover:bg-slate-800 text-slate-400 hover:text-slate-200 text-xs py-0 h-8 px-3 cursor-pointer mt-1"
+              className="border-none bg-[#E6EEF8] shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-slate-500 hover:text-[#3E4E63] text-xs py-0 h-8 px-3 cursor-pointer mt-1 rounded-full font-bold"
             >
               <Plus className="w-3.5 h-3.5 mr-1" />
               <span>Create first workspace</span>
@@ -223,16 +221,15 @@ export default function WorkspacesPage() {
             <Link
               key={ws.id}
               href={`/workspaces/${ws.id}`}
-              className="p-5 rounded-2xl bg-slate-900/30 border border-card-border/80 hover:border-accent-cyan/30 transition-all hover:bg-slate-900/60 shadow-md flex flex-col justify-between group relative overflow-hidden min-h-[160px]"
+              className="p-5 rounded-2xl bg-[#E6EEF8] shadow-[3px_3px_6px_#c2d0e6,-3px_-3px_6px_#ffffff] hover:shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] transition-all flex flex-col justify-between group relative overflow-hidden min-h-[160px]"
             >
-              {/* Card Glow overlay */}
-              <div className="absolute inset-0 bg-accent-cyan/0 group-hover:bg-accent-cyan/[0.01] transition-colors" />
+              <div className="absolute inset-0 bg-transparent" />
 
               <div className="space-y-3">
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex items-center gap-2 truncate">
-                    <FolderGit2 className="w-4 h-4 text-accent-cyan shrink-0" />
-                    <h3 className="text-sm font-bold text-slate-200 group-hover:text-accent-cyan transition-colors truncate">
+                    <FolderGit2 className="w-4 h-4 text-primary shrink-0" />
+                    <h3 className="text-sm font-bold text-[#3E4E63] group-hover:text-primary transition-colors truncate">
                       {ws.name}
                     </h3>
                   </div>
@@ -244,14 +241,14 @@ export default function WorkspacesPage() {
                   </span>
                 </div>
 
-                <p className="text-xs text-slate-500 line-clamp-3 leading-relaxed">
+                <p className="text-xs text-[#5A6E85] line-clamp-3 leading-relaxed">
                   {ws.description || "No description provided for this partition context."}
                 </p>
               </div>
 
-              <div className="flex justify-between items-center mt-4 pt-4 border-t border-card-border/40 text-[10px] text-slate-500 font-mono">
+              <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-200/50 text-[10px] text-[#7A8C9E] font-mono">
                 <span>Created {formatDate(ws.created_at)}</span>
-                <span className="flex items-center gap-1 text-slate-400 group-hover:text-accent-cyan transition-colors font-medium">
+                <span className="flex items-center gap-1 text-[#7A8C9E] group-hover:text-primary transition-colors font-medium">
                   <span>Enter</span>
                   <ArrowRight className="w-3 h-3 translate-x-0 group-hover:translate-x-1 transition-transform" />
                 </span>
@@ -266,24 +263,24 @@ export default function WorkspacesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-[#020408]/60 backdrop-blur-sm transition-opacity"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={handleCloseCreateModal}
           />
 
           {/* Modal Container */}
-          <div className="relative w-full max-w-md bg-[#080F1E] border border-card-border rounded-2xl shadow-2xl p-6 space-y-6 z-10 transition-all">
+          <div className="relative w-full max-w-md bg-[#E6EEF8] border-none rounded-2xl shadow-[8px_8px_16px_#c2d0e6,-8px_-8px_16px_#ffffff] p-6 space-y-6 z-10 transition-all">
             
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-card-border/50 pb-3">
+            <div className="flex items-center justify-between border-b border-slate-200/50 pb-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-accent-cyan" />
-                <h3 className="font-bold text-slate-200 text-sm font-mono tracking-wide uppercase">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <h3 className="font-bold text-[#3E4E63] text-sm font-mono tracking-wide uppercase">
                   Initialize Workspace
                 </h3>
               </div>
               <button
                 onClick={handleCloseCreateModal}
-                className="p-1 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-900 cursor-pointer"
+                className="p-1.5 rounded-full hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] hover:bg-[#E6EEF8] text-[#7A8C9E] hover:text-[#3E4E63] transition-all cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -291,7 +288,7 @@ export default function WorkspacesPage() {
 
             {/* Error handling alert */}
             {createMutation.isError && (
-              <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-rose-50 border-none text-rose-600 text-xs flex items-center gap-2 shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] font-bold">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>
                   {createMutation.error instanceof Error
@@ -306,77 +303,76 @@ export default function WorkspacesPage() {
               
               {/* Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="create-ws-name" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">
+                <Label htmlFor="create-ws-name" className="text-[10px] font-bold text-[#7A8C9E] uppercase tracking-widest block">
                   Workspace Name
                 </Label>
                 <div className="relative">
-                  <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <Input
                     id="create-ws-name"
                     type="text"
                     placeholder="e.g. Finance Research"
                     className={cn(
-                      "pl-10 pr-4 py-2 rounded-lg bg-slate-900 border border-card-border focus:border-accent-cyan/50 focus:outline-none text-xs text-slate-300 placeholder-slate-600 transition-colors",
-                      errors.name && "border-rose-500/50 focus:border-rose-500"
+                      "pl-10 pr-4 py-2 rounded-full bg-[#E6EEF8] border-none text-[#3E4E63] placeholder-slate-400 text-xs shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] focus-visible:ring-primary/20",
+                      errors.name && "shadow-[inset_2px_2px_4px_#ef4444,inset_-2px_-2px_4px_#ffffff]"
                     )}
                     {...register("name")}
                   />
                 </div>
                 {errors.name && (
-                  <p className="text-xs text-rose-400 mt-1">{errors.name.message}</p>
+                  <p className="text-xs text-rose-600 mt-1">{errors.name.message}</p>
                 )}
               </div>
 
               {/* Type Selector */}
               <div className="space-y-1.5">
-                <Label htmlFor="create-ws-type" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">
+                <Label htmlFor="create-ws-type" className="text-[10px] font-bold text-[#7A8C9E] uppercase tracking-widest block">
                   Workspace Type
                 </Label>
                 <select
                   id="create-ws-type"
                   className={cn(
-                    "w-full h-9 rounded-lg bg-slate-900 border border-card-border text-slate-300 px-3 focus:outline-none focus:border-accent-cyan/50 cursor-pointer font-mono",
-                    errors.workspace_type && "border-rose-500/50"
+                    "w-full h-9 rounded-full bg-[#E6EEF8] border-none text-[#3E4E63] px-3 focus:outline-none cursor-pointer font-mono shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] focus:ring-1 focus:ring-primary/20",
+                    errors.workspace_type && "shadow-[inset_2px_2px_4px_#ef4444,inset_-2px_-2px_4px_#ffffff]"
                   )}
                   {...register("workspace_type")}
                 >
-                  <option value="TEAM">Team (Shared workspace for organization members)</option>
-                  <option value="CENTRAL">Central (Global indexing boundary)</option>
-                  <option value="PERSONAL">Personal (Private sandboxed workspace)</option>
+                  <option value="TEAM" className="bg-[#E6EEF8] text-[#3E4E63]">Team (Shared workspace for organization members)</option>
+                  <option value="CENTRAL" className="bg-[#E6EEF8] text-[#3E4E63]">Central (Global indexing boundary)</option>
+                  <option value="PERSONAL" className="bg-[#E6EEF8] text-[#3E4E63]">Personal (Private sandboxed workspace)</option>
                 </select>
                 {errors.workspace_type && (
-                  <p className="text-xs text-rose-400 mt-1">{errors.workspace_type.message}</p>
+                  <p className="text-xs text-rose-600 mt-1">{errors.workspace_type.message}</p>
                 )}
               </div>
 
               {/* Description */}
               <div className="space-y-1.5">
-                <Label htmlFor="create-ws-desc" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">
+                <Label htmlFor="create-ws-desc" className="text-[10px] font-bold text-[#7A8C9E] uppercase tracking-widest block">
                   Description
                 </Label>
                 <textarea
                   id="create-ws-desc"
                   rows={3}
                   placeholder="Summarize the core grounding context and boundaries of this workspace..."
-                  className="w-full p-3 rounded-lg bg-slate-900 border border-card-border text-slate-300 placeholder-slate-600 focus:outline-none focus:border-accent-cyan/50 transition-colors resize-none"
+                  className="w-full p-3 rounded-2xl bg-[#E6EEF8] border-none text-[#3E4E63] placeholder-slate-400 focus:outline-none resize-none shadow-[inset_2px_2px_4px_#c2d0e6,inset_-2px_-2px_4px_#ffffff] focus:ring-1 focus:ring-primary/20"
                   {...register("description")}
                 />
               </div>
 
               {/* Buttons */}
-              <div className="flex justify-end gap-2.5 pt-2 border-t border-card-border/50">
+              <div className="flex justify-end gap-2.5 pt-2 border-t border-slate-200/50">
                 <Button
                   type="button"
                   onClick={handleCloseCreateModal}
-                  variant="outline"
-                  className="h-9 py-0 px-4 border-card-border hover:bg-slate-900 text-slate-400 hover:text-slate-200 cursor-pointer"
+                  className="h-9 py-0 px-4 border-none bg-[#E6EEF8] shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] hover:shadow-[inset_1.5px_1.5px_3px_#c2d0e6,inset_-1.5px_-1.5px_3px_#ffffff] text-slate-500 hover:text-[#3E4E63] cursor-pointer rounded-full font-bold"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={createMutation.isPending}
-                  className="flex items-center gap-1.5 py-0 h-9 px-4 rounded-lg bg-gradient-to-r from-accent-indigo to-accent-violet hover:brightness-110 shadow-md font-semibold text-white border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-1.5 py-0 h-9 px-4 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 hover:brightness-110 shadow-[2px_2px_4px_#c2d0e6,-2px_-2px_4px_#ffffff] font-bold text-white border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {createMutation.isPending ? (
                     <Loader2 className="w-4 h-4 animate-spin text-white" />
